@@ -1,0 +1,67 @@
+{% extends 'base_app.html' %}
+
+{% block extrahead %}
+    <style type="text/css" media="all">@import url(/static/styles/reset.css)</style>
+    <link href='/static/css/notebookNg.css' rel='stylesheet' type='text/css'></link>
+    <script src='/static/external/jquery.js' type='text/javascript'></script>
+    <script src='/static/external/jquery.ifixpng.js' type='text/javascript'></script>
+    <script src='/static/external/jquery.contextmenu.js' type='text/javascript'></script>
+    <script src='/static/external/jquery.dom.js' type='text/javascript'></script>
+    <script src='/static/js/BrowserDetect.js' type='text/javascript'></script>
+
+    <script src='/static/js/Notebook.js' type='text/javascript'></script>
+    <script src='/static/js/Indicator.js' type='text/javascript'></script>
+    <script src='/static/js/Cell.js' type='text/javascript'></script>
+    <script src='/static/js/Async.js' type='text/javascript'></script>
+    <script src='/static/js/Delegator.js' type='text/javascript'></script>
+    <script src='/static/js/DOM.js' type='text/javascript'></script>
+    <script src='/static/js/SaveLoad.js' type='text/javascript'></script>
+    <script src='/static/js/Spawner.js' type='text/javascript'></script>
+    <script src='/static/js/TreeBranch.js' type='text/javascript'></script>
+
+    <script src='/static/js/Completer.js' type='text/javascript'></script>
+    <script src='/static/js/Util.js' type='text/javascript'></script>
+    <script src='/static/external/json2.js' type='text/javascript'></script>
+    <script src='/static/external/jquery.dimensions.js' type='text/javascript'></script>
+    <script src='/static/external/jquery.fieldselection.js' type='text/javascript'></script>
+    <script src='/static/external/jqModal.dev.js' type='text/javascript'></script>
+{% endblock %}
+
+{% block content %}
+
+ <div id='status'><span id='status_message'>Loading ...</span></div>
+  <div id='nbar'>
+    <div id="titlecontainer"><span id="statictitle">Untitled</span></div>
+
+    <div id='controls' class='controls'>
+    <ul>
+      <li><img class="buttonimg" id='savebutton' src="/static/images/SaveButton.png"></img></li>
+      <li><img class="buttonimg" id='saveclosebutton' src="/static/images/SaveAndCloseButton.png"></img></li>
+      <li><img class="buttonimg" id='print_list' src="/static/images/PrintButton.png"></img></li>
+          <ul id="printers">
+            <li><a href="print/python">Python source</a></li>
+            <li><a href="print/rest">ReStructuredText</a></li>
+
+            <li><a href="print/pdf">PDF</a></li>
+          </ul>
+      <li><img class="buttonimg" id='interruptbutton' src="/static/images/InterruptButton.png"></img></li>
+      <li><img class="buttonimg" id='killkernelbutton' src="/static/images/KillButton.png"></img></li>
+      <!--
+      <li><span class="button" id="savebutton"><span>Save</span></span></li>
+      <li><span class="button" id="saveclosebutton"><span>Save & Close</span></span></li>
+      <li><span class="button" id="print_list"><span>Print</span><img src='/static/images/bullet_arrow_down.png'/></li>
+      <li><span class="button" id="interruptbutton"><span>Interrupt</span></span></li>
+      <li><span class="button" id="killkernelbutton"><span>Kill</span></span></li>
+      -->
+    </ul>
+   </div>
+  </div>
+
+  <div id="notebook"></div>
+  <div id='foot'>
+    <!--Powered by <a target='_blank' href='http://www.knoboo.com'>Knoboo</a>-->
+    <input id='auxinput' class='auxinput'></input><span id='auxdisplay'></span>
+  </div>
+
+{% endblock %}
+

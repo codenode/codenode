@@ -1,0 +1,118 @@
+/*** kbar - knoboo bar ***/
+
+#kbar {
+    width: auto;
+    height: 40px;
+    position: relative;
+}
+
+#topline {
+    height: 4px;
+    width: auto;
+    background: #E7E8E9;
+    border-bottom: 1px solid #CFCFCF;
+}
+
+#logo {
+    margin-left:16px;
+    margin-top:6px;
+}
+#logo img {
+    padding:0px;
+    margin:0px;
+    border: none;
+}
+
+/* Login and out bar */
+#userbar {
+    position: absolute;
+    top: 4px;
+    right: 0px;
+    margin-right:30px;
+    background: url('/static/img/control.png') repeat-x scroll left;
+    padding:2px;
+    padding-top:0px;
+    border:1px solid #C0C0C0;
+    border-top:none;
+}
+
+#userbar ul {
+    padding:0px;
+    padding-top:3px;
+    margin:0px;
+}
+
+#userbar li {
+    display:inline;
+    text-decoration:none;
+    margin:2px 0px 0px 4px;
+    padding-right:8px;
+    font-size:13px;
+    border-right: 1px solid #252525;
+}
+
+#userbar a {
+    color: #183078;
+    font-family:arial, sans-serif;
+}
+#userbar span.sep {
+    padding:0px 2px 0px 4px;
+}
+#user {
+    font-weight:bold;
+    font-size:14px;
+}
+/* Dialog */
+ 
+.dialogWindow {
+    display: none;
+    position: fixed;
+    top: 17%;
+    left: 50%;
+    margin-left: -300px;
+    width: 640px;
+    background-color: #FFF;
+    border-top: 2px solid #CFCFCF;
+    border-left: 2px solid #CFCFCF;
+    border-right: 2px solid #4F4F4F;
+    border-bottom: 2px solid #4F4F4F;
+    padding: 16px;
+    font-family:sans-serif;
+}
+
+.dialogWindow h3 {
+    text-align:center;
+    margin:4px;
+    font-size:130%;
+}
+.dialogWindow hr {
+    margin:0px;
+    height:1px;
+    background-color:#F5F5F5;
+}
+.dialogWindow p {
+    margin-bottom:4px;
+}
+#attach_buttons {
+    margin:8px; 
+    text-align:center;
+    font-size:120%;
+}
+.jqmOverlay { 
+    background-color: #000; 
+}
+.explain {
+    font-size:80%;
+    margin:0px;
+    color:#AFAFAF;
+    text-align:center;
+}
+/* Fixed posistioning emulation for IE6
+     Star selector used to hide definition from browsers other than IE6
+     For valid CSS, use a conditional include instead 
+* html .dialogWindow  {
+     position: absolute;
+     top: expression((document.documentElement.scrollTop || document.body.scrollTop) + Math.round(17 * (document.documentElement.offsetHeight || document.body.clientHeight) / 100) + 'px');
+}
+*/
+

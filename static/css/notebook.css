@@ -1,0 +1,480 @@
+
+/*** General ***/
+body {
+    height: 100%;
+    overflow: hidden;
+    max-height: 100%;
+    min-width: 750px;
+    border-top: 2px solid #252525;
+}
+
+/* Kernel indicator */
+
+#kernel_indicator {
+    /*border: 1px dotted yellow;*/
+    background-image: url(/static/images/pythonlogo.png);
+    background-repeat: no-repeat;
+    position:static;
+    left:2px;
+    height: 28px;
+    width: 84px;
+}
+
+/*******************************************/
+/* Title container */
+
+#titlecontainer {
+    width: 20%;
+    float: left;
+    font-family: sans-serif;
+    font-style: italic;
+    margin-top: 48px;
+    margin-left: 20px;
+}
+
+#statictitle {
+    position: relative;
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
+#statictitle {
+    cursor: pointer;
+}
+
+#changetitle {
+    font-family: sans-serif;
+    font-style: normal;
+    border: 1px solid black;
+    padding:2px;
+}
+
+/*******************************************/
+/* Message Indicator */
+
+#indicator {
+    position: absolute;
+    bottom: 0px;
+    width: auto;
+    height: 20px;
+    margin-left: 20%;
+    float: left;
+}
+
+span.curmsg {
+    display: none;
+    background-color: yellow;
+    padding: 3px 10px;
+    font-weight: bold;
+}
+
+/*******************************************/
+
+/*******************************************/
+/* Notebook Controls */
+
+#controls {
+    float: right;
+    margin:50px 6px 0px 0px;
+    z-index: 0;
+}
+
+#controls li {
+    display: inline;
+    color: #111111;
+    background:transparent url(/static/images/button.png) repeat-x scroll 0%;
+    border:1px solid #818F9F;
+    padding: 4px 10px;
+    margin-left: 4px;
+    font-family:sans-serif;
+    font-weight:bold;
+    font-size:12px;
+    cursor: pointer;
+    z-index: 0;
+}
+
+/*******************************************/
+
+
+/*******************************************/
+/* The Notebook */
+
+#notebook {
+    /*border: 1px solid green;*/
+    top: 70px;
+    bottom: 0px;
+    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: absolute;/* this is bad?*/
+    display: block;
+    width: 100%;
+    z-index: 3;
+    border-top:2px solid #DDDEDF;
+    padding-top:4px;
+    background-color:#FFF;
+}
+
+#main {
+    /*border-style: solid;
+    border-color: #252525;
+    border-width: 0px 2px;
+    /*border: 1px dotted blue;*/
+    overflow: visible;
+    height: 100%;
+    bottom: 0px;
+}
+
+/*******************************************/
+/** Cells **/
+
+.cell {
+    /*border: 1px solid black;*/
+    height: auto;
+    width: auto;
+    margin-bottom: 4pt;
+    margin-right: 6px;
+    z-index: 9;
+    float: right;
+}
+
+.cell.group {
+    height: auto;
+    width: 100%;
+    position: relative;
+    display: block;
+    margin-right: 6px;
+    margin-top: 0px;
+    z-index: 9;
+}
+
+.cell .label {
+    /*border: 1px solid yellow;*/
+    width: 20px;
+    height: 100%;
+    float: left;
+    clear: none;
+}
+
+.cell .contents {
+    /*border: 1px solid blue;*/
+    /*font-size: 10pt;*/
+    height: auto;
+    width: 95%;
+    float: left;
+    clear: none;
+}
+
+
+.cell.group > .contents {
+    height: 100%;
+    width: 98%;
+    float: right;
+    margin-right: 6px;
+    display: block;
+}
+
+
+.cell .contents textarea.input {
+    height: auto;
+    overflow: hidden;
+    /*width: 95%;*/
+}
+
+.cell .bracket {
+    /*border: 1px solid red;*/
+    position: relative;
+    width: 6px;
+    height: 100%;
+    float: right;
+    z-index: 8;
+    cursor: pointer;
+}
+
+.cell.group > .bracket {
+    float: none;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin-right: 2px;
+}
+
+.spawner {
+    /*border: 1px solid orange;*/
+    height: 5px;
+    width: 100%;
+    float: left;
+    clear: left;
+    z-index: 4;
+}
+
+.spawner textarea.spawninput {
+    /*border: 1px dashed gray;*/
+    border-style: none;
+    height: 5px;
+    width: 100%;
+    overflow: hidden;
+    float: left;
+    clear: both;
+    z-index: 4;
+    margin: 0px 0px;
+    cursor: pointer;
+    cursor: vertical-text;
+}
+
+textarea.spawninput:hover {
+    /*border: 1px dotted black;*/
+    /*background-color: black;*/
+    z-index: 100;
+}
+
+textarea.spawninput:focus {
+    background-color: black;
+}
+
+/******************************************/
+/** Specific cell content styles **/
+.cell .contents textarea.input {
+    /*font-family: monospace;
+    line-height: normal;*/
+    width: 90%;
+    max-width: 900px;
+    border-style: none;
+}
+
+.cell .contents textarea.outputtext {
+    /*font-family: monospace;*/
+    width: 100%;
+    overflow: auto; 
+    border-style: none;
+}
+
+.cell .contents textarea.outputtext:focus {
+    outline: 1px dotted black;
+}
+
+.cell.title .contents textarea {
+    font-family: sans-serif;
+    font-weight: bolder;
+    font-size: 30pt;
+}
+
+.cell.subtitle .contents textarea {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 18pt;
+}
+
+.cell.section .contents textarea {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 20pt;
+}
+
+.cell.subsection .contents textarea {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 15pt;
+}
+
+.cell.text .contents textarea {
+    font-family: sans-serif;
+    font-size: 10pt;
+}
+
+/***********************************/
+/** specific special style stuff **/
+
+/* line over section style*/
+/*
+.cell.section .contents {
+    border-width: 1px 0 0 0;
+    border-style: solid;
+    border-color: black;
+}*/
+
+.label div.tablight {
+    left: 0;
+    bottom: 0;
+    width: 5px;
+    height: 5px;
+    background-color: white;
+   /* border: 1px dotted black;*/
+}
+
+.label div.number {
+    right: 0;
+    bottom: 0;
+    font-size: 7pt;
+    /*font-style: italic;*/
+}
+
+.cell.input div.number {
+    color: blue;
+}
+
+/* .output, output cells */
+.cell.output div.number {
+    color: red;
+}
+
+.cell.output .contents > a.outputimage:focus {
+    /*height: auto;
+    /*display: block;*/
+    outline: 1px dotted black;
+}
+
+/******************************************/
+
+/******************************************/
+/** Specific bracket Style **/
+
+img.bracket_top {
+    display: block;
+}
+
+.bracket_style {
+    background-image: url(/static/images/bracket-top1.png);
+    background-repeat: no-repeat;
+    float: left;
+    width: 6px;
+    height: 6px;
+    z-index: 8;
+}
+
+.bracket_body_open {
+    background-image: url(/static/images/vert.png);
+    background-repeat: repeat-y;
+    float:right;
+    /*clear: right;*/
+    width: 1px;
+    height: 100%;
+    z-index: 8;
+}
+
+.bracket_bot {
+    background-image: url(/static/images/bracket-bot1.png);
+    background-repeat: no-repeat;
+    float: right;
+    /*clear: right;*/
+    width: 6px;
+    height: 1px;
+    z-index: 8;
+}
+
+.bracketmask {
+    background-image: url(/static/images/bracketslant.png);
+    background-repeat: no-repeat;
+    background-color: #454f99;
+    width: 6px;
+    height: 6px;
+    float: right;
+}
+
+.bracketmaskimg {
+    background-color: #454f99;
+    width: 6px;
+    height: 6px;
+    float: right;
+}
+
+.bracketbody {
+    background-color: #454f99;
+    width: 1px;
+    height: auto;
+    float: right;
+}
+
+.bracketng {
+    /*border: 1px solid red;*/
+    border-color: #454f99;
+    border-width: 1.5px 1.5px 1.5px 0px;
+    border-width: 1px 1px 1px 0px;
+    /*border-width: 2px 2px 2px 0px;*/
+    border-style: solid;
+    background-color: #ffffff;
+    width: 6px;
+    height: 100%;
+    float: right;
+    z-index: 8;
+    cursor: pointer;
+}
+
+.cell.group > .bracketng {
+    float: none;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin-right: 0px;
+}
+
+
+/**********************************/
+/** Tab Completer **/
+
+#completions {
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 12pt;
+    line-height: normal;
+    position: absolute;
+    width: 92%;
+    height: auto;
+    left: 46px;
+    padding:4px;
+    background-color:#FAFAFA;
+    border: #BFBFBF solid 2px;
+    z-index: 22;
+    opacity:0.8;
+}
+
+span.completionword {
+    float: left;
+    padding: 2px 5px;
+}
+
+span.completionword:hover {
+    color: blue;
+    cursor:pointer;
+}
+
+
+/*****************************/
+
+.botpad {
+    position: static;
+    height: 300px;
+    width: 100%;
+    /*float: left;*/
+    float: right;
+    cursor: pointer;
+    cursor: vertical-text;
+}
+
+/*****************************/
+/** Foot bar at bottom    **/
+
+#foot {
+    /*border: 1px dotted purple;*/
+    background-color: white;
+    /*border-top: 1px solid gray;*/
+    height: 1px;
+    bottom: 0px;
+    position: absolute;
+    width: 0;
+    z-index: 5;
+}
+
+#auxinput {
+    height: 0px;
+    width: 0px;
+    border-style: none;
+    float: left;
+}
+
+#auxdisplay {
+    height: 0px;
+    width: auto;
+    float: right;
+}

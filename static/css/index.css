@@ -1,0 +1,125 @@
+body {
+    background-color:#FAFAFA;
+}
+#container{
+    width:860px;
+    margin:auto;
+}
+
+#top {
+    margin-top:20px;
+    margin-bottom:10px;
+    border-bottom: 2px solid #A9A9A9;
+}
+#top img {
+    float:left;
+    border:none;
+}
+#top h1 {
+    padding:45px 0px 0px 4px;
+    text-align:right;
+    font-size:18px;
+    color:#183078;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+#incoming {
+    float:right;
+    margin:4px;
+}
+
+#login {
+    margin:20px;
+    padding:5px;
+    background-color:#F0F0F0;
+    border:1px solid #C0C0C0;
+}
+#login p {
+    margin:2px;
+    padding:3px;
+    background-color:#C5C5C5;
+    border:1px solid #CCC;
+    color:#252525;
+    font-weight:bold;
+    font-size:110%;
+}
+#login input {
+    margin:4px;
+    margin-left:5px;
+    padding:1px;
+}
+#login .in {
+    padding:6px;
+    text-align:center;
+}
+.error {
+    text-align:center;
+    font-weight:bold;
+    background-color:#FFAAAA;
+    border: 1px solid #F00000;
+    padding:4px;
+    margin:6px 0px;
+}
+
+#create {
+    text-align:center;
+    background-color:#CEDFF2;
+    border: 1px solid #C0C0C0;
+    margin:20px;
+    padding:6px;
+}
+#create a {
+    font-weight:bold;
+    font-size:22px;
+}
+#description {
+    padding-top:6px;
+}
+#description .bold {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:120%;
+    font-weight:bold;
+}
+#description li {
+    margin:16px 0;
+    list-style:square;
+}
+#features {
+    padding-bottom:0px;
+    margin-top:20px;
+    text-decoration:underline;
+}
+
+/*** Below is for 'signup.html' ***/
+
+#info {
+    margin:16px;
+}
+#info h2 {
+    margin:10px;
+    border-bottom: 2px solid #C0C0C0;
+}
+#info input {
+    padding:1px;
+    margin:0px 8px;
+}
+#info .in {
+    margin:14px 8px;
+    padding:6px;
+    background-color:#F0F0F0;
+    border-bottom: 2px solid #CEDFF2;
+    border-right: 2px solid #CEDFF2;
+}
+#info .require {
+    font-size:90%;
+}
+
+#errors {
+    display:none;
+    text-align:center;
+    font-weight:bold;
+    background-color:#FFAAAA;
+    border: 1px solid #F00000;
+    padding:4px;
+}
+

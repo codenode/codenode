@@ -1,0 +1,131 @@
+<!--Be in Quirks mode you explorer of the internet --> 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Knoboo Bookshelf</title>
+    <link href='/static/css/global.css' rel='stylesheet' type='text/css'></link>
+    <link href='/static/css/bookshelf.css' rel='stylesheet' type='text/css'></link>
+    <script src='/static/external/jquery.js' type='text/javascript'></script>
+    <script src='/static/external/jquery-ui.min.js' type='text/javascript'></script>
+    <script src='/static/external/jquery.color.js' type='text/javascript'></script>
+    <script src='/static/external/jquery.dom.js' type='text/javascript'></script>
+    <script src='/static/external/jquery.contextmenu.js' type='text/javascript'></script>
+    <script src='/static/external/jquery.curvycorners.min.js' type='text/javascript'></script>
+    <script src='/static/external/jqModal.dev.js' type='text/javascript'></script>
+    <script src='/static/external/splitter.js' type='text/javascript'></script>
+    <script src='/static/js/bookshelf.js' type='text/javascript'></script>
+  </head>
+  <body>
+    <div id='topline'></div>
+    <div id='logo'>
+      <a target='_blank' href='http://www.knoboo.com'><img width='100' height='20' src='/static/img/logo.png'/></img></a>
+    </div>
+    <div id='userbar'>
+      <ul>
+        <li id='user'>{{ user }}</span></li>
+        <li><a id='settings' href='${url_root}settings'>Settings</a></li>
+        <li><a id='help' target='_blank' href='${url_root}help'>Help</a></li>
+        <li id='logout' style='border:none'><a href="/accounts/logout/">Logout</a></li>
+      </ul>
+    </div>
+    <div id='status'><span id='status_message'></span></div>
+    <div id='notebooks'>
+      <div id='control'>
+        <span id="options">
+          <span id="new_notebook" class='button'>&nbsp;
+            <img src='/static/img/notebook_add.png'/><span>New Notebook</span><img src='/static/img/bullet_arrow_down.png'/>
+          </span>
+          <ul id="notebook_list">
+            <li><a target='_blank' href="new?system=python">Python Notebook</a></li>
+            <li><a target='_blank' href="new?system=sage">Sage Notebook</a></li>
+          </ul>
+          <span id="new_folder" class='button'>&nbsp;<img src='/static/img/folder_add.png'/><span>New Folder</span></span>
+          <span id="attach_data" class='button'>&nbsp;<img src='/static/img/attach.png'/><span class='jqModal'>Attach</span></span>
+          <span id="archive_button" class='button'>&nbsp;<img src='/static/img/archive1.png'/><span>Archive</span></span>
+          <span id="trash_button" class='button'>&nbsp;<img src='/static/img/bin_closed.png'/><span>Trash</span></span>
+          <span id="refresh">Refresh</span>
+        </span>
+        <form id="search">
+            <input value='Search Notebooks' type='text' name='searchquery'/>
+            <!--<span id="searchbutton" class='button'><span>Search Notebooks</span></span>-->
+        </form>
+      </div>
+      <div id='splitpane'>
+        <div id='firstpane-contain'>
+          <div class='navigation'>
+            <div class='scroll-contain'>
+              <div class='nav-list'>
+                <div class='nav-list-sec' id='general-folders'>
+                  <ul>
+                    <li><div class='area_selected'><div id='_root' class='drop all'><span class='droppad'>All Notebooks</span></div></div></li>
+                    <li><div class='area_selected'><div id='_trash'class='drop trash'><span class='droppad'>Trash</span></div></div></li>
+                    <li><div class='area_selected'><div id='_archive' class='drop archive'><span class='droppad'>Archive</span></div></div></li>
+                  </ul>
+                </div>
+                <div class='nav-list-sec' id='user-folders'>
+                  <span>All Folders:</span>
+                  <ul>
+                  </ul>
+                </div>
+             </div>
+            </div>
+          </div>
+          <div class='nav-info pane-foot'></div>
+        </div>
+        <div id='secondpane-contain'>
+          <div class='notebookviewpane'>
+            <div class='infobar'>
+              <span id='location'>
+                <form id='rename-folder'>
+                  <input class='location-name'></input>
+                </form>
+              </span>
+              <span class='pointer' id='delete-folder'>Delete Folder</span>
+            </div>
+            <div class='datatable'>
+              <table class="notebookview" cellspacing="0">
+                <thead>
+                  <td id='column_checked'>&nbsp;</td>
+                  <td id='column_title' class='sortable'>Title</td>
+                  <td id='column_system' class='sortable'>System</td>
+                  <td id='column_lastmodified' class='sortable'>Date</td>
+                </thead>
+                <tbody class='notebooktbody'></tbody>
+              </table>
+            </div>
+            <div class='pager pane-foot'></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:none" id="ctxmenu">
+      <ul>
+        <li id="ctx_all">All</li>
+        <li id="ctx_folder">Folder</li>
+        <li id="ctx_trash">Trash</li>
+        <li id="ctx_archive">Archive</li>
+      </ul>
+    </div>
+
+    <div class="dialogWindow" id="attach_overlay">
+      <h3>Attach data to your notebooks</h3>
+      <p class="explain">(e.g. files or images for use in a notebook session.)</p>
+      <iframe id='upiframe' src='attach'></iframe>
+      <form id="remote_attach">
+        <hr>
+        <p>or, Attach data from a URL on the internet:</p>
+        <input type='text' name='remotefile' width='100' />
+        <span class="explain">(e.g. 'http://www.example.com/mydatafile.txt')</span>
+        <hr style="margin:20px 0">
+      </form>
+      <p id="attach_status"></p>
+      <div id="attach_buttons"> 
+        <div style='color:#F00;font-size:14px;'>This functionality is a work in progress.  Files put in "$$HOME/.knoboo/data/"</div>
+        <button>Attach</button>
+        <button class='jqmClose' id='attach_cancel_btn'>Cancel</button>
+      </div>
+    </div><div id="fbcontainer" class="dialogWindow"></div> 
+  </body>
+</html>
+
