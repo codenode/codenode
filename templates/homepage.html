@@ -1,31 +1,24 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
- <head>
-   <title>Knoboo - Interactive Programming Notebook for the Web Browser.</title>
-   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-   <link rel='stylesheet' type='text/css' href='/static/css/index.css'></link>
-   <script type='text/javascript'>
-    f = function() {document.getElementById("username").focus();}
-   </script>
- </head>
- <body onload=f()>
- <div id='container'>
-    <div id='top'>
-      <img src='/static/img/knoboo-banner.png'></img>
-      <h1>Knoboo - Interactive Programming Notebook for the Web Browser.</h1>
-    </div>
+{% extends 'base.html' %}
+
+{% block title %} Knoboo - Interactive Programming Notebook for the Web Browser. {% endblock %}
+
+{% block content %}
     <div id='incoming'>
         <div id='login'>
           <p>Login</p>
-        <form action="/accounts/login/?next=/bookshelf" method="post">
-             <div class='in'>Username:<input id="username" type="text" name="username" value=""/></div>
-             <div class='in'>Password:<input type="password" name="password" value=""/></div>
+            {% if form.errors %}
+            <span class="error">Login failed, please try again.</span>
+            {% endif %}
+        <form action="/accounts/login/?next=/bookshelf/" method="post">
+             {# {% if form.username.errors %} <span class="error">{{ form.username.errors|join:", " }}</span>{% endif %} #}
+             <div class='in'>Username: {{ form.username }}</div>
+             {# {% if form.password.errors %} <span class="error">{{ form.password.errors|join:", " }}</span>{% endif %} #}
+             <div class='in'>Password: {{ form.password }}</div>
              <input type="submit" value="&nbsp;&nbsp;&nbsp;Login&nbsp;&nbsp;&nbsp;"/>
           </form>
         </div>
-
         <div id='create'>
-             <a href='/accounts/register'>Create an Account</a>
+             <a href='/accounts/register/'>Create an Account</a>
         </div>
     </div>
   <div id='description'>
@@ -37,6 +30,4 @@
     <li>Publish or print your completed notebooks to share with everybody.</li>
     </ul>
   </div>
- </div>
- </body>
-</html>
+{% endblock %}

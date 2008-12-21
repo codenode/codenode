@@ -5,8 +5,8 @@ from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'homepage.html'}),
+urlpatterns = patterns('django.views.generic.simple',
+    (r'^$', 'redirect_to', {'url':'/accounts/login/'}), #uses template/homepage.html 
     (r'^bookshelf/', include('apps.bookshelf.urls')),
     (r'^notebook/', include('apps.notebook.urls')),
     (r'^accounts/', include('apps.registration.urls')),
@@ -14,7 +14,6 @@ urlpatterns = patterns('',
 )
 
 if settings.DEBUG:
-    print os.path.join(settings.PROJECT_PATH, 'static')
     urlpatterns += patterns('',
         (r'^static/(.*)', 'django.views.static.serve', {'document_root': os.path.join(settings.PROJECT_PATH, 'static')}),
 )

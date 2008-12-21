@@ -3,7 +3,6 @@ Views which allow users to create and activate accounts.
 
 """
 
-
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -12,7 +11,6 @@ from django.template import RequestContext
 
 from apps.registration.forms import RegistrationForm
 from apps.registration.models import RegistrationProfile
-
 
 def activate(request, activation_key,
              template_name='registration/activate.html',

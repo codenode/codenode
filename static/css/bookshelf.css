@@ -140,11 +140,7 @@ ul#notebook_list li a {
 .nav-list-sec {
     font-weight: bold;
     font-size: 13px;
-}
-
-ul, li {
-    list-style: none;
-    padding-left: 0;
+    margin-top:14px;
 }
 
 .drop {
