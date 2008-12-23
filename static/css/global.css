@@ -119,14 +119,16 @@ blockquote, q {
     font-weight:bold;
     font-size:22px;
 }
-#createh2 {
+h2 {
     font-size:22px;
     font-weight:bold;
     text-align:left;
-    padding:5px;
-    margin:32px 0 8px 0;
+    padding:4px 0 2px 4px;
+    margin:32px 0px 34px 0px;
     background-color:#CEDFF2;
-    border:1px solid #C0C0C0;
+    border:none;
+    border-bottom:1px solid #C0C0C0;
+    border-right:1px solid #C0C0C0;
 }
 #createform p {
     margin:20px 0;

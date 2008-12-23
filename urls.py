@@ -10,6 +10,7 @@ urlpatterns = patterns('django.views.generic.simple',
     (r'^bookshelf/', include('apps.bookshelf.urls')),
     (r'^notebook/', include('apps.notebook.urls')),
     (r'^accounts/', include('apps.registration.urls')),
+    (r'^settings/', include('apps.usersettings.urls')),
     (r'^admin/(.*)', admin.site.root),
 )
 

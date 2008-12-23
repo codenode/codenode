@@ -9,13 +9,10 @@ from apps.bookshelf import models as bookshelf_models
 from apps.notebook import models as notebook_models
 
 @login_required
-def bookshelf(request, template_name='bookshelf/bookshelf.html', extra_context={}):
+def bookshelf(request, template_name='bookshelf/bookshelf.html'):
     """Render the Bookshelf interface.
     """
-    context = RequestContext(request)
-    for key, value in extra_context.items():
-        context[key] = callable(value) and value() or value
-    return render_to_response(template_name, {'user':request.user}, context_instance=context)
+    return render_to_response(template_name, {'user':request.user})
 
 @login_required
 def load_bookshelf_data(request):

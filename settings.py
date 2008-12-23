@@ -65,7 +65,12 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'knoboo.urls'
+
+#for the registration functionality:
 ACCOUNT_ACTIVATION_DAYS = 3
+#for the user settings functionality
+AUTH_PROFILE_MODULE = "usersettings.UserSettings"
+
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_PATH, 'templates')
@@ -79,5 +84,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'apps.registration',
     'apps.bookshelf',
-    'apps.notebook'
+    'apps.notebook',
+    'apps.usersettings'
 )
