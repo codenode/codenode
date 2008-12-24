@@ -66,10 +66,14 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'knoboo.urls'
 
-#for the registration functionality:
+#New user registration functionality:
 ACCOUNT_ACTIVATION_DAYS = 3
-#for the user settings functionality
+
+#User personal settings functionality:
 AUTH_PROFILE_MODULE = "usersettings.UserSettings"
+
+#Available types of notebooks:
+NOTEBOOK_TYPES = ["python", "sage"]
 
 
 TEMPLATE_DIRS = (

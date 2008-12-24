@@ -22,21 +22,18 @@ def usersettings(request, template_name='usersettings/usersettings.html'):
     if request.method == "POST":
         userform = forms.UserForm(data=request.POST, instance=request.user)
         passform = PasswordChangeForm(request.user, data=request.POST)
-        settingsform = forms.UserSettingsForm(request.POST, instance=request.user)
+        settingsform = forms.UserSettingsForm(data=request.POST, instance=profile)
         if userform.is_valid():
-            print "userform => ", userform.cleaned_data
             userform.save()
         if passform.is_valid():
-            print "passform => ", passform.cleaned_data
             passform.save()
         if settingsform.is_valid():
-            print "settingsform => ", settingsform.cleaned_data
             settingsform.save()
-        return HttpResponseRedirect("/settings/")
+        return HttpResponseRedirect("/bookshelf/")
     else:
         userform = forms.UserForm(instance=request.user)
         passform = PasswordChangeForm(request.user)
-        settingsform = forms.UserSettingsForm()
+        settingsform = forms.UserSettingsForm(instance=profile)
     return render_to_response(template_name, {'userform':userform, 'passform':passform, 'settingsform':settingsform, 'user':request.user})
 
 

@@ -12,9 +12,6 @@ TODO:
 BookShelf = {
 	
     _view_map: {'all':0, 'trash':1, 'archive':2, 'folder':3}, //folder needs to be generalized
-    _current_view: 'all',
-    _update_interval: 5000, /*millisecond interval to check for new changes*/
-    _register_update: true, /*bool to be set if user is actively viewing/manipulating the bookshelf*/
 
 	init: function() {
         if ($.browser.msie) BookShelf.ieMessage();
@@ -53,7 +50,6 @@ BookShelf = {
         var sort = BookShelf.getSortState();
         var url = 'load?location=' + folder + '&' + sort; 
         $.getJSON(url, BookShelf.populateTable);
-        //$(window).focus(BookShelf.isUpdateNeeded);
     },
 
     sectionMessage: function() {
@@ -80,6 +76,8 @@ BookShelf = {
     populateTable: function(data) {
         $('tbody.notebooktbody').empty();
         $('#table_empty, #empty-trash').remove();
+
+        /* The are no Notebooks in this section, so display appropiate message */
         if (data.length < 1) {
             BookShelf.sectionMessage();
             return;
@@ -88,11 +86,13 @@ BookShelf = {
         /* Enable the 'Empty Trash' functionality */
         var hash = window.location.hash.split('#')[1];
         if (hash == 'trash') {
-            var p = $.P({id:"empty-trash", class:"pointer"}, " Empty Trash");
+            var p = $.P({id:"empty-trash"}, " Empty Trash");
             $('table.notebookview').before(p);
-            $("#empty-trash").click(BookShelf.emptyTrash);
+            $("#empty-trash").addClass("pointer").click(BookShelf.emptyTrash);
         }
 
+        /* Decide if the Notebooks should open in a new window (determined by user settings):*/
+        var nbtarget = $("#notebook_list li a").attr("target")?"_blank":"";
         var trs = [];
         for (var i in data) {
             var nbid = data[i][0];
@@ -104,7 +104,7 @@ BookShelf = {
             var nbpath = '/notebook/'+nbid;
 
             var td1 = $.TD({width:2, className:nblocation}, $.INPUT({type:'checkbox', className:'deleteradio'}));
-            var td2 = $.TD({}, $.A({href:nbpath, className:'nblink', target:'_blank'}, nbtitle));
+            var td2 = $.TD({}, $.A({href:nbpath, className:'nblink', target:nbtarget}, nbtitle));
             var td3 = $.TD({className:'td_kernel'}, nbkernel);
             var td4 = BookShelf.dateTD(nbtimemod);
             var tr = $.TR({id:nbid},[td1, td2, td3, td4]);
@@ -114,7 +114,6 @@ BookShelf = {
         BookShelf.redrawTable();
         BookShelf.dragCreate();
         var folder = window.location.hash.split('#')[1];
-        //$('#location').text(folder);
     },
 
     redrawTable: function(){
@@ -310,7 +309,6 @@ BookShelf = {
 
 
     movectxMenu: function(e, dest){
-        //if (self._current_view == dest) return;
         BookShelf.moveData(BookShelf._contextSelected, BookShelf._view_map[dest]);
         $("#drop_"+dest).animate({backgroundColor:"#FF0"},200).animate({backgroundColor:"#EEF2F5"},200);
         BookShelf._contextSelected = '';
@@ -498,7 +496,6 @@ BookShelf = {
         var nicedate = day+", "+month+" "+dates+", "+t; 
 		var epoch = Math.floor(d.getTime()); 
         /* var data = data.replace(/-/g, "/");// + ' GMT'
-        //console.log(data);
         var dateobj = new Date(data);
         var nicedate = BookShelf.niceDate(dateobj);
         console.log(dateobj);
@@ -578,17 +575,8 @@ BookShelfStyling = {
     	$("#attach_overlay").jqm();
         $("#search input").focus(function(){$(this).css("color", "#F00").attr("value", "Sorry! Work in progress.")});
         $("#search input").blur(function(){$(this).css("color", "#9F9F9F").attr("value", "Search Notebooks")});
-    	$("#control").corner({autoPad:true, antiAlias:true, tl:{radius:4}, tr:{radius:4}, bl:{radius:0}, br:{radius:0}});
         $("#status_close, .button, .drop").hover(function(){$(this).addClass('pointer');}, function(){$(this).removeClass('pointer');});
-        $(window).bind('resize', function() {
-                $('#splitpane').trigger('resize');
-                }).trigger('resize');
-        setTimeout(BookShelfStyling.roundButtons, 10); 
     },
-
-    roundButtons: function() {
-    	$(".button").corner({autoPad:true, antiAlias:true, tl:{radius:4}, tr:{radius:4}, bl:{radius:4}, br:{radius:4}});
-    }
 };
 
 StatusDialog = {
@@ -623,7 +611,6 @@ AttachData = {
         if (input2 != "") {
             return AttachData.handleRemoteFile(input2); 
         }
-        //console.log("click => ", $(this));
     },
 
     handleRemoteFile: function(url){
@@ -632,7 +619,7 @@ AttachData = {
             url: "attachremote", 
             data: {"url": url}, 
             dataType: "json",
-            success: function(data){return;}//console.log(data)}
+            success: function(data){return;}
         });
         return false;
     },

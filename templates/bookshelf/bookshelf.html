@@ -7,7 +7,6 @@
     <script src='/static/external/jquery.color.js' type='text/javascript'></script>
     <script src='/static/external/jquery.dom.js' type='text/javascript'></script>
     <script src='/static/external/jquery.contextmenu.js' type='text/javascript'></script>
-    <script src='/static/external/jquery.curvycorners.min.js' type='text/javascript'></script>
     <script src='/static/external/jqModal.dev.js' type='text/javascript'></script>
     <script src='/static/external/splitter.js' type='text/javascript'></script>
     <script src='/static/js/bookshelf.js' type='text/javascript'></script>
@@ -18,22 +17,27 @@
     <div id='notebooks'>
       <div id='control'>
         <span id="options">
+
           <span id="new_notebook" class='button'>&nbsp;
             <img src='/static/img/notebook_add.png'/><span>New Notebook</span><img src='/static/img/bullet_arrow_down.png'/>
           </span>
+
           <ul id="notebook_list">
-            <li><a target='_blank' href="new?system=python">Python Notebook</a></li>
-            <li><a target='_blank' href="new?system=sage">Sage Notebook</a></li>
+            {% for notebook in notebook_types %}
+            <li><a {% if user.get_profile.notebook_opens_in_new_window %} target='_blank' {% endif %} 
+                href="new?system={{ notebook }}">{{ notebook|capfirst }} Notebook</a></li>
+            {% endfor %}
           </ul>
+
           <span id="new_folder" class='button'>&nbsp;<img src='/static/img/folder_add.png'/><span>New Folder</span></span>
           <span id="attach_data" class='button'>&nbsp;<img src='/static/img/attach.png'/><span class='jqModal'>Attach</span></span>
           <span id="archive_button" class='button'>&nbsp;<img src='/static/img/archive1.png'/><span>Archive</span></span>
           <span id="trash_button" class='button'>&nbsp;<img src='/static/img/bin_closed.png'/><span>Trash</span></span>
           <span id="refresh">Refresh</span>
+
         </span>
         <form id="search">
             <input value='Search Notebooks' type='text' name='searchquery'/>
-            <!--<span id="searchbutton" class='button'><span>Search Notebooks</span></span>-->
         </form>
       </div>
       <div id='splitpane'>

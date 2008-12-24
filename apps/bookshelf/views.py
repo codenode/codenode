@@ -12,7 +12,9 @@ from apps.notebook import models as notebook_models
 def bookshelf(request, template_name='bookshelf/bookshelf.html'):
     """Render the Bookshelf interface.
     """
-    return render_to_response(template_name, {'user':request.user})
+    print request.path
+    return render_to_response(template_name, 
+        {'notebook_types':settings.NOTEBOOK_TYPES, 'path':request.path}, context_instance=RequestContext(request))
 
 @login_required
 def load_bookshelf_data(request):
