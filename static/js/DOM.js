@@ -129,16 +129,16 @@ Notebook.DOM._treebranch = function() {
 
 Notebook.DOM._bracket = function() {
     var node = $.SPAN({'class':'bracketng'},
-                    $.IMG({'class':'bracketmaskimg', 'src':'/static/images/bracketslant.png'}));
+                    $.IMG({'class':'bracketmaskimg', 'src':'/static/img/bracketslant.png'}));
     /*var node = $.DIV({'class':'bracketng'},
-                    $.IMG({'class':'bracketmaskimg', 'src':'/static/images/bracketslant.png'}),
+                    $.IMG({'class':'bracketmaskimg', 'src':'/static/img/bracketslant.png'}),
                     $.DIV({'class':'fillup'}));*/
     return node;
 };
 
 Notebook.DOM._bracket_output = function() {
      var node = $.SPAN({'class':'bracketng'},
-                    $.IMG({'class':'bracketmaskimg', 'src':'/static/images/bracketoutput.png'}));
+                    $.IMG({'class':'bracketmaskimg', 'src':'/static/img/bracketoutput.png'}));
      return node;
 };
 

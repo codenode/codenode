@@ -124,7 +124,7 @@ Notebook.TreeBranch.putCellNodeAfter = function(oldersibling, node) {
     var branchesbranch = $(oldersibling)[0].getParentBranch().getParentBranch();
     self.collapseBranch($(oldersibling)[0].getParentBranch());
     self.sieveBranch(branchesbranch);
-    $('img.bracketmaskimg').ifixpng('/static/images/pixel.gif');//xxx iehack
+    $('img.bracketmaskimg').ifixpng('/static/img/pixel.gif');//xxx iehack
 };
 
 Notebook.TreeBranch.putCellNodeAtTop = function(node) {

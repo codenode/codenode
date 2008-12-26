@@ -20,34 +20,6 @@ body {
     margin-left:12px;
 }
 
-.button {
-    background: url('/static/img/button.png') repeat-x;
-    border: 1px solid #818F9F;
-    font-family:sans-serif;
-    font-size:15px;
-    margin-right:6px;
-    cursor: pointer;
-    padding:3px;
-    -moz-border-radius:3px;
-    -webkit-border-radius:3px;
-}
-
-.button span {
-    color:#0F0F0F;
-    padding:0px 8px;
-    text-decoration:none;
-    font-weight:bold;
-}
-
-.button a {
-    text-decoration:none;
-}
-.button img {
-    border:none;
-    position:relative;
-    top:3px;
-}
-
 #refresh {
     font-family:sans-serif;
     font-size:11px;
@@ -72,6 +44,9 @@ body {
     border: 1px solid #888888;
     padding: 3px 0px 3px 26px;
     color:#9F9F9F;
+}
+#new_notebook {
+    margin-right:7px;
 }
 
 /** notebooks table and navigation **/

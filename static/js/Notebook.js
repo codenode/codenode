@@ -19,7 +19,7 @@ Notebook.__init__ = {};
 Notebook.initialize = function() {
     browser = new BrowserDetect();
     browser.init();
-    $.ifixpng('/static/images/pixel.gif');
+    $.ifixpng('/static/img/pixel.gif');
     $.extend($('#notebook')[0], {
         setFocus: function() {
             this.firstChild.setFocus();

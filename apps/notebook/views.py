@@ -13,7 +13,7 @@ def notebook(request, nbid=None, template_name='notebook/notebook.html'):
     """Render the Notebook interface.
     """
     nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
-    print "nbid, owner => ", nbid,  nb.owner
-    return render_to_response(template_name, {'user':request.user})
+    lastmod = nb.created_time #XXX
+    return render_to_response(template_name, {'lastmod':lastmod, 'user':request.user})
 
 
