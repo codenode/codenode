@@ -41,7 +41,7 @@ MEDIA_ROOT = ''
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -76,6 +76,40 @@ AUTH_PROFILE_MODULE = "usersettings.UserSettings"
 NOTEBOOK_TYPES = ["python", "sage"]
 
 
+COMPRESS = True
+COMPRESS_VERSION = True
+COMPRESS_CSS_FILTERS = None #('apps.compress.filters.csstidy_python.CSSTidyFilter', ) #MUST use 'apps.compress..."
+
+COMPRESS_CSS = {
+    'bookshelf': {
+        'source_filenames': ('static/css/bookshelf.css', ),
+        'output_filename': 'static/css/bookshelf_compressed.css',
+    },
+    'notebook': {
+        'source_filenames': ('static/css/notebook.css', ),
+        'output_filename': 'static/css/notebook_compressed.css',
+    }
+}
+
+COMPRESS_JS = {
+    'bookshelf': {
+        'source_filenames': ('static/external/jquery.js', 'static/external/jquery-ui.min.js', 'static/external/jquery.color.js',
+            'static/external/jquery.dom.js', 'static/external/jquery.contextmenu.js', 'static/external/jqModal.dev.js',
+            'static/external/splitter.js', 'static/js/bookshelf.js'),
+        'output_filename': 'static/js/bookshelf_compressed.js',
+    },
+
+    'notebook': {
+        'source_filenames': ('static/external/jquery.js', 'static/external/jquery.ifixpng.js', 'static/external/jquery.contextmenu.js',
+            'static/external/jquery.dom.js', 'static/js/BrowserDetect.js', 'static/js/Notebook.js',
+            'static/js/Indicator.js', 'static/js/Cell.js', 'static/js/Async.js', 'static/js/Delegator.js',
+            'static/js/DOM.js', 'static/js/SaveLoad.js', 'static/js/Spawner.js', 'static/js/TreeBranch.js',
+            'static/js/Completer.js', 'static/js/Util.js', 'static/external/json2.js', 'static/external/jquery.dimensions.js',
+            'static/external/jquery.fieldselection.js', 'static/external/jqModal.dev.js'),
+        'output_filename': 'static/js/notebook_compressed.js',
+    }
+}
+
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_PATH, 'templates')
 )
@@ -85,9 +119,11 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.admindocs',
     'django.contrib.admin',
     'apps.registration',
     'apps.bookshelf',
     'apps.notebook',
-    'apps.usersettings'
+    'apps.usersettings',
+    'apps.compress'
 )

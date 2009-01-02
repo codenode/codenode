@@ -1,15 +1,10 @@
 {% extends 'base_app.html' %}
 
+{% load compressed %}
+
 {% block extrahead %}
-    <link href='/static/css/bookshelf.css' rel='stylesheet' type='text/css'></link>
-    <script src='/static/external/jquery.js' type='text/javascript'></script>
-    <script src='/static/external/jquery-ui.min.js' type='text/javascript'></script>
-    <script src='/static/external/jquery.color.js' type='text/javascript'></script>
-    <script src='/static/external/jquery.dom.js' type='text/javascript'></script>
-    <script src='/static/external/jquery.contextmenu.js' type='text/javascript'></script>
-    <script src='/static/external/jqModal.dev.js' type='text/javascript'></script>
-    <script src='/static/external/splitter.js' type='text/javascript'></script>
-    <script src='/static/js/bookshelf.js' type='text/javascript'></script>
+    {% compressed_css 'bookshelf' %}
+    {% compressed_js 'bookshelf' %}
 {% endblock %}
 
 {% block content %}

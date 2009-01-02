@@ -11,6 +11,7 @@ urlpatterns = patterns('django.views.generic.simple',
     (r'^notebook/', include('apps.notebook.urls')),
     (r'^accounts/', include('apps.registration.urls')),
     (r'^settings/', include('apps.usersettings.urls')),
+    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
     (r'^admin/(.*)', admin.site.root),
 )
 

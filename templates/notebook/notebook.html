@@ -1,29 +1,10 @@
 {% extends 'base_app.html' %}
 
+{% load compressed %}
+
 {% block extrahead %}
-    <link href='/static/css/notebook.css' rel='stylesheet' type='text/css'></link>
-    <script src='/static/external/jquery.js' type='text/javascript'></script>
-    <script src='/static/external/jquery.ifixpng.js' type='text/javascript'></script>
-    <script src='/static/external/jquery.contextmenu.js' type='text/javascript'></script>
-    <script src='/static/external/jquery.dom.js' type='text/javascript'></script>
-    <script src='/static/js/BrowserDetect.js' type='text/javascript'></script>
-
-    <script src='/static/js/Notebook.js' type='text/javascript'></script>
-    <script src='/static/js/Indicator.js' type='text/javascript'></script>
-    <script src='/static/js/Cell.js' type='text/javascript'></script>
-    <script src='/static/js/Async.js' type='text/javascript'></script>
-    <script src='/static/js/Delegator.js' type='text/javascript'></script>
-    <script src='/static/js/DOM.js' type='text/javascript'></script>
-    <script src='/static/js/SaveLoad.js' type='text/javascript'></script>
-    <script src='/static/js/Spawner.js' type='text/javascript'></script>
-    <script src='/static/js/TreeBranch.js' type='text/javascript'></script>
-
-    <script src='/static/js/Completer.js' type='text/javascript'></script>
-    <script src='/static/js/Util.js' type='text/javascript'></script>
-    <script src='/static/external/json2.js' type='text/javascript'></script>
-    <script src='/static/external/jquery.dimensions.js' type='text/javascript'></script>
-    <script src='/static/external/jquery.fieldselection.js' type='text/javascript'></script>
-    <script src='/static/external/jqModal.dev.js' type='text/javascript'></script>
+    {% compressed_css 'notebook' %}
+    {% compressed_js 'notebook' %}
 {% endblock %}
 
 {% block content %}
