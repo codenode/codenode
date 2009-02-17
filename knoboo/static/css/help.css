@@ -1,0 +1,27 @@
+#container {
+    width:860px;
+    margin:auto;
+}
+
+.section h1 {
+    font-family:Arial,Helvetica,sans-serif;
+    font-size:26px;
+    color:#183078;
+    margin-bottom:-6px;
+    margin-top:30px;
+}
+.section li {
+    padding:2px;
+}
+.section dt {
+    font-size:110%;
+    font-family:Arial,Helvetica,sans-serif;
+    margin:8px;
+    margin-top:20px;
+}
+.section ol {
+    padding-left:14px;
+}
+.section ul {
+    padding-left:6px;
+}

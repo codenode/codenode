@@ -1,0 +1,5 @@
+#!/usr/bin/python
+
+from knoboo.scripts.knobood import run
+
+run()

@@ -1,0 +1,27 @@
+\ProvidesPackage{knoboo_notebook}
+\usepackage{graphicx}
+\usepackage{alltt}
+\usepackage{sectsty}
+
+\setcounter{secnumdepth}{-1}
+
+\voffset = -0.5in
+\hoffset = -0.5in
+\marginparwidth = 10pt
+\footskip = 5pt
+
+\chapterfont{\fontfamily{phv}\LARGE\selectfont}
+\sectionfont{\fontfamily{phv}\Large\slshape\selectfont}
+\subsectionfont{\fontfamily{phv}\normalsize\selectfont}
+\subsubsectionfont{\fontfamily{phv}\small\slshape\selectfont}
+
+\newcommand{\titlecell}[1]{\chapter{#1}}
+\newcommand{\subtitlecell}[1]{\section{#1}}
+\newcommand{\sectioncell}[1]{\subsection{#1}}
+\newcommand{\subsectioncell}[1]{\subsubsection{#1}}
+
+%\newcommand{\inputcell}[1]{\begin{alltt}\textmd{#1}\end{alltt}}
+\newcommand{\textcell}[1]{\begin{alltt}#1\end{alltt}}
+\newcommand{\inputcell}[1]{\begin{alltt}#1\end{alltt}}
+\newcommand{\outputtextcell}[1]{\begin{alltt}#1\end{alltt}}
+\newcommand{\outputimagecell}[1]{\includegraphics[keepaspectratio,width=0.80\linewidth]{#1}}

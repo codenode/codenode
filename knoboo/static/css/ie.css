@@ -1,0 +1,110 @@
+* body #notebook {
+    border-top: 85px solid #ffffff;
+    border-bottom: 6px solid #ffffff;
+    top: 0pt;
+    bottom: 1pt;
+    height: 100%;
+    z-index: 3;
+}
+
+textarea {
+    border: none;
+    overflow: hidden;
+}
+
+.spawner textarea.spawninput {
+    cursor: pointer;
+}
+
+.cell .contents textarea.input {
+    overflow: hidden;
+    border: none;
+}
+
+.cell {
+    /*position: relative;*/
+    float: right;
+    border: 1px solid black;
+    clear: none;
+    width: auto;
+}
+
+.cell.group {
+    border: 1px dotted green;
+    height: 100%;
+    /*width: auto;*/
+    position: relative;
+    float: right;
+    clear: none;
+    /*display: block;*/
+    margin-right: 6px;
+    z-index: 9;
+}
+
+.cell .contents {
+    height: auto;
+    width: 95%;
+    float: none;
+}
+
+.cell span.bracketng {
+    float: right;
+    height: 100%;
+    position: relative;
+    /*top: 0px;
+    right: 0px;*/
+}
+
+
+.cell.group .contents {
+    /*height: auto;*/
+    width: 98%;
+    /*float: right;*/
+    margin-right: 6px;
+    /*display: block;*/
+    /*position: absolute;*/
+}
+
+
+
+
+.cell.group span.bracketng {
+    float: right;
+    clear: none;
+    height: 100%;
+    position: relative;
+    top: 0px;
+    right: 0px;
+    margin-right: 2px;
+}
+
+span.bracketng {
+    /*border: 1px solid red;*/
+    border-color: #454f99;
+    border-width: 1px 1px 1px 0px;
+    border-width: 2px 2px 2px 0px;
+    border-style: solid;
+    background-color: #ffffff;
+    width: 6px;
+    height: 100%;
+    float: right;
+    z-index: 8;
+    cursor: pointer;
+}
+
+
+
+/*
+
+.cell.group .bracketng {
+    height: 100%;
+    float: none;
+    position: relative;
+    width: 6px;
+}
+*/
+
+
+.bracketmaskimg {
+    float: none;
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#
+# This is a convenience start-up script for development.
+#
+# It starts the version of knoboo contained in this dir without it being
+# installed in the system.
+#
+# This script is not installed in the packaged distribution.
+#
+# Use knobood to start the multi-user web application service 
+#
+export PYTHONPATH=$PWD
+export PATH="$PATH:$PWD/bin"
+./bin/knobood -n $@
