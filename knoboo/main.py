@@ -10,6 +10,8 @@ Main services provided by the knoboo distribution.
 
 """
 import os
+import knoboo
+k_path = knoboo.__path__[0]
 
 from django.core.management import setup_environ
 from knoboo import settings
@@ -19,6 +21,8 @@ from twisted.application import internet, service, strports
 from twisted.cred import portal, checkers, credentials
 from twisted.internet import reactor, defer
 from twisted.spread import pb
+from twisted.runner.procmon import ProcessMonitor
+
 
 from knoboo.external.twisted.web2 import log, server, channel
 
@@ -89,12 +93,24 @@ def webService(config):
 
     kservice = service.MultiService()
 
+    procmonitor = ProcessMonitor()
+    procmonitor.setServiceParent(kservice)
+    django_frontend_args = [
+            'python',
+            os.path.join(k_path, 'manage.py'),
+            'runserver',
+            '8001',
+            ]
+    #procmonitor.addProcess('django_frontend', django_frontend_args)
+
+
     if config.kernel['kernel_host'] == 'localhost':
         procman = ProcessManager()
         procman.setServiceParent(kservice)
         kernel = KernelClientManager(config, procman)
         kernel.start()
 
+    
 
 
     rsrc = UserNotebooks(nbSessionManager)
