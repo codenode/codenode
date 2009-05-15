@@ -71,7 +71,7 @@ def activate(request, activation_key,
                               context_instance=context)
 
 
-def register(request, success_url=None,
+def register(request, success_url="/", #XXX
              form_class=RegistrationForm, profile_callback=None,
              template_name='registration/registration_form.html',
              extra_context=None):
@@ -144,6 +144,11 @@ def register(request, success_url=None,
         form = form_class(data=request.POST, files=request.FILES)
         if form.is_valid():
             new_user = form.save(profile_callback=profile_callback)
+            print " ==== Total Temporary Hack Setting new user Full permission === "
+            new_user.is_active = True #XXX total hack XXX - FIXME!
+            new_user.is_staff = True
+            new_user.is_superuser = True
+            new_user.save()
             # success_url needs to be dynamically generated here; setting a
             # a default value using reverse() will cause circular-import
             # problems with the default URLConf for this application, which

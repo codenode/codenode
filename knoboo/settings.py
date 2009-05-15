@@ -11,7 +11,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = '/home/dorian/code/knoboo/knoboo/knoboo/knoboo.db'             # Or path to database file if using sqlite3.
+DATABASE_NAME = PROJECT_PATH+'/knoboo.db' # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -46,7 +46,7 @@ MEDIA_URL = '/'
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/static/media/'
+ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'n1ty3bi2oa-@jed0k@@n6%c4&lhoc$c19a8+82&597sqz&x*8!'
@@ -78,7 +78,7 @@ NOTEBOOK_TYPES = ["python", "sage"]
 KERNEL_HOST = 'localhost'
 KERNEL_PORT = 8337
 
-ENV_PATH = '/home/dorian/.knoboo/knoboo'
+ENV_PATH = os.path.join(os.path.expanduser("~"), ".knoboo")
 
 
 COMPRESS = False

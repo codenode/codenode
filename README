@@ -1,0 +1,15 @@
+A new knoboo that:
+    - Uses Django
+    - Uses twisted.web
+    - Is a current *Work in Progress, and is still broken in several (very fixable) ways*
+
+
+To run you *must* be using the Twisted trunk:
+
+svn co svn://svn.twistedmatrix.com/svn/Twisted/trunk Twisted
+
+then start knoboo by running:
+
+$ Twisted/bin/twistd -ny server.py
+
+

@@ -44,6 +44,7 @@ class NotebookSession(object):
         return
 
     def get_notebook(self):
+        print "GGGGGGGGGGGGGGGGGGGG  ", self.id
         nb = models.Notebook.objects.get(guid=self.id)
         return nb
 

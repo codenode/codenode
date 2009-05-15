@@ -42,6 +42,7 @@ class InMemoryPasswordDatabase(checkers.InMemoryUsernamePasswordDatabaseDontUse)
                 self._cbPasswordMatch, str(credentials.username))
 
 
+
 def desktopService(config):
     from knoboo.resources import avatars, notebook
     from knoboo.authority import guard, check
@@ -84,59 +85,20 @@ def desktopService(config):
 
 
 
-def webService(config):
-    from knoboo.async.resources import UserNotebooks
-    from knoboo.async.resources import SessionManager
-
+def webService():
+    from knoboo.async.webresources import Notebook
+    from knoboo.async.webresources import SessionManager
+    
+    """
+    procmon_service = ProcessMonitor()
+    procman_service = ProcessManager()
+    kernel = KernelClientManager(config, procman)
+    kernel.start()
+    """
 
     nbSessionManager = SessionManager()
-
-    kservice = service.MultiService()
-
-    procmonitor = ProcessMonitor()
-    procmonitor.setServiceParent(kservice)
-    django_frontend_args = [
-            'python',
-            os.path.join(k_path, 'manage.py'),
-            'runserver',
-            '8001',
-            ]
-    #procmonitor.addProcess('django_frontend', django_frontend_args)
-
-
-    if config.kernel['kernel_host'] == 'localhost':
-        procman = ProcessManager()
-        procman.setServiceParent(kservice)
-        kernel = KernelClientManager(config, procman)
-        kernel.start()
-
-    
-
-
-    rsrc = UserNotebooks(nbSessionManager)
-    if config.server['host'] != 'localhost':
-        from knoboo.external.twisted.web2 import vhost
-        rsrc = vhost.VHostURIRewrite(config.server['host'], rsrc)
-
-    #rsrc = log.LogWrapperResource(rsrc) #XXX This enable verbose http logging.
-    #log.DefaultCommonAccessLoggingObserver().start()
-
-    site = server.Site(rsrc)
-    factory = channel.HTTPFactory(site)
-
-
-    if config.server['proxy']:
-        # backend server behind apache or nginx
-        d = 'tcp:%s:interface=127.0.0.1' % config.server['port']
-        srv = strports.service(d, factory)
-        srv.setServiceParent(kservice)
-    else:
-        d = 'tcp:%s' % config.server['port']
-        srv = strports.service(d, factory)
-        srv.setServiceParent(kservice)
-            
-    return kservice
- 
+    rsrc = Notebook(nbSessionManager)
+    return rsrc
 
 
 def kernelService(config):
