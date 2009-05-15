@@ -4,12 +4,18 @@ A new knoboo that:
     - Is a current *Work in Progress, and is still broken in several (very fixable) ways*
 
 
-To run you *must* be using the Twisted trunk:
+How to run knoboo
+==================
 
-svn co svn://svn.twistedmatrix.com/svn/Twisted/trunk Twisted
+Assuming you are in the top level 'knoboo' directory.
 
-then start knoboo by running:
+1) To run you *must* be using the Twisted trunk:
+$ svn co svn://svn.twistedmatrix.com/svn/Twisted/trunk Twisted
 
+2) Initialize the database
+$ python knoboo/manage.py syncdb #say 'yes' to creating a superuser
+
+3) Start knoboo by running:
 $ Twisted/bin/twistd -ny server.py
 
 
