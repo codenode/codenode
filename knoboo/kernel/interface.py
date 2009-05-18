@@ -87,7 +87,7 @@ class EngineObject:
 
 class EngineManager(EngineObject):
 
-    def __init__(self, id, mind, config, procman, user_pool):
+    def __init__(self, id, mind, config, procman, user_pool=False):
         """need to add system spec in args
         """
         self.id = id

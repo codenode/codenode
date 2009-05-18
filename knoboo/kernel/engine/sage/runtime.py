@@ -4,14 +4,14 @@ from knoboo.kernel.engine import base
 
 
 def build_env(config):
-"""
-user specific variables:
-    HOME
-    PYTHONPATH
-    SAGE_PATH
+    """
+    user specific variables:
+        HOME
+        PYTHONPATH
+        SAGE_PATH
 
 
-"""
+    """
     uname = os.uname()[0]
     SAGE_ROOT = config.dconfig.get('sage', 'sage_root')
     SAVEDIR = SAGE_ROOT

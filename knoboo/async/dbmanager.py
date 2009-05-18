@@ -9,10 +9,8 @@ class NotebookSession(object):
         self.id = id
 
     def save_notebook_metadata(self, orderlist, cellsdata):
-        print 'save_notebook_metadata'
-        print orderlist
-        print cellsdata
-        print '\n\n'
+        #print 'save_notebook_metadata'
+        #print orderlist, cellsdata
         nb = models.Notebook.objects.get(guid=self.id)
         for cellid, data in cellsdata.items():
             cells = models.Cell.objects.filter(guid=cellid)
@@ -20,16 +18,15 @@ class NotebookSession(object):
             style = data["cellstyle"]
             props = data["props"]
             if len(cells) > 0:
-                print 'lenCELLS > 0'
                 cell = cells[0]
-                print cell
+                #print 'lenCELLS > 0', cell
                 cell.content = content
                 cell.type = u"text"
                 cell.style = style
                 cell.props = props
                 cell.save()
             else:
-                print 'NO cCELLS'
+                #print 'NO CELLS'
                 cell = models.Cell(guid=cellid, 
                                 notebook=nb, 
                                 owner=nb.owner,
@@ -38,13 +35,12 @@ class NotebookSession(object):
                                 style=style, 
                                 props=props)
                 nb.cell_set.add(cell)
-        print 'save orderlist'
+        #print 'save orderlist'
         nb.orderlist = orderlist
         nb.save()
         return
 
     def get_notebook(self):
-        print "GGGGGGGGGGGGGGGGGGGG  ", self.id
         nb = models.Notebook.objects.get(guid=self.id)
         return nb
 

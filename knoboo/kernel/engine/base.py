@@ -115,6 +115,8 @@ class ProcessSetup(object):
 
     def engine_startup(self, port):
         ENGINE_STARTUP="""
+import sys
+sys.path.append("../../") #XXX be able to import knoboo
 from knoboo.kernel.engine.server import EngineRPCServer
 from knoboo.kernel.engine.python.interpreter import Interpreter
 from knoboo.kernel.engine.python.runtime import build_namespace
@@ -340,15 +342,4 @@ def breakout_prevented(directory, plans, paranoid=0, breakout_directory="__tunne
             return Status("False: filenames outside")
 
     return True
-
-
-
-
-
-
-
-
-
-
-
 

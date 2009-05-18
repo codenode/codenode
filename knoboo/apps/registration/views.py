@@ -144,10 +144,7 @@ def register(request, success_url="/", #XXX
         form = form_class(data=request.POST, files=request.FILES)
         if form.is_valid():
             new_user = form.save(profile_callback=profile_callback)
-            print " ==== Total Temporary Hack Setting new user Full permission === "
-            new_user.is_active = True #XXX total hack XXX - FIXME!
-            new_user.is_staff = True
-            new_user.is_superuser = True
+            new_user.is_active = True #XXX hack? - FIXME!
             new_user.save()
             # success_url needs to be dynamically generated here; setting a
             # a default value using reverse() will cause circular-import

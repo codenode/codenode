@@ -22,10 +22,8 @@ from knoboo.async import dbmanager
 
 
 class Notebook(resource.Resource):
-    """If request is not an operation, render returns the notebook template
-    with which the browser sets up the boilerplace notebook html and
-    javascript
-
+    """Children of this Resource handle requests for a given Notebook.
+  
     If an operation is requested, then check for the exstince of the
     operations resource tree stored in the notebook sessions manager.
     Create one if one does not exist.
@@ -37,19 +35,19 @@ class Notebook(resource.Resource):
         self.nbSessionManager = nbSessionManager
 
     def getChild(self, path, request):
-        print " ==************************== ***********======== ", path, self.__class__.__name__, request.prepath
+        """Pass off request to children for a given notebook.
+
+        Important: The 'path' is the Notebook Id.
+        """
         rsrc = self.nbSessionManager.getSession(path)
         return rsrc.children[path]
-        #return self
-        #return rsrc, segments
 
     def render_GET(self, request):
-        return "NOTEBOOK"
+        return "Top level Notebook Resource.  All methods are children of this Resource."
 
 
 class EngineMethod(resource.Resource):
-    """A resource of this type is like a wrapper around an actual engine
-    method.
+    """Resource wrapper around an actual engine method.
 
     """
 
@@ -57,24 +55,21 @@ class EngineMethod(resource.Resource):
         self.notebook_db = notebook_db
         self.engine = engine
 
-    def respondJson(self, jsonobj):
-        #request.setHeader("content-type", "application/json")
-        return jsonobj
 
 class EngineSession(resource.Resource):
-    """A parent resource of computation engine operations.
-    This resource tree has access to a computation engine for the notebook
-    session.
+    """Parent resource of computation engine operations.
+
+    This resource tree has access to a computation engine 
+    for the notebook session.
     """
 
-    addSlash = True
+    isLeaf = False
 
     def __init__(self, nbid, notebook_db, engine, env_path): 
         resource.Resource.__init__(self)
         self.nbid = nbid
         self.notebook_db = notebook_db
         self.engine = engine
-        print "PPPPPPPPPPPPPPPPCCCCCCCCCCCCCCCCCCCC"
         self.putChild(nbid, NotebookRoot(nbid, notebook_db, engine, env_path))
 
 class SessionManager(object):
@@ -89,7 +84,6 @@ class SessionManager(object):
     def newSession(self, nbid):
         """return a new resource tree
         """
-        print nbid
         notebook_db = dbmanager.NotebookSession(nbid)
         kernel_host = settings.KERNEL_HOST
         kernel_port = settings.KERNEL_PORT
@@ -125,7 +119,7 @@ class SessionManager(object):
 
 class NotebookRoot(resource.Resource):
 
-    addSlash = True
+    isLeaf = False
 
     def __init__(self, nbid, notebook_db, engine, env_path):
         resource.Resource.__init__(self)
@@ -139,7 +133,7 @@ class NotebookRoot(resource.Resource):
         self.putChild("eval", Evaluate(notebook_db, engine))
         self.putChild("completer", Completer(notebook_db, engine))
         self.putChild("kernel", Control(notebook_db, engine))
-        #self.putChild("print", Print(notebook_db, env_path))
+        #XXX self.putChild("print", Print(notebook_db, env_path))
 
     def render(self, request):
         nb = self.notebook_db.get_notebook()
@@ -150,32 +144,43 @@ class NotebookRoot(resource.Resource):
 
 class StartEngine(EngineMethod):
     """Start the notebooks computation process.
+
+    Trigger the actual process that the notebook's 
+    computations will run it to start up.
+
+    The method '_started_yet' calls 'start' until the
+    computation process responds with 'on' before
+    it finishes the response.
     """
 
     def render(self, request):
         d = defer.maybeDeferred(self.engine.start)
-        d.addCallback(self._success)
-        d.addErrback(self._failure)
-        return d
+        d.addCallback(self._started_yet, request)
+        return server.NOT_DONE_YET
 
-    def _success(self, result):
-        return self.respondJson('ok')
+    def _started_yet(self, result, request):
+        if result == "on":
+            request.setHeader("content-type", "application/json")
+            request.write(result)
+            request.finish()
+        else:
+            d = defer.maybeDeferred(self.engine.start)
+            d.addCallback(self._started_yet, request)
+            return server.NOT_DONE_YET
 
-    def _failure(self, result):
-        return self.respondJson('failed')
 
 class NotebookObject(EngineMethod):
-    """Notebook js object.
+    """Get Notebook json object.
     """
 
+    @defer.inlineCallbacks
     def render(self, request):
-        d = defer.maybeDeferred(self.notebook_db.get_notebook_data)
-        d.addCallback(self._success)
-        return d
-
-    def _success(self, result):
+        result = yield defer.maybeDeferred(self.notebook_db.get_notebook_data)
         jsobj = json.dumps(result)
-        return self.respondJson(jsobj)
+        request.setHeader("content-type", "application/json")
+        request.write(jsobj)
+        request.finish()
+
 
 class SaveNotebookMetaData(EngineMethod):
     """Save non cell data from a notebook to the database.
@@ -183,22 +188,20 @@ class SaveNotebookMetaData(EngineMethod):
     This is a resource used from an async call to '/bookshelf/save'
     to save data associated with a notebook.
     """
+
+    @defer.inlineCallbacks
     def render(self, request):
-        orderlist = request.args.get('orderlist', [])
-        orderlist = ','.join(orderlist)
+        orderlist = ",".join(request.args.get('orderlist', []))
         cellsdata = request.args.get('cellsdata', [None])[0]
         cellsdata = json.loads(cellsdata)
-        d = defer.maybeDeferred(self.notebook_db.save_notebook_metadata,
+        result = yield defer.maybeDeferred(self.notebook_db.save_notebook_metadata,
                 orderlist, cellsdata)
-        d.addCallback(self._success)
-        d.addErrback(self._failed)
-        return d
+        resp = "{'resource':'%s', 'resp':'ok'}" % self.__class__.__name__
+        jsobj = json.dumps(resp)
+        request.setHeader("content-type", "application/json")
+        request.write(jsobj)
+        request.finish()
 
-    def _success(self, result):
-        return self.respondJson("ok")
-
-    def _failed(self, result):
-        return self.respondJson("failed")
 
 class DeleteCell(EngineMethod):
     """Delete cells from the database.
@@ -207,35 +210,35 @@ class DeleteCell(EngineMethod):
     data associated with the cellid.
     """
 
+    @defer.inlineCallbacks
     def render(self, req): 
         """
         Delete one or more cells.
         """
         #XXX untested - javascript doesn't work right now to delete a cell?
         cellids = json.loads(req.args.get('cellids', [None])[0])
-        d = defer.maybeDeferred(self.notebook_db.delete_cells,
-                cellids)
-        d.addCallback(self._success)
-        return d
+        result = yield defer.maybeDeferred(self.notebook_db.delete_cells, cellids)
+        resp = "{'resource':'%s', 'resp':'ok'}" % self.__class__.__name__
+        jsobj = json.dumps(resp)
+        request.setHeader("content-type", "application/json")
+        request.write(jsobj)
+        request.finish()
 
-    def _success(self, result):
-        return self.respondJson("ok")
 
 class ChangeNotebookMetaData(EngineMethod):
     """Change notebook title ... could be more general.
     """
 
+    @defer.inlineCallbacks
     def render(self, request): 
         newtitle = request.args.get('newtitle', [None])[0]
-        d = defer.maybeDeferred(self.notebook_db.change_notebook_metadata,
-                newtitle)
-        d.addCallback(self._success, newtitle)
-        return d
-
-    def _success(self, result, newtitle):
+        result = yield defer.maybeDeferred(self.notebook_db.change_notebook_metadata, newtitle)
         data = {'response':'ok', 'title':newtitle}
         jsobj = json.dumps(data)
-        return self.respondJson(jsobj)
+        request.setHeader("content-type", "application/json")
+        request.write(jsobj)
+        request.finish()
+
 
 class Evaluate(EngineMethod):
 
@@ -294,26 +297,27 @@ class Evaluate(EngineMethod):
         request.finish()
 
 class Completer(EngineMethod):
+    """Complete either a name or an attribute
+    """
     
-    def _success(self, result, cellid):
-        output = str(result)
-        data = {'completions':output, 'cellid':cellid}
-        jsobj = json.dumps(data)
-        return self.respondJson(jsobj)
-
-    def render(self, req): 
-        """What initially handles the request.
-        Get all the post args and go into the chain of defereds.
-        """
-        cellid = req.args['cellid'][0]
-        mode = req.args['mode'][0]
-        input = req.args['input'][0].strip()
+    #@defer.inlineCallbacks
+    def render(self, request): 
+        mode = request.args['mode'][0]
+        input = request.args['input'][0].strip()
         if mode == 'name':
             d = self.engine.complete_name(input)
         else:
             d = self.engine.complete_attr(input)
-        d.addCallback(self._success, cellid)
-        return d
+        d.addCallback(self._success, request)
+        return server.NOT_DONE_YET #inlineCallbacks was 'working', thus old method, why?
+
+    def _success(self, result, request):
+        cellid = request.args['cellid'][0]
+        data = {'completions':str(result), 'cellid':cellid}
+        jsobj = json.dumps(data)
+        request.setHeader("content-type", "application/json")
+        request.write(jsobj)
+        request.finish()
 
 class Control(EngineMethod):
     """Handle requests for controlling the kernel process.
@@ -325,27 +329,18 @@ class Control(EngineMethod):
     running) no matter what!
     """
  
-    def _bad_request(self, result):
-        html = "Bad process command. No such action"
-        return self.respondHtml(html)
-
-    def _signalCallback(self, result):
-        #if result:
-        html = str(result)
-        return self.respondHtml(html)
-
+    @defer.inlineCallbacks
     def render(self, req):
         action = req.args['action'][0].strip()
-        
         actions = {'kill':self.engine.kill, 'interupt':self.engine.interrupt}
         if actions.has_key(action):
-            d = defer.maybeDeferred(actions[action])
-            d.addCallback(self._signalCallback)
+            result = yield defer.maybeDeferred(actions[action])
+            resp = result
         else:
-            #FIXME: this might be bad code here! where is the callback
-            # triggered?
-            d = defer.Deferred()
-            d.addCallback(self._bad_request)
-        return d
+            resp = "{'resp':'failed', 'msg':'Bad process command. No such action'}"
+        jsobj = json.dumps(resp)
+        request.setHeader("content-type", "application/json")
+        request.write(jsobj)
+        request.finish()
 
 

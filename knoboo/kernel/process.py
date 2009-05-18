@@ -242,10 +242,3 @@ class KernelProcessControl(BaseProcessControl):
         self.args = (self.executable, '-n', '-p', self.server_port)
         self.env = build_env()
 
-
-
-
-
-
-
-

@@ -38,8 +38,9 @@ application = service.Application('codenode')
 wsgi_root = wsgi_resource()
 root = Root(wsgi_root)
 
-kernel = main.webService()
-root.putChild("asyncnotebook", kernel)
+kernel_web_rsrc, kernel_server_service = main.webService()
+root.putChild("asyncnotebook", kernel_web_rsrc)
+kernel_server_service.setServiceParent(application)
 
 staticrsrc = static.File(os.path.abspath(".")+"/knoboo/static")
 root.putChild("static", staticrsrc)

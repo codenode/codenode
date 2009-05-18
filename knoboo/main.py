@@ -11,7 +11,6 @@ Main services provided by the knoboo distribution.
 """
 import os
 import knoboo
-k_path = knoboo.__path__[0]
 
 from django.core.management import setup_environ
 from knoboo import settings
@@ -24,11 +23,52 @@ from twisted.spread import pb
 from twisted.runner.procmon import ProcessMonitor
 
 
-from knoboo.external.twisted.web2 import log, server, channel
-
 from knoboo.kernel.interface import KernelClientManager
 from knoboo.kernel.server import KernelManagerRealm
 from knoboo.kernel.procman import ProcessManager
+
+
+class Config(object):
+    kernel = {}
+    database = {}
+    server = {}
+
+class KernelConfig(dict):
+    dconfig = {"python":"/usr/bin/python"}
+
+
+def webService():
+    from knoboo.async.webresources import Notebook
+    from knoboo.async.webresources import SessionManager
+    
+    """
+    procmon_service = ProcessMonitor()
+    """
+    procman = ProcessManager()
+
+    #XXX the below configuration hacks will be pulled
+    # out and turn into a combination of:
+    # Twisted Plugin and Django settings usage.
+    config = Config()
+    config.kernel["kernel_path"] = os.path.abspath(".")+"data"
+    config.kernel["kernel_host"] = "localhost"
+    config.kernel["kernel_port"] = "8337"
+
+    kernel_config = KernelConfig()
+    enginepath = os.path.join(os.path.abspath("."), "data")
+    kernel_config.update({"port":8337, "engines-uid":"None", "engines-max":1, "engines-path":enginepath, 
+        "engines-root":enginepath, "engines-pythonpath":enginepath})
+    kernel_server_service = kernelService(kernel_config)
+
+    kernel = KernelClientManager(config, procman)
+    kernel.start()
+
+    nbSessionManager = SessionManager()
+    kernel_web_rsrc = Notebook(nbSessionManager)
+    return kernel_web_rsrc, kernel_server_service
+
+
+
 
 class InMemoryPasswordDatabase(checkers.InMemoryUsernamePasswordDatabaseDontUse):
     """This is used for authenticating kernel connections.
@@ -41,74 +81,14 @@ class InMemoryPasswordDatabase(checkers.InMemoryUsernamePasswordDatabaseDontUse)
                 self.users['user1']).addCallback(
                 self._cbPasswordMatch, str(credentials.username))
 
-
-
-def desktopService(config):
-    from knoboo.resources import avatars, notebook
-    from knoboo.authority import guard, check
-
-    db = config.db['main_path']
-    if not os.path.exists(db):
-        manager.Database('sqlite:///' + db)
-    dbManager = manager.DatabaseManager('sqlite:///' + config.db['main_path'])
-
-    nbSessionManager = notebook.SessionManager(dbManager, config)
-
-    kservice = service.MultiService()
-
-    if config.kernel['kernel_host'] == 'localhost':
-        procman = ProcessManager()
-        procman.setServiceParent(kservice)
-        kernel = KernelClientManager(config, procman)
-        kernel.start()
-
-    realm = avatars.LoginSystem(dbManager, nbSessionManager, config)
-    p = portal.Portal(realm)
-    p.registerChecker(check.NewHashedPasswordDataBaseChecker(dbManager))
-    p.registerChecker(checkers.AllowAnonymousAccess(), credentials.IAnonymous)
-
-    rsrc = guard.SessionWrapper(p)
-
-    site = server.Site(rsrc)
-    factory = channel.HTTPFactory(site)
-
-    d = 'tcp:%s' % config.server['port']
-    srv = strports.service(d, factory)
-    srv.setServiceParent(kservice)
-
-    if config['open_browser']:
-        import webbrowser
-        url = 'http://localhost:%s' % config.server['port']
-        reactor.callWhenRunning(webbrowser.open_new, url)
-
-    return kservice
-
-
-
-def webService():
-    from knoboo.async.webresources import Notebook
-    from knoboo.async.webresources import SessionManager
-    
-    """
-    procmon_service = ProcessMonitor()
-    procman_service = ProcessManager()
-    kernel = KernelClientManager(config, procman)
-    kernel.start()
-    """
-
-    nbSessionManager = SessionManager()
-    rsrc = Notebook(nbSessionManager)
-    return rsrc
-
-
 def kernelService(config):
     kservice = service.MultiService()
 
     procman = ProcessManager()
     procman.setServiceParent(kservice)
 
-    engines_max = int(config['engines-max'])
-    if  engines_max > 1:
+    engines_max = 0 #int(config['engines-max'])
+    if engines_max > 1:
         from knoboo.kernel.interface import UserPool
         prefix = config['engines-user-prefix']
         group = config['engines-group']
@@ -118,22 +98,9 @@ def kernelService(config):
 
     realm = KernelManagerRealm(config, procman, user_pool)
     p = portal.Portal(realm)
-    #chk= checkers.InMemoryUsernamePasswordDatabaseDontUse(user1="secret")
-    chk= InMemoryPasswordDatabase(user1="secret")
+    chk = InMemoryPasswordDatabase(user1="secret")
     p.registerChecker(chk)
     srv = internet.TCPServer(int(config['port']), pb.PBServerFactory(p))
     srv.setServiceParent(kservice)
     return kservice
-
-
-
-
-
-
-
-
-
-
-
-
 
