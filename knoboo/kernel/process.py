@@ -212,6 +212,7 @@ class KernelProcessControl(BaseProcessControl):
 
     processProtocol = KernelProcessProtocol
     executable = 'knoboo-kernel'
+    pidfilename = 'knoboo-kernel.pid'
 
     def __init__(self, config):
         self.config = config
@@ -223,7 +224,7 @@ class KernelProcessControl(BaseProcessControl):
         print 'Kernel Log: \n', data
 
     def get_twistd_pid(self):
-        pidfile = os.path.join(self.path, 'twistd.pid')
+        pidfile = os.path.join(self.path, self.pidfilename)
         f = file(pidfile, 'r')
         self.twistdpid = f.read()
         f.close()
@@ -231,7 +232,7 @@ class KernelProcessControl(BaseProcessControl):
 
     def buildProcess(self):
         self.protocol = self.buildProtocol()
-        self.executable = 'knoboo-kernel'
+        self.executable = '/usr/bin/twistd'
         self.path = self.config.kernel['kernel_path']
         if self.config.kernel['kernel_host'] == 'localhost':
             min_port = int(self.config.kernel['kernel_port'])
@@ -239,6 +240,7 @@ class KernelProcessControl(BaseProcessControl):
             self.config.kernel['kernel_port'] = self.server_port
         else:
             self.server_port = self.config.kernel['kernel_port']
-        self.args = (self.executable, '-n', '-p', self.server_port)
+        #self.args = (self.executable, '-n', 'knoboo-kernel', '-p', self.server_port)
+        self.args = (self.executable, '-n', '--pidfile=%s' % self.pidfilename, 'knoboo-kernel',)
         self.env = build_env()
 

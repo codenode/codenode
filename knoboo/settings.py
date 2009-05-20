@@ -72,13 +72,19 @@ ACCOUNT_ACTIVATION_DAYS = 3
 #User personal settings functionality:
 AUTH_PROFILE_MODULE = "usersettings.UserSettings"
 
+###############################
+
+APP_HOST = 'localhost'
+APP_PORT = 8000
+
 #Available types of notebooks:
 NOTEBOOK_TYPES = ["python", "sage"]
 
 KERNEL_HOST = 'localhost'
 KERNEL_PORT = 8337
 
-ENV_PATH = os.path.join(os.path.expanduser("~"), ".knoboo")
+ENV_PATH = os.path.join(os.path.expanduser("~"), ".knoboo", 'knoboo')
+ENGINES_PATH = os.path.join(os.path.abspath('.'), 'data')
 
 
 COMPRESS = False

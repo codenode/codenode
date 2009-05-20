@@ -1,2 +1,6 @@
+
+.*.*.swp
+*.*.swp
 *.pyc
 knoboo.db
+dropin.cache

@@ -57,10 +57,11 @@ class ProcessSetup(object):
         self.root = config['engines-root']
         self.engines_uid = engines_uid
         self.engines_gid = engines_gid
-        if engines_uid != 'None' or int(config['engines-max']) > 1:
-            self.change_user = True
-        else:
-            self.change_user = False
+        #if engines_uid is None or int(config['engines-max']) > 1:
+        #    self.change_user = True
+        #else:
+        #    self.change_user = False
+        self.change_user = False
 
     def executable(self):
         e = self.config.dconfig.get('python', 'full_bin')
