@@ -14,17 +14,17 @@ Assuming you are in the top level 'knoboo' directory.
 
 1. To run you *must* be using the Twisted trunk
 ::
-  svn co svn://svn.twistedmatrix.com/svn/Twisted/trunk Twisted
+svn co svn://svn.twistedmatrix.com/svn/Twisted/trunk Twisted
 
 2. Initialize the database
 ::
-  python knoboo/manage.py syncdb 
+python knoboo/manage.py syncdb 
 
 (say 'yes' to creating a superuser)
 
 3. Start knoboo by running
 ::
-  Twisted/bin/twistd -n knoboo
+Twisted/bin/twistd -n knoboo
 
 4. Open up http://localhost:8000 and login with the 
    superuser account that was created from step 2.
