@@ -80,6 +80,7 @@ APP_PORT = 8000
 #Available types of notebooks:
 NOTEBOOK_TYPES = ["python", "sage"]
 
+KERNEL_SERVICE = 'knoboo'
 KERNEL_HOST = 'localhost'
 KERNEL_PORT = 8337
 

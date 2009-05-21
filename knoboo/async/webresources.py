@@ -14,7 +14,8 @@ from twisted.web import server, resource
 
 from knoboo.external import simplejson as json
 
-from knoboo.kernel.remoteclient import EngineFactory
+from knoboo.kernel import remoteclient  
+from knoboo.kernel import appengineclient  
 from knoboo.printing import printers
 
 from knoboo import settings
@@ -74,12 +75,14 @@ class EngineSession(resource.Resource):
 
 class SessionManager(object):
 
+    _engineFactory = remoteclient.EngineFactory
 
-    def __init__(self):
+    def __init__(self, options):
         """store notebook operations resources by nbid
         """
-        self.engineFactory = EngineFactory()
+        self.engineFactory = self._engineFactory()
         self.sessions = {}
+        self.options = options
 
     def newSession(self, nbid):
         """return a new resource tree
@@ -116,6 +119,22 @@ class SessionManager(object):
         for nbid, ses in self.sessions.items():
             self.endSession(nbid)
 
+class AppEngineSessionManager(SessionManager):
+    """Hack until notebook service is improved
+    """
+
+    _engineFactory = appengineclient.EngineFactory
+
+    def newSession(self, nbid):
+        notebook_db = dbmanager.NotebookSession(nbid)
+        kernel_host = self.options['kernel_host']
+        kernel_port = self.options['kernel_port']
+        env_path = settings.ENV_PATH
+        system = notebook_db.getSystem()
+        engine = self.engineFactory.newEngine(kernel_host+':'+str(kernel_port))
+        self.sessions[nbid] = EngineSession(nbid, notebook_db, engine, env_path)
+        return self.sessions[nbid]
+        
 
 class NotebookRoot(resource.Resource):
 

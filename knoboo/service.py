@@ -26,6 +26,7 @@ from knoboo.kernel.procman import ProcessManager
 from knoboo.kernel.process import KernelProcessControl
 from knoboo.async.webresources import Notebook
 from knoboo.async.webresources import SessionManager
+from knoboo.async.webresources import AppEngineSessionManager
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'knoboo.settings'
 
@@ -76,6 +77,7 @@ class WebAppOptions(usage.Options):
             ['port', 'p', settings.APP_PORT, 'Port number to listen on'],
             ['kernel_host', 'k', settings.KERNEL_HOST, 'kernel Server host'],
             ['kernel_port', 'q', settings.KERNEL_PORT, 'Kernel Server port'],
+            ['kernel_service', None, settings.KERNEL_SERVICE, 'Provider of notebook kernel service'],
             ['static_path', None, None, 'Static path for web server'],
             ['url_root', 'u', '/', 'Root url path for web server'],
             ['url_static_root', 's', '/', 'Static root url path for web server'],
@@ -127,7 +129,7 @@ class KernelServerOptions(usage.Options):
 
 
 
-def webResourceFactory():
+def webResourceFactory(nbSessionManager):
     """This factory function creates an instance of the front end web
     resource tree containing both the django wsgi and the async
     notebook resources.
@@ -157,7 +159,7 @@ def webResourceFactory():
     django_wsgi_resource = wsgi.WSGIResource(reactor, pool, WSGIHandler())
     resource_root = Root(django_wsgi_resource)
 
-    nbSessionManager = SessionManager() #XXX improve
+    #nbSessionManager = SessionManager() #XXX improve
     notebook_resource = Notebook(nbSessionManager)
     static_resource = static.File(os.path.abspath(".")+"/knoboo/static")
 
@@ -186,7 +188,8 @@ class DesktopServiceMaker(object):
         """
         desktop_service = service.MultiService()
 
-        web_resource = webResourceFactory()
+        nbSessionManager = SessionManager(options)
+        web_resource = webResourceFactory(nbSessionManager)
         web_resource_factory = server.Site(web_resource)
 
         tcp_server = internet.TCPServer(options['port'],
@@ -235,7 +238,12 @@ class WebAppServiceMaker(object):
 
         web_app_service = service.MultiService()
 
-        web_resource = webResourceFactory()
+        if options['kernel_service'] == 'appengine':
+            nbSessionManager = AppEngineSessionManager(options)
+        else:
+            nbSessionManager = SessionManager(options)
+
+        web_resource = webResourceFactory(nbSessionManager)
         web_resource_factory = server.Site(web_resource)
 
         tcp_server = internet.TCPServer(options['port'], 
