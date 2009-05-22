@@ -16,10 +16,6 @@ urlpatterns = patterns("",
     (r'^admin/(.*)', admin.site.root),
 )
 
-urlpatterns += patterns('',
-    (r'^images/(.*)', 'django.views.static.serve', {'document_root': os.path.join(settings.ENV_PATH, 'images')}),
-)
-
 if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^static/(.*)', 'django.views.static.serve', {'document_root': os.path.join(settings.PROJECT_PATH, 'static')}),

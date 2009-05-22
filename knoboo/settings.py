@@ -84,7 +84,7 @@ KERNEL_SERVICE = 'knoboo'
 KERNEL_HOST = 'localhost'
 KERNEL_PORT = 8337
 
-ENV_PATH = os.path.join(os.path.expanduser("~"), ".knoboo", 'knoboo')
+ENV_PATH = os.path.join(os.path.abspath('.'), 'data') #XXX
 ENGINES_PATH = os.path.join(os.path.abspath('.'), 'data')
 
 

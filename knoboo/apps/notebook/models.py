@@ -20,13 +20,13 @@ class Notebook(models.Model):
             self.guid = str(uuid.uuid4()).replace("-", "")
         super(Notebook, self).save()
 
-    def last_modified_time(self, owner):
+    def last_modified_time(self, owner, notebook):
         """Last time corresponding Notebook was modified.
 
         This is equivalent to finding the most recently modified Cell in this Notebook.
         """
         try:
-            q = Cell.objects.filter(owner=owner).latest(field_name="last_modified")
+            q = Cell.objects.filter(owner=owner, notebook=notebook).latest(field_name="last_modified")
             return unicode(q.last_modified).split(".")[0]
         except Cell.DoesNotExist:
             return unicode(self.created_time).split(".")[0]

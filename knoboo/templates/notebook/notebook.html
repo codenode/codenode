@@ -5,6 +5,10 @@
 {% block extrahead %}
     {% compressed_css 'notebook' %}
     {% compressed_js 'notebook' %}
+    <script type='text/javascript'>
+    /* User Specific Settings */
+    var NOTEBOOK_OPENS_IN_NEW_WINDOW = {{ user.get_profile.notebook_opens_in_new_window|lower }}
+    </script>
 {% endblock %}
 
 {% block content %}

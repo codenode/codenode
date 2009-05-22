@@ -84,7 +84,12 @@ Notebook.Save.saveSuccess = function(res) {
 };
 
 Notebook.Save.saveCloseSuccess = function(res) {
-    window.close();
+    /* Close window or go back depending on User settings*/
+    if (NOTEBOOK_OPENS_IN_NEW_WINDOW){ 
+        window.close();
+    } else {
+        window.back();
+    }
 };
 
 Notebook.Save.saveError = function(res) {

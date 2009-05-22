@@ -349,8 +349,8 @@ class Control(EngineMethod):
     """
  
     @defer.inlineCallbacks
-    def render(self, req):
-        action = req.args['action'][0].strip()
+    def render(self, request):
+        action = request.args['action'][0].strip()
         actions = {'kill':self.engine.kill, 'interupt':self.engine.interrupt}
         if actions.has_key(action):
             result = yield defer.maybeDeferred(actions[action])
