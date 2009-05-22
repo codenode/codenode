@@ -22,7 +22,7 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 # although not all choices may be available on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/Los_Angeles'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -77,8 +77,10 @@ AUTH_PROFILE_MODULE = "usersettings.UserSettings"
 APP_HOST = 'localhost'
 APP_PORT = 8000
 
-#Available types of notebooks:
+#Available types of notebooks: #XXX Clean up and do intelligent detection:
 NOTEBOOK_TYPES = ["python", "sage"]
+PYTHON_BINARY = "/usr/bin/python"
+SAGE_BINARY = "/Applications/sage/sage"
 
 KERNEL_SERVICE = 'knoboo'
 KERNEL_HOST = 'localhost'
@@ -139,3 +141,25 @@ INSTALLED_APPS = (
     'knoboo.apps.usersettings',
     'knoboo.apps.compress'
 )
+
+_BANNERLEN = 70
+try:
+    from local_settings import *
+    print "*"*_BANNERLEN
+    print "*"
+    print "* Open your web browser to http://%s:%s" % (APP_HOST, APP_PORT)
+    print "*"
+    print "*"*_BANNERLEN
+except ImportError, exp:
+    print "*"*_BANNERLEN
+    print "*"
+    print "! Warning: No 'local_settings.py' found, using defaults."
+    print "! See '$knoboo/local_settings.py.example'."
+    print "*"
+    print "-"*_BANNERLEN
+    print "*"
+    print "* Open your web browser to http://%s:%s" % (APP_HOST, APP_PORT)
+    print "*"
+    print "*"*_BANNERLEN
+del _BANNERLEN
+

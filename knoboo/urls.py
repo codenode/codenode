@@ -7,7 +7,7 @@ admin.autodiscover()
 
 #urlpatterns = patterns('django.views.generic.simple',
 urlpatterns = patterns("",
-    (r'^$', 'django.views.generic.simple.redirect_to', {'url':'accounts/login/'}), #uses template/homepage.html 
+    (r'^$', 'django.views.generic.simple.redirect_to', {'url':'bookshelf'}), #uses template/homepage.html 
     (r'^bookshelf/', include('apps.bookshelf.urls')),
     (r'^notebook/', include('apps.notebook.urls')),
     (r'^accounts/', include('apps.registration.urls')),

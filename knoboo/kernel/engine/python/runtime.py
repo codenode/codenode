@@ -1,5 +1,5 @@
-
 import os
+from knoboo import settings
 from knoboo.kernel.engine import base
 
 def build_env():
@@ -35,4 +35,6 @@ class ProcessSetup(base.ProcessSetup):
     """python uses base code
     """
 
+    def executable(self):
+        return settings.PYTHON_BINARY
 

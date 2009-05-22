@@ -64,8 +64,7 @@ class ProcessSetup(object):
         self.change_user = False
 
     def executable(self):
-        e = self.config.dconfig.get('python', 'full_bin')
-        return e
+        raise "Specific Engines Must Implement this Method"
 
     def args(self, port):
         """port is an argument determined right before startup, and so is

@@ -1,4 +1,5 @@
 import os
+from knoboo import settings
 from knoboo.kernel.engine import base
 
 
@@ -86,11 +87,6 @@ def build_path_list(env_variables, other_paths):
     path = ':'.join(path)
     return path
 
-def test_build_env():
-    config = {'sage_root':'/home/tester/sage'}
-    env = build_env(config)
-    print env
-
 def build_namespace():
     from knoboo.kernel.engine.python.introspection import introspect
     from sage.all import *
@@ -103,6 +99,7 @@ def build_namespace():
 def engine_startup():
     ENGINE_STARTUP="""
 import sys
+sys.path.append("../../") #XXX be able to import knoboo
 from knoboo.kernel.engine.server import EngineRPCServer
 from knoboo.kernel.engine.sage.interpreter import Interpreter
 from knoboo.kernel.engine.sage.runtime import build_namespace
@@ -118,15 +115,19 @@ if __name__ == "__main__":
 
 class ProcessSetup(base.ProcessSetup):
 
+    def executable(self):
+        return settings.SAGE_BINARY
+
     def engine_startup(self, port):
-        ENGINE_STARTUP="""
+        ENGINE_STARTUP="""\
+import sys
+sys.path.append("/Users/agc/Documents/work/codenode") #XXX be able to import knoboo
 from knoboo.kernel.engine.server import EngineRPCServer
 from knoboo.kernel.engine.sage.interpreter import Interpreter
 from knoboo.kernel.engine.sage.runtime import build_namespace
 namespace = build_namespace
-server = EngineRPCServer(('127.0.0.1', %s), Interpreter, namespace)
-server.serve_forever()
-    """ % port
+server = EngineRPCServer(('127.0.0.1', int(%s)), Interpreter, namespace)
+server.serve_forever()""" % port
         return ENGINE_STARTUP
 
     def jailed_engine_startup(self, port, root, uid):

@@ -304,7 +304,7 @@ class Evaluate(EngineMethod):
         return d
 
     def _kernel_err(self, result, request, cellid):
-        output = 'Kernel Error: The interpreter might still be starting up.'
+        output = 'Kernel Error: The interpreter might still be starting up. Try again.'
         count = '!'
         outputstyle = 'outputtext'
         #TODO Make an errortext style 

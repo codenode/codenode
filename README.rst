@@ -20,13 +20,18 @@ Assuming you are in the top level 'knoboo' directory.
 ::
     python knoboo/manage.py syncdb 
 
+
+3. Initialize the database
+::
+    python knoboo/manage.py syncdb 
+
 (say 'yes' to creating a superuser)
 
-3. Start knoboo by running
+4. Start knoboo by running
 ::
     Twisted/bin/twistd -n knoboo
 
-4. Open up http://localhost:8000 and login with the 
+4. Open up browser to http://APP_HOST:APP_PORT and login with the 
    superuser account that was created from step 2.
 
 

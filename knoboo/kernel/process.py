@@ -221,7 +221,7 @@ class KernelProcessControl(BaseProcessControl):
     def receive(self, data):
         """
         """
-        print 'Kernel Log: \n', data
+        #print 'Kernel Log: \n', data #XXX Implement better logging.
 
     def get_twistd_pid(self):
         pidfile = os.path.join(self.path, self.pidfilename)
