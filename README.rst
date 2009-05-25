@@ -50,8 +50,7 @@ this will change after the next release of Twisted.)
 
   ../Twisted/bin/twistd -n knoboo
 
-**4. Open Firefox to http://APP_HOST:APP_PORT and login with the 
-   superuser account that was created from step 2.**
+**4. Open Firefox to http://APP_HOST:APP_PORT and login with the superuser account that was created from step 2.**
 
 
 
