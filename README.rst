@@ -23,27 +23,35 @@ IMPORTANT: Please follow these instructions *exactly*
 directory structure, namely the Twisted trunk be called `Twisted`, to work,
 this will change after the next release of Twisted.) 
 
-0. Make a new directory that both knoboo and Twisted will be downloaded to: 
+**0. Make a new directory that both knoboo and Twisted will be downloaded to:**
+
 ::
+
   mkdir knobooenv
   cd knobooenv
 
-1. Download local dependencies:
+**1. Download local dependencies:**
+
 ::
+
   svn co svn://svn.twistedmatrix.com/svn/Twisted/trunk Twisted
   git clone git://github.com/knoboo/knoboo.git
 
-2. Initialize the database (say 'yes' to creating a superuser):
+**2. Initialize the database (say 'yes' to creating a superuser):**
+
 ::
+
   cd knoboo
   python knoboo/manage.py syncdb 
 
-3. Start knoboo by running (Note the dependence of the Twisted trunk being one dir up):
+**3. Start knoboo by running (Note the dependence of the Twisted trunk being one dir up):**
+
 ::
+
   ../Twisted/bin/twistd -n knoboo
 
-4. Open Firefox to http://APP_HOST:APP_PORT and login with the 
-   superuser account that was created from step 2.
+**4. Open Firefox to http://APP_HOST:APP_PORT and login with the 
+   superuser account that was created from step 2.**
 
 
 
