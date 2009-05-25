@@ -7,31 +7,42 @@ A new knoboo that:
     - Is a current *Work in Progress, and is still broken/incomplete in several (fixable) places*
 
 
+Dependencies
+============
+* Django  
+* Twisted trunk
+* knoboo 'master' branch
+
+
 How to run knoboo
 ==================
 
-Assuming you are in the top level 'knoboo' directory.
+IMPORTANT: Please follow these instructions *exactly*
+-----------------------------------------------------
+(This is because knoboo currently depends on a certain top-level 
+directory structure, namely the Twisted trunk be called `Twisted`, to work,
+this will change after the next release of Twisted.) 
 
-1. To run you *must* be using the Twisted trunk
+0. Make a new directory that both knoboo and Twisted will be downloaded to: 
 ::
-    svn co svn://svn.twistedmatrix.com/svn/Twisted/trunk Twisted
+  mkdir knobooenv
+  cd knobooenv
 
-2. Initialize the database
+1. Download local dependencies:
 ::
-    python knoboo/manage.py syncdb 
+  svn co svn://svn.twistedmatrix.com/svn/Twisted/trunk Twisted
+  git clone git://github.com/knoboo/knoboo.git
 
-
-3. Initialize the database
+2. Initialize the database (say 'yes' to creating a superuser):
 ::
-    python knoboo/manage.py syncdb 
+  cd knoboo
+  python knoboo/manage.py syncdb 
 
-(say 'yes' to creating a superuser)
-
-4. Start knoboo by running
+3. Start knoboo by running (Note the dependence of the Twisted trunk being one dir up):
 ::
-    Twisted/bin/twistd -n knoboo
+  ../Twisted/bin/twistd -n knoboo
 
-4. Open up browser to http://APP_HOST:APP_PORT and login with the 
+4. Open Firefox to http://APP_HOST:APP_PORT and login with the 
    superuser account that was created from step 2.
 
 
@@ -46,7 +57,7 @@ Kernel
 Engines
 -------
 
-- The directory $knoboo/data is where each engines runtime enviroment exists.
+- The directory 'data' is where each engines runtime environment exists.
 
 - The file $knoboo/kernel/engine/base.py is where an 'engine' (actual process that
   a notebook's code is executed in) specific config options (run_path, uid, guid, chroot jail, etc)

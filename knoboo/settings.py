@@ -77,6 +77,7 @@ AUTH_PROFILE_MODULE = "usersettings.UserSettings"
 APP_HOST = 'localhost'
 APP_PORT = 8000
 
+TWISTD = "../Twisted/bin/twistd" #XXX Temporary Dependance on the Twisted Trunk
 #Available types of notebooks: #XXX Clean up and do intelligent detection:
 NOTEBOOK_TYPES = ["python", "sage"]
 PYTHON_BINARY = "/usr/bin/python"

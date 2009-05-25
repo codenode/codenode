@@ -11,6 +11,7 @@ import os
 from twisted.internet import protocol, reactor, defer, error
 
 from knoboo.kernel.engine.python.runtime import build_env
+from knoboo import settings
 
 MIN_PORT = 9000
 MAX_PORT = 10000
@@ -211,17 +212,17 @@ class EngineProcessControl(BaseProcessControl):
 class KernelProcessControl(BaseProcessControl):
 
     processProtocol = KernelProcessProtocol
-    executable = 'knoboo-kernel'
     pidfilename = 'knoboo-kernel.pid'
 
     def __init__(self, config):
         self.config = config
         self.name = 'kernel-server'
+        self.executable = settings.TWISTD #XXX 
 
     def receive(self, data):
         """
         """
-        #print 'Kernel Log: \n', data #XXX Implement better logging.
+        print 'Kernel Log: \n', data #XXX Implement better logging.
 
     def get_twistd_pid(self):
         pidfile = os.path.join(self.path, self.pidfilename)
@@ -232,7 +233,6 @@ class KernelProcessControl(BaseProcessControl):
 
     def buildProcess(self):
         self.protocol = self.buildProtocol()
-        self.executable = '/usr/bin/twistd'
         self.path = self.config.kernel['kernel_path']
         if self.config.kernel['kernel_host'] == 'localhost':
             min_port = int(self.config.kernel['kernel_port'])
@@ -240,7 +240,6 @@ class KernelProcessControl(BaseProcessControl):
             self.config.kernel['kernel_port'] = self.server_port
         else:
             self.server_port = self.config.kernel['kernel_port']
-        #self.args = (self.executable, '-n', 'knoboo-kernel', '-p', self.server_port)
         self.args = (self.executable, '-n', '--pidfile=%s' % self.pidfilename, 'knoboo-kernel',)
         self.env = build_env()
 
