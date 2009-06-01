@@ -14,23 +14,23 @@ import os
 
 from zope.interface import implements
 
-from twisted.web import server, resource, wsgi, static
+from knoboo.external.twisted.web import server, resource, wsgi, static
 from twisted.cred import portal, checkers, credentials
 from twisted.spread import pb
 from twisted.internet import reactor, defer
 from twisted.application import internet, service
 from twisted.python import usage
 
-from knoboo.kernel.server import KernelManagerRealm
-from knoboo.kernel.procman import ProcessManager
-from knoboo.kernel.process import KernelProcessControl
-from knoboo.async.webresources import Notebook
-from knoboo.async.webresources import SessionManager
-from knoboo.async.webresources import AppEngineSessionManager
+from knoboo.backend.kernel.server import KernelManagerRealm
+from knoboo.backend.kernel.procman import ProcessManager
+from knoboo.backend.kernel.process import KernelProcessControl
+from knoboo.frontend.async.webresources import Notebook
+from knoboo.frontend.async.webresources import SessionManager
+from knoboo.frontend.async.webresources import AppEngineSessionManager
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'knoboo.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'knoboo.frontend.settings'
 
-from knoboo import settings
+from knoboo.frontend import settings
 
 VERSION = '0.2'
 KERNEL_VERSION = '0.2'
@@ -161,7 +161,7 @@ def webResourceFactory(nbSessionManager):
 
     #nbSessionManager = SessionManager() #XXX improve
     notebook_resource = Notebook(nbSessionManager)
-    static_resource = static.File(os.path.abspath(".")+"/knoboo/static")
+    static_resource = static.File(os.path.abspath(".")+"/knoboo/frontend/static")
 
     resource_root.putChild("asyncnotebook", notebook_resource)
     resource_root.putChild("static", static_resource)

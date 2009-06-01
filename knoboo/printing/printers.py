@@ -3,7 +3,7 @@ import re
 
 from twisted.internet import protocol, defer
 
-from knoboo.kernel import process
+from knoboo.backend.kernel import process
 
 
 
