@@ -18,7 +18,7 @@ def build_env():
 
 
 def build_namespace():
-    from knoboo.kernel.engine.python.introspection import introspect
+    from knoboo.backend.kernel.engine.python.introspection import introspect
     try:
         import matplotlib
         matplotlib.use('Agg')

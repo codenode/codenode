@@ -141,7 +141,7 @@ INSTALLED_APPS = (
     'knoboo.frontend.bookshelf',
     'knoboo.frontend.notebook',
     'knoboo.frontend.usersettings',
-    'knoboo.frontend.compress'
+    'compress',
 )
 
 #########################################################

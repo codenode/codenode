@@ -38,7 +38,7 @@ def build_jailed_env(config):
     return env
 
 def build_namespace():
-    from knoboo.kernel.engine.python.introspection import introspect
+    from knoboo.backend.kernel.engine.python.introspection import introspect
     try:
         USERNAMESPACE = locals()
         USERNAMESPACE.update({"introspect":introspect})
@@ -117,9 +117,9 @@ class ProcessSetup(object):
         ENGINE_STARTUP="""
 import sys
 sys.path.append("../../") #XXX be able to import knoboo
-from knoboo.kernel.engine.server import EngineRPCServer
-from knoboo.kernel.engine.python.interpreter import Interpreter
-from knoboo.kernel.engine.python.runtime import build_namespace
+from knoboo.backend.kernel.engine.server import EngineRPCServer
+from knoboo.backend.kernel.engine.python.interpreter import Interpreter
+from knoboo.backend.kernel.engine.python.runtime import build_namespace
 namespace = build_namespace
 server = EngineRPCServer(('127.0.0.1', %s), Interpreter, namespace)
 server.serve_forever()
@@ -129,10 +129,10 @@ server.serve_forever()
     def jailed_engine_startup(self, port, root, pythonpath, uid, gid):
         ENGINE_STARTUP="""
 import sys
-from knoboo.kernel.engine import base
-from knoboo.kernel.engine.server import EngineRPCServer
-from knoboo.kernel.engine.python.interpreter import Interpreter
-from knoboo.kernel.engine.python.runtime import build_namespace
+from knoboo.backend.kernel.engine import base
+from knoboo.backend.kernel.engine.server import EngineRPCServer
+from knoboo.backend.kernel.engine.python.interpreter import Interpreter
+from knoboo.backend.kernel.engine.python.runtime import build_namespace
 jail = base.Jail('%s', '%s', %s, %s)
 entered = jail.enter_jail()
 if not entered:

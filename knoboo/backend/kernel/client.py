@@ -3,8 +3,8 @@ import xmlrpclib
 import urlparse
 
 from twisted.internet import defer, protocol, reactor
-from knoboo.external.twisted.web2.xmlrpc import QueryProtocol, payloadTemplate
-from knoboo.external.twisted.web2.xmlrpc import Client
+from knoboo.external.twisted.web.xmlrpc import QueryProtocol, payloadTemplate
+from knoboo.external.twisted.web.xmlrpc import Proxy
 from twisted.python import failure
 
 class RPCQueryFactory(protocol.ReconnectingClientFactory):
@@ -13,10 +13,12 @@ class RPCQueryFactory(protocol.ReconnectingClientFactory):
     protocol = QueryProtocol
     maxRetries = 20
 
-    def __init__(self, path, host, method, user=None, password=None, *args):
+    def __init__(self, path, host, method, user=None, password=None, 
+                        allowNone=False, args=()):
         self.path, self.host = path, host
         self.user, self.password = user, password
-        self.payload = payloadTemplate % (method, xmlrpclib.dumps(args))
+        self.payload = payloadTemplate % (method, 
+                xmlrpclib.dumps(args, allow_none=allowNone))
         self.deferred = defer.Deferred()
 
     def parseResponse(self, contents):
@@ -46,14 +48,12 @@ class RPCQueryFactory(protocol.ReconnectingClientFactory):
     def badStatus(self, status, message):
         """need to fix errors differing between web and web2
         """
-        #self.deferred.errback(ValueError(status, message))
-        self.deferred.errback(BadResponseCodeError(status, message))
+        self.deferred.errback(ValueError(status, message))
+        #self.deferred.errback(BadResponseCodeError(status, message))
         self.deferred = None
 
-class RPCClient(Client):
-    def _buildFactory(self, method, *args):
-        return RPCQueryFactory(self.path, self.host, method, self.user,
-                self.password, *args)
+class RPCClient(Proxy):
+    queryFactory = RPCQueryFactory
 
 
 class EngineClient(object):

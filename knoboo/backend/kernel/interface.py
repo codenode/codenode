@@ -11,10 +11,9 @@ import os
 from zope.interface import Interface, implements
 
 from twisted.internet import defer
-from twisted.web import xmlrpc
 
 from knoboo.backend.kernel.process import EngineProcessControl, KernelProcessControl 
-#from knoboo.backend.kernel.client import RPCClient, EngineClient
+from knoboo.backend.kernel.client import RPCClient
 
 class IEngine(Interface):
 
@@ -105,9 +104,9 @@ class EngineManager(EngineObject):
     def start(self, system):
         self.defer_ready = defer.Deferred()
         if system == 'python':
-            from knoboo.kernel.engine.python import runtime
+            from knoboo.backend.kernel.engine.python import runtime
         elif system == 'sage':
-            from knoboo.kernel.engine.sage import runtime
+            from knoboo.backend.kernel.engine.sage import runtime
         if self.user_pool:
             try:
                 self.uid = self.user_pool.pop()
@@ -129,8 +128,7 @@ class EngineManager(EngineObject):
 
     def processStarted(self, port):
         url = 'http://localhost:' + port
-        #self.client = RPCClient(url)
-        self.client = xmlrpc.Proxy(url)
+        self.client = RPCClient(url)
         d = self.client.callRemote('hello')
         d.addCallback(self._engine_ready)
         return d
