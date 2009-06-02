@@ -6,8 +6,8 @@ from django.conf import settings as django_settings
 from django.utils.http import urlquote
 from django.dispatch import dispatcher
 
-from frontend.compress.conf import settings
-from frontend.compress.signals import css_filtered, js_filtered
+from compress.conf import settings
+from compress.signals import css_filtered, js_filtered
 
 def get_class(class_string):
     """
@@ -19,8 +19,8 @@ def get_class(class_string):
         try:
             class_string = class_string.encode('ascii')
             mod_name, class_name = get_mod_func(class_string)
-            mod_name = "apps."+mod_name #Alex 1/2/2009
-            class_string = "apps."+class_string #Alex 1/2/2009
+            #mod_name = "apps."+mod_name #Alex 1/2/2009
+            #class_string = "apps."+class_string #Alex 1/2/2009
             if class_name != '':
                 class_string = getattr(__import__(mod_name, {}, {}, ['']), class_name)
         except (ImportError, AttributeError):

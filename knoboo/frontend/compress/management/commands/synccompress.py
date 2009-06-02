@@ -4,7 +4,7 @@ from optparse import make_option
 from django.conf import settings
 
 print "====>"
-from apps.compress.utils import needs_update, filter_css, filter_js
+from compress.utils import needs_update, filter_css, filter_js
 
 class Command(NoArgsCommand):
     option_list = NoArgsCommand.option_list + (
@@ -18,7 +18,7 @@ class Command(NoArgsCommand):
         force = options.get('force', False)
         verbosity = int(options.get('verbosity', 1))
 
-        from apps.compress.utils import needs_update, filter_css, filter_js
+        from compress.utils import needs_update, filter_css, filter_js
 
         for name, css in settings.COMPRESS_CSS.items():
             u, version = needs_update(css['output_filename'], 

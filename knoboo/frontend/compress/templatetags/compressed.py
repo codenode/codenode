@@ -4,8 +4,8 @@ from django import template
 
 from django.conf import settings as django_settings
 
-from apps.compress.conf import settings
-from apps.compress.utils import media_root, media_url, needs_update, filter_css, filter_js, get_output_filename, get_version, get_version_from_file
+from compress.conf import settings
+from compress.utils import media_root, media_url, needs_update, filter_css, filter_js, get_output_filename, get_version, get_version_from_file
 
 register = template.Library()
 

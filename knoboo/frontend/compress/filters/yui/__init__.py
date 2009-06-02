@@ -2,7 +2,7 @@ import subprocess
 
 from django.conf import settings
 
-from apps.compress.filter_base import FilterBase, FilterError
+from compress.filter_base import FilterBase, FilterError
 
 BINARY = getattr(settings, 'COMPRESS_YUI_BINARY', 'java -jar yuicompressor.jar')
 CSS_ARGUMENTS = getattr(settings, 'COMPRESS_YUI_CSS_ARGUMENTS', '')
