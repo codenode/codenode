@@ -7,7 +7,7 @@ Interface definitions for L{knoboo.external.twisted.web}.
 """
 
 from zope.interface import Interface, Attribute
-from twisted.cred.credentials import IUsernameDigestHash
+#from twisted.cred.credentials import IUsernameDigestHash #XXX tempory work-around
 
 class IRequest(Interface):
     """
@@ -352,4 +352,5 @@ class ICredentialFactory(Interface):
         @return: The credentials represented by the given response.
         """
 
-__all__ = ["IUsernameDigestHash", "ICredentialFactory", "IRequest"]
+#__all__ = ["IUsernameDigestHash", "ICredentialFactory", "IRequest"]
+__all__ = ["ICredentialFactory", "IRequest"]
