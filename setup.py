@@ -32,12 +32,13 @@ for dirpath, dirnames, filenames in os.walk('knoboo'):
         packages.append('.'.join(fullsplit(dirpath)))
     elif filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
-packages.append("twisted.plugins")
+packages.append("knoboo.twisted.plugins")
 
 
 
 #XXX finish the below:
 package_data = {'knoboo':[
+    'data/knoboo.db',
     'frontend/static/js/*.js',
     'frontend/static/external/*.js',
     'frontend/static/css/*.css',
@@ -47,6 +48,11 @@ package_data = {'knoboo':[
     'frontend/static/admin/img/admin/*.gif',
     'frontend/static/admin/js/*.js',
     'frontend/static/admin/js/admin/*.js',
+    'frontend/templates/*.html',
+    'frontend/templates/admin/*.html',
+    'frontend/templates/bookshelf/*.html',
+    'frontend/templates/notebook/*.html',
+    'frontend/templates/usersettings/*.html',
 ]}
 
 

@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 from django.contrib.auth.models import User
 
-from frontend.usersettings.models import UserSettings
+from knoboo.frontend.usersettings.models import UserSettings
 
 class UserForm(ModelForm):
     

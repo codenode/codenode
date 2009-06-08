@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from frontend.bookshelf.models import Folder
+from knoboo.frontend.bookshelf.models import Folder
 
 class FolderAdmin(admin.ModelAdmin):
     #list_display = ('__unicode__', )

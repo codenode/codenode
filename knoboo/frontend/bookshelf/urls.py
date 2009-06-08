@@ -1,8 +1,8 @@
 from django.conf.urls.defaults import *
 
-from frontend.bookshelf.views import bookshelf, folders
-from frontend.bookshelf.views import load_bookshelf_data, change_notebook_location
-from frontend.bookshelf.views import empty_trash, new_notebook
+from knoboo.frontend.bookshelf.views import bookshelf, folders
+from knoboo.frontend.bookshelf.views import load_bookshelf_data, change_notebook_location
+from knoboo.frontend.bookshelf.views import empty_trash, new_notebook
 
 urlpatterns = patterns('',
     url(r'^$', bookshelf, name='bookshelf'),

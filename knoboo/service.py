@@ -28,12 +28,16 @@ from knoboo.frontend.async.webresources import Notebook
 from knoboo.frontend.async.webresources import SessionManager
 from knoboo.frontend.async.webresources import AppEngineSessionManager
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'knoboo.frontend.settings'
-
 from knoboo.frontend import settings
-
 VERSION = '0.2'
 KERNEL_VERSION = '0.2'
+
+
+class KernelConfig(object):
+    kernel = {}
+    database = {}
+    server = {}
+
 
 class DesktopOptions(usage.Options):
     """Main command line options for the desktop server.
@@ -129,7 +133,7 @@ class KernelServerOptions(usage.Options):
 
 
 
-def webResourceFactory(nbSessionManager):
+def webResourceFactory(nbSessionManager, staticfiles):
     """This factory function creates an instance of the front end web
     resource tree containing both the django wsgi and the async
     notebook resources.
@@ -161,7 +165,7 @@ def webResourceFactory(nbSessionManager):
 
     #nbSessionManager = SessionManager() #XXX improve
     notebook_resource = Notebook(nbSessionManager)
-    static_resource = static.File(os.path.abspath(".")+"/knoboo/frontend/static")
+    static_resource = static.File(staticfiles)
 
     resource_root.putChild("asyncnotebook", notebook_resource)
     resource_root.putChild("static", static_resource)
@@ -189,7 +193,9 @@ class DesktopServiceMaker(object):
         desktop_service = service.MultiService()
 
         nbSessionManager = SessionManager(options)
-        web_resource = webResourceFactory(nbSessionManager)
+        staticfiles = options['env_path'] + "/frontend/static" #XXX
+        print "sfiles ========> ", staticfiles
+        web_resource = webResourceFactory(nbSessionManager, staticfiles)
         web_resource_factory = server.Site(web_resource)
 
         tcp_server = internet.TCPServer(options['port'],
@@ -201,12 +207,7 @@ class DesktopServiceMaker(object):
         ##########################
         #XXX Hack Time. Fix This!!
         #
-        class Config(object):
-            kernel = {}
-            database = {}
-            server = {}
-
-        kernel_config = Config()
+        kernel_config = KernelConfig()
         kernel_config.kernel["kernel_path"] = os.path.abspath(".")
         kernel_config.kernel["kernel_host"] = "localhost"
         kernel_config.kernel["kernel_port"] = 8337
@@ -243,7 +244,8 @@ class WebAppServiceMaker(object):
         else:
             nbSessionManager = SessionManager(options)
 
-        web_resource = webResourceFactory(nbSessionManager)
+        staticfiles = options['env_path'] + "/frontend/static" #XXX
+        web_resource = webResourceFactory(nbSessionManager, staticfiles)
         web_resource_factory = server.Site(web_resource)
 
         tcp_server = internet.TCPServer(options['port'], 

@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-from frontend.notebook.views import notebook, share
+from knoboo.frontend.notebook.views import notebook, share
 
 urlpatterns = patterns('',
     url(r'^(?P<nbid>\w{32})/$', notebook, name='notebook'),

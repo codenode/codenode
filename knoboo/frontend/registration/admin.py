@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from frontend.registration.models import RegistrationProfile
+from models import RegistrationProfile
 
 
 class RegistrationAdmin(admin.ModelAdmin):

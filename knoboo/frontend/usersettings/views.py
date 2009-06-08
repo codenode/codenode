@@ -3,8 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm, AdminPasswordChangeForm
 
-from frontend.usersettings import models
-from frontend.usersettings import forms
+from knoboo.frontend.usersettings import models
+from knoboo.frontend.usersettings import forms
 
 @login_required
 def usersettings(request, template_name='usersettings/usersettings.html'):

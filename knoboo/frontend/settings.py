@@ -11,7 +11,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = PROJECT_PATH+'/knoboo.db' # Or path to database file if using sqlite3.
+DATABASE_NAME = PROJECT_PATH+'/../data/knoboo.db' # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -148,6 +148,7 @@ INSTALLED_APPS = (
 # This is run every time something imports settings...FIX
 # Certain parts of the system might not want to import 
 # this as some settings may be overridden by cmd options.
+"""
 _BANNERLEN = 70
 try:
     from local_settings import *
@@ -169,3 +170,4 @@ except ImportError, exp:
     print "*"*_BANNERLEN
 del _BANNERLEN
 
+"""

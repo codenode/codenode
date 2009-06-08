@@ -12,8 +12,8 @@ from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 from django.contrib.auth import views as auth_views
 
-from frontend.registration.views import activate
-from frontend.registration.views import register
+from knoboo.frontend.registration.views import activate
+from knoboo.frontend.registration.views import register
 
 
 urlpatterns = patterns('',

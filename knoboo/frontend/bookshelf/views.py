@@ -5,8 +5,8 @@ from django.template import RequestContext
 from django.utils import simplejson as json
 from django.contrib.auth.decorators import login_required
 
-from frontend.bookshelf import models as bookshelf_models
-from frontend.notebook import models as notebook_models
+from knoboo.frontend.bookshelf import models as bookshelf_models
+from knoboo.frontend.notebook import models as notebook_models
 
 @login_required
 def bookshelf(request, template_name='bookshelf/bookshelf.html'):

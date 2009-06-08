@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from frontend.notebook.models import Notebook
-from frontend.notebook.models import Cell
+from knoboo.frontend.notebook.models import Notebook, Cell
 
 class NotebookAdmin(admin.ModelAdmin):
     #list_display = ('__unicode__', )

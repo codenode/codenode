@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from knoboo import * #.management import management
+import sys
+from knoboo.management import args, commands
 
-if __name__ == "__main__":
-    print "OK" #management.run()
+args.parse_and_run_command(sys.argv[1:], commands, default_command="help")
+
