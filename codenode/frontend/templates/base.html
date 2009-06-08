@@ -1,0 +1,19 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ <head>
+   <title>{% block title %}Codenode - Interactive Programming Notebook for the Web Browser.{% endblock %}</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link rel='stylesheet' type='text/css' href='/static/css/global.css'></link>
+   <script type='text/javascript'>f = function() {document.getElementById("id_username").focus();}</script>
+    {% block extrahead %}{% endblock %}
+  </head>
+ <body onload=f()>
+ <div id='container'>
+    <div id='top'>
+      <img src='/static/img/logo-large.png'></img>
+      <h1>Codenode - Interactive Programming Notebook for the Web Browser.</h1>
+    </div>
+    {% block content %}{% endblock %}
+ </div>
+ </body>
+</html>

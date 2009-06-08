@@ -1,9 +1,9 @@
-include knoboo/twisted/plugins/knoboo_plugin.py
-include knoboo/data/knoboo.db
+include codenode/twisted/plugins/codenode_plugin.py
+include codenode/data/codenode.db
 
-graft knoboo/frontend/static
-recursive-include knoboo/frontend/static/js *
-recursive-include knoboo/frontend/static/css *
-recursive-include knoboo/frontend/static/img *
+graft codenode/frontend/static
+recursive-include codenode/frontend/static/js *
+recursive-include codenode/frontend/static/css *
+recursive-include codenode/frontend/static/img *
 
-recursive-include knoboo/frontend/templates *
+recursive-include codenode/frontend/templates *

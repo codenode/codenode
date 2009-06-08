@@ -25,19 +25,19 @@ packages, data_files = [], []
 root_dir = os.path.dirname(__file__)
 if root_dir != '':
     os.chdir(root_dir)
-for dirpath, dirnames, filenames in os.walk('knoboo'):
+for dirpath, dirnames, filenames in os.walk('codenode'):
     for i, dirname in enumerate(dirnames):
         if dirname.startswith('.'): del dirnames[i]
     if '__init__.py' in filenames:
         packages.append('.'.join(fullsplit(dirpath)))
     elif filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
-packages.append("knoboo.twisted.plugins")
+packages.append("codenode.twisted.plugins")
 
 
 
-package_data = {'knoboo':[
-    'data/knoboo.db',
+package_data = {'codenode':[
+    'data/codenode.db',
     'frontend/static/js/*.js',
     'frontend/static/external/*.js',
     'frontend/static/css/*.css',
@@ -57,14 +57,14 @@ package_data = {'knoboo':[
 
 
 setup(
-    name='knoboo',
+    name='codenode',
     version='0.01',
     url='http://codenode.org',
     #download_url='http://codenode.org/static/codenode-0.01.tar.gz',
     #install_requires=['twisted', 'django'],
     packages=packages,
     package_data=package_data,
-    scripts=["knoboo/scripts/codenode-admin"],
+    scripts=["codenode/scripts/codenode-admin"],
     description='Interactive Online Programming Notebook',
     author='Alex Clemesha & Dorian Raymer',
     author_email='codenode-devel@googlegroups.com',

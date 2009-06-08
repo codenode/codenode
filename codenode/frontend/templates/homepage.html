@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %} Codenode - Interactive Programming Notebook for the Web Browser. {% endblock %}
+
+{% block content %}
+    <div id='incoming'>
+        <div id='login'>
+          <p>Login</p>
+            {% if form.errors %}
+            <span class="error">Login failed, please try again.</span>
+            {% endif %}
+        <form action="/accounts/login/?next=/bookshelf/" method="post">
+             {# {% if form.username.errors %} <span class="error">{{ form.username.errors|join:", " }}</span>{% endif %} #}
+             <div class='in'>Username: {{ form.username }}</div>
+             {# {% if form.password.errors %} <span class="error">{{ form.password.errors|join:", " }}</span>{% endif %} #}
+             <div class='in'>Password: {{ form.password }}</div>
+             <input type="submit" value="&nbsp;&nbsp;&nbsp;Login&nbsp;&nbsp;&nbsp;"/>
+          </form>
+        </div>
+        <div id='create'>
+             <a href='/accounts/register/'>Create an Account</a>
+        </div>
+    </div>
+  <div id='description'>
+    <p class='bold'>Write and run code, right from your web browser.</p>
+    <p id='features'>With Codenode you can:</p>
+    <ul>
+    <li>Write and run code, create plots, and add plain text sections.</li>
+    <li>Manage many notebooks - add, delete, sort, and put them in separate folders.</li>
+    <li>Publish or print your completed notebooks to share with everybody.</li>
+    </ul>
+  </div>
+{% endblock %}

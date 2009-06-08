@@ -1,0 +1,12 @@
+"""
+Example 'local_settings.py'.
+
+For advanced settings, see '$codenode/settings.py', and add all
+settings that you want to override into 'local_settings.py'.
+
+"""
+APP_HOST = 'localhost'
+APP_PORT = 8000
+
+PYTHON_BINARY = "/usr/bin/python"
+SAGE_BINARY = "/Applications/sage/sage"
