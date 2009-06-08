@@ -63,7 +63,7 @@ setup(
     #download_url='http://codenode.org/static/codenode-0.01.tar.gz',
     #install_requires=['twisted', 'django'],
     packages=packages,
-    data_files=data_files,
+    package_data=package_data,
     scripts=["knoboo/scripts/codenode-admin"],
     description='Interactive Online Programming Notebook',
     author='Alex Clemesha & Dorian Raymer',
