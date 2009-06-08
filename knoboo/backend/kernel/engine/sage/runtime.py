@@ -99,7 +99,6 @@ def build_namespace():
 def engine_startup():
     ENGINE_STARTUP="""
 import sys
-sys.path.append("../../") #XXX be able to import knoboo
 from knoboo.kernel.engine.server import EngineRPCServer
 from knoboo.kernel.engine.sage.interpreter import Interpreter
 from knoboo.kernel.engine.sage.runtime import build_namespace
@@ -119,16 +118,14 @@ class ProcessSetup(base.ProcessSetup):
         return settings.SAGE_BINARY
 
     def engine_startup(self, port):
-        knoboo_env = os.path.abspath(".") #XXX 
         ENGINE_STARTUP="""\
 import sys
-sys.path.append("%s") #XXX be able to import knoboo
 from knoboo.kernel.engine.server import EngineRPCServer
 from knoboo.kernel.engine.sage.interpreter import Interpreter
 from knoboo.kernel.engine.sage.runtime import build_namespace
 namespace = build_namespace
 server = EngineRPCServer(('127.0.0.1', int(%s)), Interpreter, namespace)
-server.serve_forever()""" % (knoboo_env, port)
+server.serve_forever()""" % (port)
         return ENGINE_STARTUP
 
     def jailed_engine_startup(self, port, root, uid):

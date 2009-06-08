@@ -1,9 +1,0 @@
-If you want to add a new js plugin to be used with Knoboo, you need to:
-
-1) Make a minified version of the file like so:
-    $ ../../external/jsmin.py < jquery.SOME-PLUGIN.js > jquery.SOME-PLUGIN.min.js
-
-2) The go to the file 'knoboo/scripts/jscompile.py' and add the file to that script.
-
-* TODO: Generalize the above operations. *
-

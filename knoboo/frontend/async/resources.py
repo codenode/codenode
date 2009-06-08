@@ -1,5 +1,5 @@
 ##################################################################### 
-# Copyright (C) 2007 Alex Clemesha <clemesha@gmail.com>
+# Copyright (C) 2007-2009 Alex Clemesha <clemesha@gmail.com>
 #                and Dorian Raymer <deldotdr@gmail.com>
 # 
 #  Distributed under the terms of the GNU General Public License (GPL)
@@ -23,10 +23,6 @@ from knoboo.printing import printers
 from knoboo.async import dbmanager
 
 from django.conf import settings
-
-
-import knoboo
-k_path = knoboo.__path__[0] #XXX hack?
 
 CTYPE_UTF8 = {'content-type': http_headers.MimeType('text', 'html', {'charset':'utf-8'})}
 CTYPE_XML = {'content-type': http_headers.MimeType('text', 'xml', {'charset':'utf-8'})}

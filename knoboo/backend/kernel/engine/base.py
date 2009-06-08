@@ -116,7 +116,6 @@ class ProcessSetup(object):
     def engine_startup(self, port):
         ENGINE_STARTUP="""
 import sys
-sys.path.append("../../") #XXX be able to import knoboo
 from knoboo.backend.kernel.engine.server import EngineRPCServer
 from knoboo.backend.kernel.engine.python.interpreter import Interpreter
 from knoboo.backend.kernel.engine.python.runtime import build_namespace

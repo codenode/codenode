@@ -64,7 +64,6 @@ setup(
     #install_requires=['twisted', 'django'],
     packages=packages,
     data_files=data_files,
-    package_data=package_data,
     scripts=["knoboo/scripts/codenode-admin"],
     description='Interactive Online Programming Notebook',
     author='Alex Clemesha & Dorian Raymer',
