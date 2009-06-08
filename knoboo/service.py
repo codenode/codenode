@@ -28,7 +28,7 @@ from knoboo.frontend.async.webresources import Notebook
 from knoboo.frontend.async.webresources import SessionManager
 from knoboo.frontend.async.webresources import AppEngineSessionManager
 
-from knoboo.frontend import settings
+from django.conf import settings
 VERSION = '0.2'
 KERNEL_VERSION = '0.2'
 

@@ -36,7 +36,6 @@ packages.append("knoboo.twisted.plugins")
 
 
 
-#XXX finish the below:
 package_data = {'knoboo':[
     'data/knoboo.db',
     'frontend/static/js/*.js',
@@ -50,6 +49,7 @@ package_data = {'knoboo':[
     'frontend/static/admin/js/admin/*.js',
     'frontend/templates/*.html',
     'frontend/templates/admin/*.html',
+    'frontend/templates/compress/*.html',
     'frontend/templates/bookshelf/*.html',
     'frontend/templates/notebook/*.html',
     'frontend/templates/usersettings/*.html',

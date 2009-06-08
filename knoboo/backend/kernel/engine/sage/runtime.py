@@ -1,5 +1,5 @@
 import os
-from knoboo import settings
+from django.conf import settings
 from knoboo.kernel.engine import base
 
 

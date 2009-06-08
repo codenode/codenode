@@ -23,13 +23,21 @@ def init_command(name=None):
 
     pkgroot = os.sep.join(knoboo.__file__.split(os.sep)[:-1])
 
-    settingsfile = osjoin(osjoin(pkgroot, "frontend"), "settings.py")
-    shutil.copyfile(settingsfile,  osjoin(osjoin(envroot, "frontend"), "settings.py"))
-    open(osjoin(osjoin(pkgroot, "frontend"), "__init__.py"), "w").close()
+    frontendsettingsfile = osjoin(osjoin(pkgroot, "frontend"), "_settings.py")
+    shutil.copyfile(frontendsettingsfile,  osjoin(osjoin(envroot, "frontend"), "settings.py"))
+    open(osjoin(osjoin(envroot, "frontend"), "__init__.py"), "w").close()
+
+    backendsettingsfile = osjoin(osjoin(pkgroot, "backend"), "_settings.py")
+    shutil.copyfile(backendsettingsfile,  osjoin(osjoin(envroot, "backend"), "settings.py"))
+    open(osjoin(osjoin(envroot, "backend"), "__init__.py"), "w").close()
 
     staticroot = osjoin("frontend", "static")
     pkgstaticroot = osjoin(pkgroot, staticroot)
     shutil.copytree(pkgstaticroot, osjoin(envroot, staticroot))
+
+    compressroot = osjoin("frontend", "compress")
+    pkgcompressroot = osjoin(pkgroot, compressroot)
+    shutil.copytree(pkgcompressroot, osjoin(envroot, compressroot))
 
     pkgdataroot = osjoin(pkgroot, "data")
     shutil.copytree(pkgdataroot, osjoin(envroot, "data"))

@@ -11,7 +11,6 @@ import os
 from twisted.internet import protocol, reactor, defer, error
 
 from knoboo.backend.kernel.engine.python.runtime import build_env
-from knoboo.backend import settings
 
 MIN_PORT = 9000
 MAX_PORT = 10000
@@ -217,7 +216,7 @@ class KernelProcessControl(BaseProcessControl):
     def __init__(self, config):
         self.config = config
         self.name = 'kernel-server'
-        self.executable = settings.TWISTD #XXX 
+        self.executable = "twistd" #XXX 
 
     def receive(self, data):
         """

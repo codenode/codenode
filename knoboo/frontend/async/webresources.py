@@ -18,8 +18,9 @@ from knoboo.backend.kernel import remoteclient
 from knoboo.backend.kernel import appengineclient  
 from knoboo.printing import printers
 
-from knoboo.frontend import settings
 from knoboo.frontend.async import dbmanager
+
+from django.conf import settings
 
 
 class Notebook(resource.Resource):

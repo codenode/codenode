@@ -20,9 +20,9 @@ from knoboo.external import simplejson as json
 
 from knoboo.kernel.remoteclient import EngineFactory
 from knoboo.printing import printers
-
-from knoboo import settings
 from knoboo.async import dbmanager
+
+from django.conf import settings
 
 
 import knoboo

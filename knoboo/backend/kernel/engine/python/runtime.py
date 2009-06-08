@@ -1,5 +1,5 @@
 import os
-from knoboo.backend import settings
+from django.conf import settings
 from knoboo.backend.kernel.engine import base
 
 def build_env():
