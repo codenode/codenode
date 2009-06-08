@@ -1,5 +1,8 @@
 import os
+import sys
+import commands
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(PROJECT_PATH, "."))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -78,10 +81,9 @@ AUTH_PROFILE_MODULE = "usersettings.UserSettings"
 APP_HOST = 'localhost'
 APP_PORT = 8000
 
-TWISTD = "../Twisted/bin/twistd" #XXX Temporary Dependance on the Twisted Trunk
 #Available types of notebooks: #XXX Clean up and do intelligent detection:
 NOTEBOOK_TYPES = ["python", "sage"]
-PYTHON_BINARY = "/usr/bin/python"
+PYTHON_BINARY = commands.getoutput("/usr/bin/which python")
 SAGE_BINARY = "/Applications/sage/sage"
 
 KERNEL_SERVICE = 'knoboo'

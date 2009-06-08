@@ -17,27 +17,18 @@ def init_command(name=None):
     osjoin = os.path.join
     abspath = os.path.abspath(".")
     envroot = osjoin(abspath, name)
+    pkgroot = os.sep.join(knoboo.__file__.split(os.sep)[:-1])
     os.mkdir(envroot)
     for dir in ["frontend", "backend"]:
         os.makedirs(osjoin(envroot, dir))
+        open(osjoin(osjoin(envroot, dir), "__init__.py"), "w").close()
+        settingsfile = osjoin(osjoin(pkgroot, dir), "_settings.py")
+        shutil.copyfile(settingsfile,  osjoin(osjoin(envroot, dir), "settings.py"))
 
-    pkgroot = os.sep.join(knoboo.__file__.split(os.sep)[:-1])
-
-    frontendsettingsfile = osjoin(osjoin(pkgroot, "frontend"), "_settings.py")
-    shutil.copyfile(frontendsettingsfile,  osjoin(osjoin(envroot, "frontend"), "settings.py"))
-    open(osjoin(osjoin(envroot, "frontend"), "__init__.py"), "w").close()
-
-    backendsettingsfile = osjoin(osjoin(pkgroot, "backend"), "_settings.py")
-    shutil.copyfile(backendsettingsfile,  osjoin(osjoin(envroot, "backend"), "settings.py"))
-    open(osjoin(osjoin(envroot, "backend"), "__init__.py"), "w").close()
-
-    staticroot = osjoin("frontend", "static")
-    pkgstaticroot = osjoin(pkgroot, staticroot)
-    shutil.copytree(pkgstaticroot, osjoin(envroot, staticroot))
-
-    compressroot = osjoin("frontend", "compress")
-    pkgcompressroot = osjoin(pkgroot, compressroot)
-    shutil.copytree(pkgcompressroot, osjoin(envroot, compressroot))
+    for dir in ["static", "templates", "compress"]:
+        dirroot = osjoin("frontend", dir)
+        pkgdirroot = osjoin(pkgroot, dirroot)
+        shutil.copytree(pkgdirroot, osjoin(envroot, dirroot))
 
     pkgdataroot = osjoin(pkgroot, "data")
     shutil.copytree(pkgdataroot, osjoin(envroot, "data"))

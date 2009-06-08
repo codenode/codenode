@@ -194,7 +194,6 @@ class DesktopServiceMaker(object):
 
         nbSessionManager = SessionManager(options)
         staticfiles = options['env_path'] + "/frontend/static" #XXX
-        print "sfiles ========> ", staticfiles
         web_resource = webResourceFactory(nbSessionManager, staticfiles)
         web_resource_factory = server.Site(web_resource)
 
