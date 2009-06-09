@@ -1,6 +1,21 @@
 {% extends 'base.html' %}
 
 {% block title %} Codenode - Interactive Programming Notebook for the Web Browser. {% endblock %}
+{% block extrahead %}
+<script type="text/javascript" src="/static/external/jquery.js" charset="utf-8"></script>
+<script type="text/javascript">
+/* Check to see if the default admin account exists,
+if so, present username/password and change password message.*/
+$(document).ready(function(){
+    $.get("/util/newadmin", 
+      function(resp){
+        if (resp != '') {
+            $("#login form").prepend(resp);
+        }
+    });
+});
+</script>
+{% endblock %}
 
 {% block content %}
     <div id='incoming'>

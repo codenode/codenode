@@ -99,6 +99,17 @@ blockquote, q {
     padding:6px;
     text-align:center;
 }
+#newadmin {
+    width:350px;
+    margin:8px 1px;
+    padding:3px;
+    text-align:center;
+    background:#FFF6BF;
+    border:1px solid #FFD324;
+}
+#newadmin div {
+    margin-top:5px;
+}
 .error {
     text-align:center;
     font-weight:bold;
