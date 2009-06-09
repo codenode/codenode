@@ -25,7 +25,8 @@ Quickstart
 
   $ wget http://cloud.github.com/downloads/codenode/codenode/codenode-v0.01.tar.gz
   $ tar zxvf codenode-v0.01.tar.gz
-  $ cd codenode-v0.01; python setup.py install; cd ..
+  # now unpack tarball, which should give a directory called codenode-codenode-xxxxx
+  # cd into codenode-codenode-xxxxxx and type "python setup.py install"
 
 **3. Start a codenode:**
 
