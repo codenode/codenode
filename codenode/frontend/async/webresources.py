@@ -175,10 +175,8 @@ class StartEngine(EngineMethod):
 
     def render(self, request):
         d = defer.maybeDeferred(self.engine.start)
-        d.addCallback(self._started_yet, request)
         d.addCallback(self._success, request)
         d.addErrback(self._failure, request)
- 
         return server.NOT_DONE_YET
 
 
