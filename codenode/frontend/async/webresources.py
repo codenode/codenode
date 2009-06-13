@@ -176,17 +176,21 @@ class StartEngine(EngineMethod):
     def render(self, request):
         d = defer.maybeDeferred(self.engine.start)
         d.addCallback(self._started_yet, request)
+        d.addCallback(self._success, request)
+        d.addErrback(self._failure, request)
+ 
         return server.NOT_DONE_YET
 
-    def _started_yet(self, result, request):
-        if result == "on":
-            request.setHeader("content-type", "application/json")
-            request.write(result)
-            request.finish()
-        else:
-            d = defer.maybeDeferred(self.engine.start)
-            d.addCallback(self._started_yet, request)
-            return server.NOT_DONE_YET
+
+    def _success(self, result, request):
+        request.setHeader("content-type", "application/json")
+        request.write('ok')
+        request.finish()
+
+    def _failure(self, result, request):
+        request.setHeader("content-type", "application/json")
+        request.write('failed')
+        request.finish()
 
 
 class NotebookObject(EngineMethod):
