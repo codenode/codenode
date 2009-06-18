@@ -1,5 +1,5 @@
 ##################################################################### 
-# Copyright (C) 2007 Alex Clemesha <clemesha@gmail.com>
+# Copyright (C) 2007-2009 Alex Clemesha <clemesha@gmail.com>
 #                and Dorian Raymer <deldotdr@gmail.com>
 # 
 #  Distributed under the terms of the GNU General Public License (GPL)
@@ -195,13 +195,31 @@ class NotebookObject(EngineMethod):
     """Get Notebook json object.
     """
 
-    @defer.inlineCallbacks
+    # @defer.inlineCallbacks
     def render(self, request):
+        d = defer.maybeDeferred(self.notebook_db.get_notebook_data)
+        d.addCallback(self._success, request)
+        d.addErrback(self._failure, request)
+        return server.NOT_DONE_YET
+        """
         result = yield defer.maybeDeferred(self.notebook_db.get_notebook_data)
         jsobj = json.dumps(result)
         request.setHeader("content-type", "application/json")
         request.write(jsobj)
         request.finish()
+        """
+
+    def _success(self, result, request):
+        request.setHeader("content-type", "application/json")
+        jsobj = json.dumps(result)
+        request.write(jsobj)
+        request.finish()
+
+    def _failure(self, result, request):
+        request.setHeader("content-type", "application/json")
+        request.write('failed')
+        request.finish()
+
 
 
 class SaveNotebookMetaData(EngineMethod):
@@ -210,20 +228,20 @@ class SaveNotebookMetaData(EngineMethod):
     This is a resource used from an async call to '/bookshelf/save'
     to save data associated with a notebook.
     """
-
-    @defer.inlineCallbacks
     def render(self, request):
         orderlist = ",".join(request.args.get('orderlist', []))
         cellsdata = request.args.get('cellsdata', [None])[0]
         cellsdata = json.loads(cellsdata)
-        result = yield defer.maybeDeferred(self.notebook_db.save_notebook_metadata,
-                orderlist, cellsdata)
+        d = defer.maybeDeferred(self.notebook_db.save_notebook_metadata, orderlist, cellsdata)
+        d.addCallback(self._success, request) 
+        return server.NOT_DONE_YET
+
+    def _success(self, result, request):
         resp = "{'resource':'%s', 'resp':'ok'}" % self.__class__.__name__
         jsobj = json.dumps(resp)
         request.setHeader("content-type", "application/json")
         request.write(jsobj)
         request.finish()
-
 
 class DeleteCell(EngineMethod):
     """Delete cells from the database.
@@ -251,10 +269,15 @@ class ChangeNotebookMetaData(EngineMethod):
     """Change notebook title ... could be more general.
     """
 
-    @defer.inlineCallbacks
+    # @defer.inlineCallbacks
     def render(self, request): 
         newtitle = request.args.get('newtitle', [None])[0]
-        result = yield defer.maybeDeferred(self.notebook_db.change_notebook_metadata, newtitle)
+        d = defer.maybeDeferred(self.notebook_db.change_notebook_metadata, newtitle)
+        d.addCallback(self._success, request) 
+        return server.NOT_DONE_YET
+
+    def _success(self, result, request):
+        newtitle = request.args.get('newtitle', [None])[0]
         data = {'response':'ok', 'title':newtitle}
         jsobj = json.dumps(data)
         request.setHeader("content-type", "application/json")
@@ -351,18 +374,18 @@ class Control(EngineMethod):
     running) no matter what!
     """
  
-    @defer.inlineCallbacks
+    #@defer.inlineCallbacks
     def render(self, request):
         action = request.args['action'][0].strip()
         actions = {'kill':self.engine.kill, 'interupt':self.engine.interrupt}
-        if actions.has_key(action):
-            result = yield defer.maybeDeferred(actions[action])
-            resp = result
-        else:
-            resp = "{'resp':'failed', 'msg':'Bad process command. No such action'}"
-        jsobj = json.dumps(resp)
+        d = defer.maybeDeferred(actions[action]) #XXX add error handling
+        d.addCallback(self._success, request)
+        return server.NOT_DONE_YET
+
+    def _success(self, result, request):
+        #resp = "{'resp':'failed', 'msg':'Bad process command. No such action'}"
+        jsobj = json.dumps(result)
         request.setHeader("content-type", "application/json")
         request.write(jsobj)
         request.finish()
-
 

@@ -157,7 +157,7 @@ def webResourceFactory(nbSessionManager, staticfiles):
     from twisted.python import threadpool
 
     pool = threadpool.ThreadPool()
-    pool.start()
+    reactor.callWhenRunning(pool.start)
     reactor.addSystemEventTrigger('after', 'shutdown', pool.stop)
 
     django_wsgi_resource = wsgi.WSGIResource(reactor, pool, WSGIHandler())
