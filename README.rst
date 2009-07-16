@@ -5,41 +5,45 @@ Codenode - Interactive Programming Notebook for the Web Browser
 Quickstart
 ==========
 
-**1. Install Dependencies:**
+**Quick Install:**
 
 :: 
 
-  #Requires Twisted 8.2.0 and Django 1.0
-
-  OSX: 
-  $ easy_install -U twisted django
-  
-  Ubuntu / Debian:
-  $ apt-get install python-django python-twisted
-
-  (Recommended: Use "virtualenv")
-
-**2. Download and Install Codenode:**
+  $ easy_install codenode
 
 ::
 
-  $ wget http://cloud.github.com/downloads/codenode/codenode/codenode-v0.01.tar.gz
-  $ tar zxvf codenode-v0.01.tar.gz
-  # now unpack tarball, which should give a directory called codenode-codenode-xxxxx
-  # cd into codenode-codenode-xxxxxx and type "python setup.py install"
+  #Platform specific details:
 
-**3. Start a codenode:**
+  OSX (Must have Django >= 1.0 and Twisted >= 8.2):
+  $ easy_install -U twisted django codenode
+
+  Ubuntu / Debian:
+  $ apt-get install python-django python-twisted python-setuptools python-dev build-essential
+  $ easy_install codenode
+
+
+**Recommend Install:**
+
+:: 
+
+  $ easy_install -U virtualenv pip 
+  $ virtualenv --no-site-packages mycodenode_env
+  $ pip -E mycodenode_env install codenode
+
+
+**Quick Start:**
 
 ::
 
   $ codenode-admin init -name mycodenode
   $ cd mycodenode
   $ codenode-admin run 
+  #Now open browser to http://localhost:8000
 
-**4. Open Firefox and login:**
 
-::
+Support
+=======
 
-  1. Go to localhost:8000
-  2. Log in as user "admin" and password "admin"
-  3. Create and New Notenook and go.
+Please ask any questions or give any feedback!
+For help and feedback, go here: http://groups.google.com/group/codenode-devel

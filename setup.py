@@ -1,7 +1,6 @@
 import os
 try:
-    #for when easy_install is used, to satisfy deps:
-    from setuptoolsXXX import setup 
+    from setuptools import setup 
 except ImportError:
     from distutils.core import setup
 
@@ -60,12 +59,12 @@ setup(
     name='codenode',
     version='0.01',
     url='http://codenode.org',
-    #download_url='http://codenode.org/static/codenode-0.01.tar.gz',
-    #install_requires=['twisted', 'django'],
+    download_url='http://pypi.python.org/pypi/codenode',
+    install_requires=['twisted', 'django'],
     packages=packages,
     package_data=package_data,
     scripts=["codenode/scripts/codenode-admin"],
-    description='Interactive Online Programming Notebook',
+    description='Interactive Programming Notebook for the Web Browser',
     author='Alex Clemesha & Dorian Raymer',
     author_email='codenode-devel@googlegroups.com',
     license='GPL',
