@@ -1,0 +1,25 @@
+{% extends "base_app.html" %}
+
+{% block title %} Notebook Revisions - Codenode {% endblock %}
+
+{% block content %}
+  <div id='container'>
+  <style type"text/css">a#back {position:relative; top:-25px;}</style>
+  <h2 id="createh2">Notebook Revisions</h2>
+   <a id="back" href="../{{ nbid }}">&lsaquo;&lsaquo;&nbsp;Back to the Notebook</a>
+
+   <table width="100%" cellspacing="0" cellpadding="5" border="0">
+     <tbody>
+      <tr><td><b>Revision</b></td><td><b>Last Edited</b></td><td><b>Recent Change</b></td></tr>
+
+      {% for rev in revisions %}
+      <tr><td>{{ rev.id }}</td><td>{{ rev.timestamp|date:"M d, Y P" }} by {{ user }}</td><td>{{ rev.changes }}</td></tr>
+      {% endfor %}
+
+     </tbody>
+   </table>
+  
+  </div>
+{% endblock %}
+
+

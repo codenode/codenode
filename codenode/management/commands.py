@@ -1,7 +1,9 @@
 import os
 import shutil
+
 import codenode
 from codenode import management
+
 
 def init_command(name=None):
     """
@@ -45,6 +47,16 @@ def run_command(daemonize=False): #, frontendpid=None, kernelpid=None):
     os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
     abspath = os.path.abspath(".")
     os.system("twistd -n codenode --env_path=%s" % abspath)
+
+
+def syncdb_command():
+    """
+    Run Django's `syncdb`.
+    """
+    #from django.core.management import call_command
+    #os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
+    #call_command("syncdb")
+    os.system('django-admin.py syncdb --pythonpath="." --settings="frontend.settings"')
 
 
 def help_command(**options):

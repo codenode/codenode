@@ -11,6 +11,8 @@ from codenode.frontend.notebook import models as notebook_models
 
 from codenode.frontend.notebook import forms 
 
+from codenode.frontend.notebook.revision_utils import get_nb_revisions
+
 @login_required
 def notebook(request, nbid=None, template_name='notebook/notebook.html'):
     """Render the Notebook interface.
@@ -19,6 +21,12 @@ def notebook(request, nbid=None, template_name='notebook/notebook.html'):
     lastmod = nb.created_time #XXX
     return render_to_response(template_name, {'title':nb.title, 'lastmod':lastmod, 'nbid':nbid, 'user':request.user})
 
+@login_required
+def revisions(request, nbid=None, template_name='notebook/revisions.html'):
+    """Notebook revisions.
+    """
+    revisions = get_nb_revisions(nbid)
+    return render_to_response(template_name, {'nbid':nbid, 'user':request.user, 'revisions':revisions})
 
 @login_required
 def share(request, nbid=None, template_name='notebook/share.html'):
