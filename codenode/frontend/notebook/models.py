@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
+from codenode.frontend.notebook import revision
+
 class Notebook(models.Model):
     guid = models.CharField(max_length=32, unique=True, editable=False) #needs to be globally unique
     owner = models.ForeignKey(User)
@@ -14,6 +16,8 @@ class Notebook(models.Model):
     style = models.CharField(max_length=2048) #json object that holds style settings.
     created_time = models.DateTimeField(auto_now=True)
     orderlist = models.TextField(editable=False, default='orderlist')
+
+    revisions = revision.AuditTrail()
 
     def save(self):
         if not self.guid:
@@ -59,6 +63,8 @@ class Cell(models.Model):
     #props = models.CharField(max_length=100) 
     props = models.TextField() 
     last_modified = models.DateTimeField(auto_now=True)
+
+    revisions = revision.AuditTrail()
 
     #def save(self):
         #update Notebook last modified time.

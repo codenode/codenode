@@ -17,10 +17,13 @@
 
   <div id="nbar">
       <div id="titlecontainer"><span id="statictitle">{{ title }}</span></div>
-    <span id="lastmodified" style="color:#8f8f8f">saved on {{ lastmod|date:"M d, Y P" }} by {{ user }}</span>
+    <span id="lastmodified">saved on {{ lastmod|date:"M d, Y P" }} by {{ user }}</span>
+    <span id="revhistory"><a href='/notebook/revisions/{{ nbid }}'>Revision History</a></span>
     <div id="controls" class="controls">
       <ul>
-        <li><span class="button" id="sharebutton"><span><a href='/notebook/share/{{ nbid }}' style='color:#183078'>Share</a></span></span></li>
+        <li><span class="button" id="sharebutton">
+            <span><a href='/notebook/share/{{ nbid }}' style='color:#183078'>Share</a></span></span>
+        </li>
         <li><span class="button" id="savebutton"><span>Save</span></span></li>
         <li><span class="button" id="saveclosebutton"><span>Save & Close</span></span></li>
         <li><span class="button" id="print_list"><span>Save As</span><img src='/static/img/bullet_arrow_down.png'/></li>
