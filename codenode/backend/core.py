@@ -108,10 +108,6 @@ class EngineProxyManager(service.Service):
 
 
 
-def _start_client(port):
-    c = Engine(port)
-    #c.test
-    return
 
 def _fail(reason):
     print reason
@@ -145,7 +141,7 @@ class IBackend(Interface):
         @todo Formalize implications of persistence.
         """
 
-class Backend:
+class Backend(object):
     """
     Backend service.
 
@@ -160,6 +156,8 @@ class Backend:
      - requests to running engine interpreter (api) (routed by engine instance name)
      - requests to start/stop engines (by engine type)
     """
+
+    implements(IBackend)
 
     def __init__(self, pm, cm):
         self.client_manager = cm
@@ -214,93 +212,6 @@ class Backend:
         """
         self.proc_manager.interruptProcess(engine_id)
 
-
-class BackendAdmin(resource.Resource):
-    
-    def __init__(self, backend):
-        resource.Resource.__init__(self)
-        self.backend = backend
-
-        self.putChild("RPC2", BackendAdminRC(backend))
-        self.putChild("", self)
-
-    def render(self, request):
-        """
-        """
-        return 'backend admin'
-
-class BackendAdminRC(xmlrpc.XMLRPC):
-
-    def __init__(self, backend):
-        xmlrpc.XMLRPC.__init__(self)
-        self.backend = backend
-
-    def xmlrpc_getEngineTypes(self):
-        return self.backend.getEngineTypes()
-
-    @defer.inlineCallbacks
-    def xmlrpc_newEngine(self, engine_type):
-        d = self.backend.newEngine(engine_type)
-        res = yield d
-        print 'rpc newengine', res
-        defer.returnValue(res)
         
-
-class BackendClient(resource.Resource):
-
-    def __init__(self, backend):
-        resource.Resource.__init__(self)
-        self.backend = backend
-
-        #self.putChild("RPC2", BackendClientRC(backend))
-        self.putChild("", self)
-
-    def getChild(self, path, request):
-        return BackendClientRC(self.backend, path)
-
-    def render(self, request):
-        return "backend client"
-
-class BackendClientRC(xmlrpc.XMLRPC):
-
-    def __init__(self, backend, id):
-        xmlrpc.XMLRPC.__init__(self)
-        self.backend = backend
-        engine = backend.client_manager.getEngine(id)
-        self.engine = engine
-
-    def xmlrpc_evaluate(self, to_evaluate):
-        return self.engine.evaluate(to_evaluate)
-
-    def xmlrpc_complete(self, to_complete):
-        return self.engine.complete(to_complete)
-
-class BackendRoot(resource.Resource):
-
-    def __init__(self, backend):
-        resource.Resource.__init__(self)
-        self.backend = backend
-
-        self.putChild("admin", BackendAdmin(backend))
-        self.putChild("client", BackendClient(backend))
-        self.putChild("", self)
-
-    def render(self, request):
-        return 'backend root'
-
-def makeServices():
-
-    backendServices = service.MultiService()
-    client_manager = EngineProxyManager() #sessions
-    client_manager.setServiceParent(backendServices)
-    proc_manager = EngineManager()
-    proc_manager.setServiceParent(backendServices)
-
-    backend = Backend(proc_manager, client_manager)
-
-    eng_proxy_factory = server.Site(BackendRoot(backend))
-    internet.TCPServer(9001, eng_proxy_factory).setServiceParent(backendServices)
-    return backendServices
-
 
 
