@@ -194,17 +194,13 @@ class EngineManager(EngineObject):
         if image_preface in out:
             image_path = out[13:]
             image_path = image_path.strip('\n')
-            f = file(image_path, 'r')
-            image = f.read()
-            f.close()
-            os.remove(image_path)
-            image_name = os.path.basename(image_path)
-            web_path = os.path.join('/images', image_name)
+            image_name = os.path.basename(image_path) 
+            web_path = os.path.join('/data', self.id, image_name)
             web_path = '__image__' + web_path
             output['out'] = web_path
-            d = self.mind.callRemote('writeImage', image, image_name) 
-            d.addCallback(self._output_type_callback, output)
-            return d
+            # d = self.mind.callRemote('writeImage', image, image_name) 
+            # d.addCallback(self._output_type_callback, output)
+            return output
         return output
 
     def _output_type_callback(self, result, output):

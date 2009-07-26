@@ -133,7 +133,7 @@ class KernelServerOptions(usage.Options):
 
 
 
-def webResourceFactory(nbSessionManager, staticfiles):
+def webResourceFactory(nbSessionManager, staticfiles, datafiles):
     """This factory function creates an instance of the front end web
     resource tree containing both the django wsgi and the async
     notebook resources.
@@ -166,10 +166,12 @@ def webResourceFactory(nbSessionManager, staticfiles):
     #nbSessionManager = SessionManager() #XXX improve
     notebook_resource = Notebook(nbSessionManager)
     static_resource = static.File(staticfiles)
+    data_resource = static.File(datafiles)
 
     resource_root.putChild("asyncnotebook", notebook_resource)
     resource_root.putChild("static", static_resource)
-
+    resource_root.putChild("data", data_resource)
+    
     return resource_root
 
 
@@ -194,7 +196,8 @@ class DesktopServiceMaker(object):
 
         nbSessionManager = SessionManager(options)
         staticfiles = options['env_path'] + "/frontend/static" #XXX
-        web_resource = webResourceFactory(nbSessionManager, staticfiles)
+        datafiles = options['env_path'] + "/data" #XXX
+        web_resource = webResourceFactory(nbSessionManager, staticfiles, datafiles)
         serverlog = options['env_path'] + "/data/server.log" #XXX
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 
