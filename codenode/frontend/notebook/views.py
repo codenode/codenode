@@ -11,7 +11,7 @@ from codenode.frontend.notebook import models as notebook_models
 
 from codenode.frontend.notebook import forms 
 
-from codenode.frontend.notebook.revision_utils import get_nb_revisions
+from codenode.frontend.notebook.revision_utils import get_nb_revisions, revert_to_revision
 
 @login_required
 def notebook(request, nbid=None, template_name='notebook/notebook.html'):
@@ -27,6 +27,13 @@ def revisions(request, nbid=None, template_name='notebook/revisions.html'):
     """
     revisions = get_nb_revisions(nbid)
     return render_to_response(template_name, {'nbid':nbid, 'user':request.user, 'revisions':revisions})
+
+@login_required
+def revert(request, id=None):
+    """Revert to Notebook with revision id.
+    """
+    nbid = revert_to_revision(id)
+    return HttpResponseRedirect("/notebook/%s" % nbid)
 
 @login_required
 def share(request, nbid=None, template_name='notebook/share.html'):

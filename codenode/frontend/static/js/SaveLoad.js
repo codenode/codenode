@@ -88,7 +88,7 @@ Notebook.Save.saveCloseSuccess = function(res) {
     if (NOTEBOOK_OPENS_IN_NEW_WINDOW){ 
         window.close();
     } else {
-        window.back();
+        window.location="/bookshelf/"; /*XXX How to not hardcode this?*/
     }
 };
 

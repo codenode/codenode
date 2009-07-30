@@ -1,36 +1,75 @@
-import itertools
 from codenode.frontend.notebook.models import Notebook, Cell
 
-class Revision(object):
-    def __init__(self, id, timestamp, changes=None):
-        self.id = id
-        self.timestamp = timestamp
-        self.changes = changes
+def get_nb_revisions(nbid, n=25):
+    """Get notebook revisions.
 
-def get_nb_revisions(nbid):
-    """Get only the first nb revesion object if 
-    there are in-a-row repeating orderlists.
+    TODO: Only show 'n' revisions per page.
     """
-    nbrevs = Notebook.revisions.filter(guid=nbid)
-    nbs = [(nb.orderlist, nb) for nb in nbrevs if nb.orderlist != 'orderlist']
-    order_unique = [(c, list(cgen)[0][1]) for c,cgen in itertools.groupby(nbs, lambda x:x[0])]
-
+    #Get all Notebook revisions, orderlist='orderlist' means there are no meaningful revisions:
+    nbrevs = Notebook.revisions.filter(guid=nbid).exclude(orderlist='orderlist')
     revisions = []
-    id = len(order_unique)
-    for nbtuple in order_unique:
-        orderlist,nb = nbtuple
-        cell_data = get_cell_revision_diff(orderlist)
-        rev = Revision(id, nb._audit_timestamp)
-        rev.changes = " ".join(cell_data)
-        revisions.append(rev)
-        id = id - 1
-    return revisions
+    for nb in nbrevs:
+        orderlist = nb.orderlist
+        current_audit_id, current_audit_ts = nb._audit_id, nb._audit_timestamp #id and timestamp of nb revision snapshot.
+        recent_cells = get_recent_cells(orderlist, current_audit_ts)
+        revisions.append((current_audit_id, current_audit_ts, recent_cells))
+    unique_revisions = get_unique_revisions(revisions)
+    return unique_revisions
 
-def get_cell_revision_diff(orderlist):
+def get_unique_revisions(revisions):
+    """Find in-order unique revisions.
+    In other words, drop all in-a-row duplicate revisions.
+    """
+    uniques = []
+    current_audit_id, current_audit_ts, current = revisions.pop(0)
+    for (current_audit_id, current_audit_ts, previous) in revisions:
+        if current != previous:
+            codediff = diff_from_previous(current, previous)
+            uniques.append((current_audit_id, current_audit_ts, codediff, current))
+        current = previous
+    return uniques
+
+def get_recent_cells(orderlist, current_audit_ts):
+    """The latest (cellid, content) for all cells in give 'orderlist'.
+    The 'current_nb_ts' is the timestamp of the notebook snapshot.
+    """
     orderlist = orderlist.split(",")
     allcontent = []
     for cellid in orderlist:
-        cellrevs = Cell.revisions.filter(guid=cellid)[0] #most recent
-        allcontent.append(cellrevs.content.replace("\n", ""))
+        cellrevs = Cell.revisions.filter(guid=cellid, _audit_timestamp__lte=current_audit_ts).order_by("-_audit_timestamp")[0] #most recent
+        allcontent.append((cellid, cellrevs.content))
     return allcontent
+
+def diff_from_previous(current, previous):
+    """Difference of current to previous diff.
+    Only take content that is input, and hence the cell id
+    does not end in "o", which signifies output.
+    """
+    diff = set(current).symmetric_difference(set(previous))
+    revdiff = reversed(list(diff))
+    codediff = " | ".join([s[1].replace("\n", "") for s in revdiff if s[0][-1] != "o"])
+    return codediff
+
+
+def revert_to_revision(id):
+    """Revert to revision with given id.
+    Copy all neeed data into new models and save,
+    which will create fresh timestamps and audit_id 
+    for the new Notebook and Cell data.
+
+    Returns original Notebook id.
+    """
+    #XXX The below code could _definitely_ be optimized:
+    nbrev = Notebook.revisions.get(_audit_id=id)
+    ts = nbrev._audit_timestamp
+    nb = Notebook.objects.get(guid=nbrev.guid)
+    nb.orderlist = nbrev.orderlist
+    nb.save()
+    orderlist = nbrev.orderlist.split(",")
+    for cellid in orderlist:
+        cellrev = Cell.revisions.filter(guid=cellid, _audit_timestamp__lte=ts).order_by("-_audit_timestamp")[0] #most recent
+        cell = Cell.objects.get(guid=cellrev.guid)
+        cell.content, cell.style, cell.type, cell.props = cellrev.content, cellrev.style, cellrev.type, cellrev.props
+        cell.save()
+    return nb.guid
 
