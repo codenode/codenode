@@ -68,5 +68,6 @@ setup(
     author='Alex Clemesha & Dorian Raymer',
     author_email='codenode-devel@googlegroups.com',
     license='GPL',
-    classifiers = ['Development Status :: 3 - Alpha']
+    classifiers = ['Development Status :: 3 - Alpha'],
+    setup_requires=['nose>=0.11']
 )
