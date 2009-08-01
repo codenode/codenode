@@ -44,7 +44,7 @@ Quickstart
 
 **Running tests:**
 
-  $ python setup.py nosetests
+  $ python setup.py nosetests 
   # See http://somethingaboutorange.com/mrl/projects/nose/ for full command line options, but 
   useful ones include --stop, --nocapture, --failed
 

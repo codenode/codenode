@@ -133,7 +133,7 @@ COMPRESS_JS = {
 
 
 TEMPLATE_DIRS = (
-    os.path.join(os.path.abspath(__file__), 'templates')
+    os.path.join(PROJECT_PATH, 'templates')
 )
 
 INSTALLED_APPS = (

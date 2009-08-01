@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.auth.models import User
+from django.test.client import Client
 
 from codenode.frontend.notebook import models
 from codenode.frontend.notebook import views
@@ -57,5 +58,23 @@ def test_notebook_last_modified_by_returns_last_cell_modifier():
         )
     cell.save()
     assert nb.last_modified_by() == f['user2']
+    
+
+def test_view_notebook():
+    nb = models.Notebook(owner=f['user1'], title='atitle')
+    nb.save()
+    
+    # login 
+    c = Client()
+    logged_in = c.login(username= 'test', password= 'password')
+    assert logged_in
+    
+    # check we can get a notebook via its guid
+    response = c.get('/notebook/%s/' % nb.guid)
+    assert response.status_code == 200
+    
+    # and that non existant notebooks raise 404
+    response = c.get('/notebook/doesnotexist/')
+    assert response.status_code == 404
     
     

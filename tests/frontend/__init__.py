@@ -25,4 +25,6 @@ def setup():
     call_command("syncdb")
 
     for user in [User(username='test'), User(username='test2')]:
+        user.set_password('password')
         user.save()
+        
