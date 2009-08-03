@@ -19,6 +19,85 @@ def notebook(request, nbid=None, template_name='notebook/notebook.html'):
     lastmod = nb.created_time #XXX
     return render_to_response(template_name, {'title':nb.title, 'lastmod':lastmod, 'nbid':nbid, 'user':request.user})
 
+@login_required
+def nbobject(request, nbid):
+    nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
+
+    cells = notebook_models.Cell.objects.filter(notebook=nb)
+
+    nbdata, cellsdata = {}, {}
+    for cell in cells:
+        cellsdata[cell.guid] = {'content':cell.content, 'cellstyle':cell.style, 'props':cell.props}
+    nbdata['cells'] = cellsdata
+    nbdata['settings'] = {'cell_input_border':'None', 'cell_output_border':'None'}
+    nbdata['nbid'] = nb.guid
+    nbdata['orderlist'] = nb.orderlist
+    nbdata['title'] = nb.title
+    jsobj = json.dumps(nbdata)
+    return HttpResponse(jsobj, mimetype="application/json")
+
+@login_required
+def title(request, nbid):
+    if request.method == "POST":
+        newtitle = request.POST.get('newtitle', [None])[0]
+        nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
+        nb.title = unicode(title)
+        nb.save()
+        data = {'response':'ok', 'title':newtitle}
+        jsobj = json.dumps(data)
+        return HttpResponse(jsobj, mimetype="application/json")
+
+@login_required
+def save(request, nbid):
+    """Save cell data
+    TODO think about moving saving logic into model/model manager 
+    """
+    nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
+    orderlist = ",".join(request.POST.get('orderlist', []))
+    cellsdata = request.POST.get('cellsdata', [None])[0]
+    cellsdata = json.loads(cellsdata)
+
+    for cellid, data in cellsdata.items():
+        cells = notebook_models.Cell.objects.filter(guid=cellid, notebok=nb)
+        content = data["content"]
+        style = data["cellstyle"]
+        props = data["props"]
+        if len(cells) > 0:
+            cell = cells[0]
+            cell.content = content
+            cell.type = u"text"
+            cell.style = style
+            cell.props = props
+            cell.save()
+        else:
+            cell = notebook_models.Cell(guid=cellid, 
+                            notebook=nb, 
+                            owner=nb.owner,
+                            content=content, 
+                            type=u"text", 
+                            style=style, 
+                            props=props)
+            nb.cell_set.add(cell)
+    nb.orderlist = orderlist
+    nb.save()
+
+    resp = "{'resp':'ok'}"
+    jsobj = json.dumps(resp)
+    return HttpResponse(jsobj, mimetype="application/json")
+
+@login_required
+def delete_cell(request):
+    """
+    XXX Not fully implemented!
+    """
+    if request.method == "POST":
+        cellids = json.loads(request.POST.get('cellids', [None])[0])
+        if isinstance(cellids, unicode):
+            cellids = [cellids]
+        notebook_models.Cell.objects.in_bulk(cellids).delete()
+        resp = "{'resp':'ok'}"
+        jsobj = json.dumps(resp)
+        return HttpResponse(jsobj, mimetype="application/json")
 
 @login_required
 def share(request, nbid=None, template_name='notebook/share.html'):
@@ -50,10 +129,13 @@ def share(request, nbid=None, template_name='notebook/share.html'):
     return render_to_response(template_name, {'form':form, 'nbid':nbid, 'sharedusers':sharedusers, 'allusers':allusers, 'user':request.user})
 
 
-@login_required
-def save(request, nbid=None):
-    """Save cell data
-    """
-    nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
+
+
+
+
+
+
+
+
 
 

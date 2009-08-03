@@ -12,7 +12,6 @@ from twisted.internet import reactor
 from twisted.application import service
 from twisted.application import internet
 from twisted.plugin import getPlugins
-from twisted.web import xmlrpc
 from twisted.web import resource
 from twisted.web import server
 
@@ -76,7 +75,7 @@ class EngineManager(procmon.ProcessMonitor):
         """Send INT signal.
         """
         if not self.protocols.has_key(name):
-            raise KeyError("No process named %s", % name)
+            raise KeyError("No process named %s" % name)
         self.protocols[name].interrupt()
 
 
@@ -165,16 +164,15 @@ class Backend(object):
         self.engine_types = {}
         self.updateEngineTypes()
 
-    def listEngineTypes(self):
-        return self.engine_types.keys()
-
     def updateEngineTypes(self):
         engines = getPlugins(IEngineConfiguration)
         self.engine_types = dict([(repr(e), e) for e in engines])
 
+    def listEngineTypes(self):
+        return self.engine_types.keys()
+
     def listEngineInstances(self):
         insts = self.process_manager.processes.keys()
-
 
     def runEngineInstance(self, engine_type):
         """
@@ -185,7 +183,6 @@ class Backend(object):
         return unique id of engine instance to be used by the notebook/user
         for interactive requests.
         """
-        print 'newEngine'
         if engine_type not in self.engine_types.keys():
             raise KeyError("%s not an engine type" % engine_type)
         engine_config = self.engine_types[engine_type]
@@ -193,19 +190,22 @@ class Backend(object):
         d = self.process_manager.addProcess(id, engine_config)
         d.addCallback(self._start_client, id)
         d.addErrback(_fail)
-        return d
+        return id
 
     def _start_client(self, port, id):
         print '_start_client', port, id
         c = Engine(port, id)
         self.client_manager.addEngine(c)
-        return id
 
     def terminateEngineInstance(self, engine_id):
         """Stop an engine instance.
         """
         self.proc_manager.stopProcess(engine_id)
         self.client_manager.removeEngine(engine_id)
+
+    def describeEngineInstance(self, id):
+        """Get the state of an instance.
+        """
 
     def interruptEngineIntance(self, engine_id):
         """Send process SIGINT

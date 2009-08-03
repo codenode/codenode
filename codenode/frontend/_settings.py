@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'codenode.frontend.registration',
     'codenode.frontend.bookshelf',
     'codenode.frontend.notebook',
+    'codenode.frontend.backend',
     'codenode.frontend.usersettings',
     'compress',
 )

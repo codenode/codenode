@@ -21,16 +21,12 @@ from twisted.internet import reactor, defer
 from twisted.application import internet, service
 from twisted.python import usage
 
-from codenode.backend.kernel.server import KernelManagerRealm
 from codenode.backend.kernel.procman import ProcessManager
 from codenode.backend.kernel.process import KernelProcessControl
-from codenode.frontend.async.webresources import Notebook
-from codenode.frontend.async.webresources import SessionManager
-from codenode.frontend.async.webresources import AppEngineSessionManager
+from codenode.frontend.async import backend
 
 from django.conf import settings
 VERSION = '0.2'
-KERNEL_VERSION = '0.2'
 
 
 class KernelConfig(object):
@@ -133,7 +129,7 @@ class KernelServerOptions(usage.Options):
 
 
 
-def webResourceFactory(nbSessionManager, staticfiles):
+def webResourceFactory(staticfiles):
     """This factory function creates an instance of the front end web
     resource tree containing both the django wsgi and the async
     notebook resources.
@@ -163,9 +159,10 @@ def webResourceFactory(nbSessionManager, staticfiles):
     django_wsgi_resource = wsgi.WSGIResource(reactor, pool, WSGIHandler())
     resource_root = Root(django_wsgi_resource)
 
-    #nbSessionManager = SessionManager() #XXX improve
-    notebook_resource = Notebook(nbSessionManager)
     static_resource = static.File(staticfiles)
+
+    backend_manager = backend.BackendManager()
+    notebook_resource = backend.NotebookEngineRequestHandler(backend_manager)
 
     resource_root.putChild("asyncnotebook", notebook_resource)
     resource_root.putChild("static", static_resource)
@@ -192,9 +189,8 @@ class DesktopServiceMaker(object):
         """
         desktop_service = service.MultiService()
 
-        nbSessionManager = SessionManager(options)
         staticfiles = options['env_path'] + "/frontend/static" #XXX
-        web_resource = webResourceFactory(nbSessionManager, staticfiles)
+        web_resource = webResourceFactory(staticfiles)
         serverlog = options['env_path'] + "/data/server.log" #XXX
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 
@@ -239,13 +235,9 @@ class WebAppServiceMaker(object):
 
         web_app_service = service.MultiService()
 
-        if options['kernel_service'] == 'appengine':
-            nbSessionManager = AppEngineSessionManager(options)
-        else:
-            nbSessionManager = SessionManager(options)
 
         staticfiles = options['env_path'] + "/frontend/static" #XXX
-        web_resource = webResourceFactory(nbSessionManager, staticfiles)
+        web_resource = webResourceFactory(staticfiles)
         serverlog = options['env_path'] + "/data/server.log" #XXX
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 
@@ -256,56 +248,6 @@ class WebAppServiceMaker(object):
         return web_app_service
 
 
-
-class KernelServerServiceMaker(object):
-
-    implements(service.IServiceMaker, service.IPlugin)
-    tapname = "codenode-kernel"
-    description = ""
-    options = KernelServerOptions
-
-    def makeService(self, options):
-        """
-        """
-        kernel_service = service.MultiService()
-
-        procman = ProcessManager()
-        procman.setServiceParent(kernel_service)
-        
-        ########################################
-        #XXX Hack left over
-        engines_max = 0 #int(config['engines-max'])
-        if engines_max > 1:
-            from codenode.kernel.interface import UserPool
-            prefix = config['engines-user-prefix']
-            group = config['engines-group']
-            user_pool = UserPool(engines_max, prefix, group)
-        else:
-            user_pool = None
-
-        class InMemoryPasswordDatabase(checkers.InMemoryUsernamePasswordDatabaseDontUse):
-            """This is used for authenticating kernel connections.
-            It is a temporary solution that needs a little more... 
-            """
-
-            def requestAvatarId(self, credentials):
-                return defer.maybeDeferred(
-                        credentials.checkPassword, 
-                        self.users['user1']).addCallback(
-                        self._cbPasswordMatch, str(credentials.username))
-
-
-        realm = KernelManagerRealm(options, procman, user_pool)
-        p = portal.Portal(realm)
-        chk = InMemoryPasswordDatabase(user1="secret")
-        p.registerChecker(chk)
-
-        kernel_server = internet.TCPServer(options['port'], 
-                    pb.PBServerFactory(p),
-                    interface=options['host'])
-        kernel_server.setServiceParent(kernel_service)
-
-        return kernel_service
 
 
 

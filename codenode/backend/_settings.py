@@ -9,8 +9,8 @@ import commands
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 
 #Interface to listen on
-KERNEL_HOST = 'localhost'
-KERNEL_PORT = 8337
+BACKEND_HOST = 'localhost'
+BACKEND_PORT = 8337
 
 TWISTD = "twistd"
 NOTEBOOK_TYPES = ["python", "sage"]

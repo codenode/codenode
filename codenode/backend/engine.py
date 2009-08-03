@@ -1,7 +1,10 @@
 
 from zope.interface import Interface, implements
 
+from twisted.web import xmlrpc
 from twisted.plugin import IPlugin
+from twisted.internet import defer
+
 
 class IEngineConfiguration(Interface):
     """Engine process plugin

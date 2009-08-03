@@ -11,7 +11,8 @@
             communications are defined.
 
  */
-BASE_URL = '/asyncnotebook/'+document.location.pathname.split('/')[2]+'/';
+DATA_URL = '/notebook/'+document.location.pathname.split('/')[2]+'/';
+INTERPRETER_URL = '/asyncnotebook/'+document.location.pathname.split('/')[2]+'/';
 Notebook.Async = function() {
 };
 
@@ -66,7 +67,7 @@ Notebook.Async.signalError = function(result) {
 
 Notebook.Async.evalCell = function(cellid, input) {
     var self = Notebook.Async;
-    var path = BASE_URL+'eval';
+    var path = INTERPRETER_URL+'evaluate';
     if (input == '?') {
         var input = 'introspect?';
     }
@@ -108,7 +109,7 @@ Notebook.Async.evalSaveError = function(response) {
 
 
 Notebook.Async.saveToDatabase = function(orderlist, cellsdata, success, error) {
-    var path = BASE_URL+'save';
+    var path = DATA_URL+'save';
     var cells = JSON.stringify(cellsdata);
     var data = {'orderlist':orderlist, 'cellsdata':cells};
     $.ajax({
@@ -121,7 +122,7 @@ Notebook.Async.saveToDatabase = function(orderlist, cellsdata, success, error) {
 };
 
 Notebook.Async.deleteCells = function(mainid, ids) {
-    var path = BASE_URL+'delete';
+    var path = BASE_URL+'deletecell';
     var cellids = JSON.stringify(ids);
     var data = {'cellids':cellids};
     /*xxx: need to finish
@@ -136,7 +137,7 @@ Notebook.Async.deleteCells = function(mainid, ids) {
 };
 
 Notebook.Async.changeNotebookTitle = function(title, success, error) {
-    var path = BASE_URL+'change';
+    var path = DATA_URL+'change';
     var data = {'newtitle':title};
     $.ajax({
             url:path,
@@ -153,7 +154,7 @@ Notebook.Async.changeNotebookTitle = function(title, success, error) {
 Notebook.Async.completeName = function(cellid, mode, input, success, error) {
     //request match from server
     // this ultimatly returns a list of 0 or more match possibilities
-    var path = BASE_URL+'completer';
+    var path = INTERPRETER_URL+'complete';
     var data = {'cellid':cellid, 'mode':mode, 'input':input};
     $.ajax({
             url:path,

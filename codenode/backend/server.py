@@ -1,3 +1,4 @@
+import os
 
 from twisted.python import log
 from twisted.python import usage
@@ -13,6 +14,8 @@ from zope.interface import Interface, implements
 
 from codenode.backend import core
 
+from codenode.backend import _settings as settings
+
 BACKEND_VERSION = '0.2'
 
 class BackendAdmin(resource.Resource):
@@ -21,8 +24,7 @@ class BackendAdmin(resource.Resource):
         resource.Resource.__init__(self)
         self.backend = backend
 
-        self.putChild("RPC2", BackendAdminRC(backend))
-        self.putChild("", self)
+        self.putChild("", BackendAdminRC(backend))
 
     def render(self, request):
         """
@@ -36,17 +38,13 @@ class BackendAdminRC(xmlrpc.XMLRPC):
         self.backend = backend
 
     def xmlrpc_listEngineTypes(self):
-        return self.backend.getEngineTypes()
+        return self.backend.listEngineTypes()
 
     def xmlrpc_listEngineInstances(self):
         return self.backend.listEngineInstances()
 
-    @defer.inlineCallbacks
     def xmlrpc_runEngineInstance(self, engine_type):
-        d = self.backend.newEngine(engine_type)
-        res = yield d
-        print 'rpc newengine', res
-        defer.returnValue(res)
+        return self.backend.runEngineInstance(engine_type)
 
     def xmlrpc_terminateEngineInstance(self, engine_id):
         self.backend.terminateEngineInstance(engine_id)
@@ -92,7 +90,7 @@ class BackendRoot(resource.Resource):
         self.backend = backend
 
         self.putChild("admin", BackendAdmin(backend))
-        self.putChild("client", BackendClient(backend))
+        self.putChild("interpreter", BackendClient(backend))
         self.putChild("", self)
 
     def render(self, request):
@@ -104,8 +102,7 @@ class BackendConfig(usage.Options):
     optParameters = [
             ['host', 'h', settings.BACKEND_HOST, 'Interface to listen on'],
             ['port', 'p', settings.BACKEND_PORT, 'Port number to listen on', int],
-            ['env_path', 'e', os.path.join(os.getenv('HOME'), '.codenode', 'kernel'), 
-                'Path containing config, tac, and db'],
+            ['env_path', 'e', os.path.abspath('.'), 'Codenode environment path'],
             ]
 
     def opt_version(self):
@@ -114,12 +111,12 @@ class BackendConfig(usage.Options):
 
 class BackendServerServiceMaker(object):
 
-    impleents(service.IServiceMaker, service.IPlugin)
+    implements(service.IServiceMaker, service.IPlugin)
     tapname = "codenode-backend"
-    description = ""
+    description = "Backend server"
     options = BackendConfig
 
-    def makeServices(self, options):
+    def makeService(self, options):
 
         backendServices = service.MultiService()
         client_manager = core.EngineProxyManager() #sessions

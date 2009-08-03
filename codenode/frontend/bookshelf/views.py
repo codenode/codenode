@@ -1,3 +1,9 @@
+"""
+The bookshelf app is for organizing notebooks.
+
+These functions return existing relational data of a users notebook, or
+modify the relational data .
+"""
 from django.conf import settings
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
@@ -7,13 +13,15 @@ from django.contrib.auth.decorators import login_required
 
 from codenode.frontend.bookshelf import models as bookshelf_models
 from codenode.frontend.notebook import models as notebook_models
+from codenode.frontend.backend import models as backend_models
 
 @login_required
 def bookshelf(request, template_name='bookshelf/bookshelf.html'):
     """Render the Bookshelf interface.
     """
+    engine_types = backend_models.EngineType.objects.values_list("name")
     return render_to_response(template_name, 
-        {'notebook_types':settings.NOTEBOOK_TYPES, 'path':request.path}, context_instance=RequestContext(request))
+        {'notebook_types':engine_types, 'path':request.path}, context_instance=RequestContext(request))
 
 @login_required
 def load_bookshelf_data(request):
@@ -28,7 +36,7 @@ def load_bookshelf_data(request):
     if sort == "desc":
         order = "-"+order
     q = notebook_models.Notebook.objects.filter(owner=request.user, location=location).order_by(order)
-    data = [[e.guid, e.title, e.system, e.last_modified_time(request.user, e), e.location] for e in q]
+    data = [[e.guid, e.title, 'dumb', e.last_modified_time(request.user, e), e.location] for e in q]
     jsobj = json.dumps(data)
     return HttpResponse(jsobj, mimetype='application/json')
 
@@ -83,7 +91,7 @@ def new_notebook(request):
     """Create a new Notebook.
     """
     system = request.GET.get("system", "")
-    nb = notebook_models.Notebook(owner=request.user, system=system, title="Untitled", location="root")
+    nb = notebook_models.Notebook(owner=request.user, title="Untitled", location="root")
     nb.save()
     redirect = "/notebook/%s" % nb.guid
     return HttpResponseRedirect(redirect)
