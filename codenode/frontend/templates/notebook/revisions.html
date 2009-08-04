@@ -13,11 +13,18 @@
    <a id="back" href="../{{ nbid }}">&lsaquo;&lsaquo;&nbsp;Back to the Notebook</a>
 
    <table width="100%" cellspacing="0" cellpadding="5" border="0">
-      <thead><td><b>Revision</b></td> <td><b>Last Edited</b></td> <td><b>Recent Change</b></td> <td><b>Total Cells</b></td></thead>
+      <thead>
+        <td><b>Revision</b></td>
+        <td><b>Last Edited</b></td>
+        <td><b>Recent Change</b></td>
+        <td><b>Total Cells</b></td>
+      </thead>
      <tbody>
       {% for current_audit_id, current_audit_ts, codediff, cells_list in revisions %}
       <tr><td><a href="/notebook/revert/{{ current_audit_id }}">Revert to #{{ forloop.revcounter}}</a></td>
-          <td>{{ current_audit_ts|date:"M d, Y P" }} by {{ user }}</td><td class="codediff">{{ codediff|truncatewords:12 }}</td><td>{{ cells_list|length }}</td>
+        <td>{{ current_audit_ts|date:"M d, Y P" }} by {{ user }}</td>
+        <td class="codediff">{{ codediff|truncatewords:12 }}</td>
+        <td>{{ cells_list|length }}</td>
       </tr>
       {% endfor %}
      </tbody>
@@ -25,4 +32,3 @@
 
   </div>
 {% endblock %}
-

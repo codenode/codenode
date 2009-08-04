@@ -72,4 +72,3 @@ def revert_to_revision(id):
         cell.content, cell.style, cell.type, cell.props = cellrev.content, cellrev.style, cellrev.type, cellrev.props
         cell.save()
     return nb.guid
-
