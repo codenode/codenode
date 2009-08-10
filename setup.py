@@ -55,12 +55,13 @@ package_data = {'codenode':[
 ]}
 
 
+
 setup(
     name='codenode',
     version='0.01',
     url='http://codenode.org',
     download_url='http://pypi.python.org/pypi/codenode',
-    install_requires=['twisted', 'django'],
+    install_requires=['Twisted>=8.2.0', 'Django>=1.0.2-final', 'Whoosh>=0.2.5'],
     packages=packages,
     package_data=package_data,
     scripts=["codenode/scripts/codenode-admin"],
