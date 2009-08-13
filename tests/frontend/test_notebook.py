@@ -17,6 +17,12 @@ def setup():
 
 def teardown():
     f = {}
+    allnotebooks = models.Notebook.objects.all()
+    for nb in allnotebooks:
+        nb.delete()
+    allcells = models.Cell.objects.all()
+    for cell in allcells:
+        cell.delete()
 
 
 def test_a_new_notebook_is_assigned_a_guid():
@@ -44,6 +50,7 @@ def test_adding_a_cell_to_a_notebook_updates_the_last_modified_time():
     
     second_time = nb.last_modified_time()
     assert second_time > first_time
+    nb.delete() #clean up
     
 
 def test_notebook_last_modified_by_returns_last_cell_modifier():
@@ -58,6 +65,7 @@ def test_notebook_last_modified_by_returns_last_cell_modifier():
         )
     cell.save()
     assert nb.last_modified_by() == f['user2']
+    nb.delete() #clean up
     
 
 def test_view_notebook():
@@ -76,5 +84,6 @@ def test_view_notebook():
     # and that non existant notebooks raise 404
     response = c.get('/notebook/doesnotexist/')
     assert response.status_code == 404
+    nb.delete() #clean up
     
     

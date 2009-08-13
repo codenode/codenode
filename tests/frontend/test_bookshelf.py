@@ -15,6 +15,9 @@ def setup():
 
 def teardown():
     f = {}
+    allfolders = models.Folder.objects.all()
+    for folder in allfolders:
+        folder.delete()
 
 def test_add_folder():
     folder = models.Folder(owner=f['user1'], title="test_folder1")
@@ -30,4 +33,5 @@ def test_add_folder():
     resp = json.loads(response.content)
     assert response.status_code == 200
     assert resp[0][1] == "test_folder1"
+    folder.delete() #clean up
 

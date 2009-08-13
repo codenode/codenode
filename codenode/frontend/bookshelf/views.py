@@ -5,8 +5,8 @@ from django.template import RequestContext
 from django.utils import simplejson as json
 from django.contrib.auth.decorators import login_required
 
-from codenode.frontend.bookshelf import models as bookshelf_models
-from codenode.frontend.notebook import models as notebook_models
+from codenode.frontend.bookshelf.models import Folder
+from codenode.frontend.notebook.models import Notebook
 
 @login_required
 def bookshelf(request, template_name='bookshelf/bookshelf.html'):
@@ -27,7 +27,7 @@ def load_bookshelf_data(request):
         order = "created_time" #XXX
     if sort == "desc":
         order = "-"+order
-    q = notebook_models.Notebook.objects.filter(owner=request.user, location=location).order_by(order)
+    q = Notebook.objects.filter(owner=request.user, location=location).order_by(order)
     data = [[e.guid, e.title, e.system, e.last_modified_time(), e.location] for e in q]
     jsobj = json.dumps(data)
     return HttpResponse(jsobj, mimetype='application/json')
@@ -38,26 +38,26 @@ def folders(request):
     """Handle creating, retrieving, updating, deleting of folders.
     """
     if request.method == "GET":
-        q = bookshelf_models.Folder.objects.filter(owner=request.user)
+        q = Folder.objects.filter(owner=request.user)
         data = [[e.guid, e.title] for e in q]
     if request.method == "POST":
         if "create" in request.POST:
-            newfolder = bookshelf_models.Folder(owner=request.user, title="New Folder")
+            newfolder = Folder(owner=request.user, title="New Folder")
             newfolder.save()
             data = [[newfolder.guid, "New Folder"]]
         if "update" in request.POST:
             guid = request.POST.get("id", "")
-            folder = bookshelf_models.Folder.objects.get(guid=guid)
+            folder = Folder.objects.get(guid=guid)
             folder.title = request.POST.get("newname", "")
             folder.save()
             data = [[folder.guid, folder.title]]
         if "delete" in request.POST:
             folderid = request.POST.get("folderid", "")
             nbids =  request.POST.getlist("nbids")
-            folder = bookshelf_models.Folder.objects.get(owner=request.user, guid=folderid)
+            folder = Folder.objects.get(owner=request.user, guid=folderid)
             folder.delete()
             for nbid in nbids:
-                nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
+                nb = Notebook.objects.get(owner=request.user, guid=nbid)
                 nb.delete()
             data = {"response":"ok"}
     jsobj = json.dumps(data)
@@ -71,7 +71,7 @@ def change_notebook_location(request):
     dest = request.POST.get("dest" '')
     ids = request.POST.getlist("nbid")
     for nbid in ids:
-        nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
+        nb = Notebook.objects.get(owner=request.user, guid=nbid)
         nb.location = dest
         nb.save()
     jsobj = json.dumps({"response":"ok"})
@@ -83,7 +83,7 @@ def new_notebook(request):
     """Create a new Notebook.
     """
     system = request.GET.get("system", "")
-    nb = notebook_models.Notebook(owner=request.user, system=system, title="Untitled", location="root")
+    nb = Notebook(owner=request.user, system=system, title="Untitled", location="root")
     nb.save()
     redirect = "/notebook/%s" % nb.guid
     return HttpResponseRedirect(redirect)
@@ -95,7 +95,7 @@ def empty_trash(request):
     """ 
     nbids = request.POST.getlist("nbids")
     for nbid in nbids:
-        nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
+        nb = Notebook.objects.get(owner=request.user, guid=nbid)
         nb.delete()
     jsobj = json.dumps({"response":"ok"})
     return HttpResponse(jsobj, mimetype='application/json')

@@ -5,63 +5,55 @@ from whoosh.qparser import QueryParser
 from whoosh.fields import Schema, STORED, ID, KEYWORD, TEXT
 from whoosh.filedb.filestore import FileStorage
 
-SEARCH_INDEX = "search_index"
+from django.db.models import signals
+from django.conf import settings
 
+from codenode.frontend.notebook import models
+
+SEARCH_INDEX = settings.SEARCH_INDEX
 SEARCH_SCHEMA = Schema(
-    guid=ID(stored=True), 
-    owner=ID(stored=True), 
+    nbid=KEYWORD(stored=True), 
+    owner=KEYWORD(stored=True), 
     title=TEXT(field_boost=3), 
     content=TEXT(analyzer=analysis.FancyAnalyzer())
 )
 
-def create_index(search_index=SEARCH_INDEX, search_schema=SEARCH_SCHEMA):
-    if not os.path.exists(search_index):
-        os.mkdir(search_index)
-        storage = FileStorage(search_index)
-        storage.create_index(search_schema)
+def create_index(**kwargs):
+    if not os.path.exists(SEARCH_INDEX):
+        os.mkdir(SEARCH_INDEX)
+        storage = FileStorage(SEARCH_INDEX)
+        storage.create_index(SEARCH_SCHEMA)
+#Django signal registration
+signals.post_syncdb.connect(create_index)
 
-def insert(inst, search_index=SEARCH_INDEX, search_schema=SEARCH_SCHEMA):
-    ix = index.open_dir(search_index)
+def update_index(**kwargs):
+    instance = kwargs['instance']
+    ix = index.open_dir(SEARCH_INDEX)
     writer = ix.writer()
-    writer.add_document(guid=inst.guid, owner=inst.owner, title=inst.title, content=inst.content)
+    instvars = [instance.notebook.guid, instance.notebook.owner, instance.notebook.title, instance.content]
+    nbid, owner, title, content = [unicode(e) for e in instvars] #XXX is this unicode usage correct?
+    writer.add_document(nbid=nbid, owner=owner, title=title, content=content)
     writer.commit()
+#Django signal registration
+signals.post_save.connect(update_index, sender=models.Cell)
 
-def search(q, default_field="content", search_index=SEARCH_INDEX):
-    ix = index.open_dir(search_index)
+def search(q, default_field="content"):
+    ix = index.open_dir(SEARCH_INDEX)
     searcher = ix.searcher()
     parser = QueryParser(default_field, schema=ix.schema)
     query = parser.parse(q)
     results = searcher.search(query)
     return results
 
-def fa(content):
-    fa = analysis.FancyAnalyzer()
-    return  [t.text for t in fa(content)]
-
-class Doc(object):
-    def __init__(self, guid, owner, title, content):
-        self.guid=guid
-        self.owner=owner
-        self.title=title
-        self.content=content
-
-
-if __name__ == "__main__":
-    os.system("rm -rf search_index")
-    create_index()
-    c0 = u"""for i in range(10):
-            print i*i
-         """
-    c1 = u"""def foo(x, y):
-            return x + y
-         """
-    c2 = u"""bar = foo(10, 20)"""
-
-    cls = [Doc(unicode(i), u"agc", u"untitled",c) for (i,c) in enumerate([c0, c1, c2])]
-
-    for c in cls:
-        print fa(c.content)
-        insert(c)
-
-    res = search("foo")
-    print list(res)
+def delete(**kwargs):
+    """Remove deleted Notebook's Cells from the Index.
+    """
+    instance = kwargs['instance']
+    ix = index.open_dir(SEARCH_INDEX)
+    searcher = ix.searcher()
+    parser = QueryParser("nbid", schema=ix.schema)
+    query = parser.parse(instance.guid)
+    number_deleted = ix.delete_by_query(query)
+    ix.commit()
+#Django signal registration
+signals.post_delete.connect(delete, sender=models.Notebook)

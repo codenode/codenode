@@ -12,6 +12,7 @@ urlpatterns = patterns("",
     (r'^accounts/', include('codenode.frontend.registration.urls')),
     (r'^settings/', include('codenode.frontend.usersettings.urls')),
     (r'^util/', include('codenode.frontend.util.urls')),
+    (r'^search$', include('codenode.frontend.search.urls')),
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
     (r'^admin/(.*)', admin.site.root),
 )

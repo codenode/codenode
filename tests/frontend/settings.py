@@ -80,6 +80,9 @@ AUTH_PROFILE_MODULE = "usersettings.UserSettings"
 
 ###############################
 
+#Search
+SEARCH_INDEX = "tests/search_index"
+
 APP_HOST = 'localhost'
 APP_PORT = 8000
 
@@ -147,6 +150,7 @@ INSTALLED_APPS = (
     'codenode.frontend.bookshelf',
     'codenode.frontend.notebook',
     'codenode.frontend.usersettings',
+    'codenode.frontend.search',
     'compress',
 )
 
