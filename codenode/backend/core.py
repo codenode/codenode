@@ -99,6 +99,18 @@ class EngineProxyManager(service.Service):
     def addEngine(self, engine):
         self.engines[engine.id] = engine
 
+    def addEngineNotYetRunning(self, d, id):
+        """
+        """
+        c = Engine(d, id)
+        d.addErrback(self._engine_failed, id)
+        self.engines[id] = c
+
+
+    def _engine_failed(self, r, id):
+        self.removeEngine(id)
+        return r
+
     def removeEngine(self, engine_id):
         if not self.engines.has_key(engine_id):
             raise KeyError("Engine client %s does not exist" % engine_id)
@@ -188,14 +200,13 @@ class Backend(object):
         engine_config = self.engine_types[engine_type]
         id = uuid.uuid4().hex
         d = self.process_manager.addProcess(id, engine_config)
-        d.addCallback(self._start_client, id)
-        d.addErrback(_fail)
+        self.client_manager.addEngineNotYetRunning(d, id)
+        #d.addCallback(self._start_client, id)
+        #d.addErrback(_fail)
         return id
 
-    def _start_client(self, port, id):
-        print '_start_client', port, id
-        c = Engine(port, id)
-        self.client_manager.addEngine(c)
+    def getEngine(self, engine_id):
+        return self.client_manager.getEngine(engine_id)
 
     def terminateEngineInstance(self, engine_id):
         """Stop an engine instance.

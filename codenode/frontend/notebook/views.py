@@ -53,12 +53,16 @@ def save(request, nbid):
     TODO think about moving saving logic into model/model manager 
     """
     nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
-    orderlist = ",".join(request.POST.get('orderlist', []))
-    cellsdata = request.POST.get('cellsdata', [None])[0]
+    orderlist = request.POST.get('orderlist', [])
+    print request.POST
+    print request.REQUEST
+    #orderlist = ",".join(request.POST.get('orderlist', []))
+    cellsdata = request.POST.get('cellsdata', [None])
+    print cellsdata
     cellsdata = json.loads(cellsdata)
 
     for cellid, data in cellsdata.items():
-        cells = notebook_models.Cell.objects.filter(guid=cellid, notebok=nb)
+        cells = notebook_models.Cell.objects.filter(guid=cellid, notebook=nb)
         content = data["content"]
         style = data["cellstyle"]
         props = data["props"]

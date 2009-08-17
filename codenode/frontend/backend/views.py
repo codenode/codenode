@@ -27,3 +27,20 @@ def runInstance(request):
                                         owner=request.user,
                                         notebook=nb)
     engine_instance.save()
+
+def terminateInstance(request, notebook_id):
+    models.EngineInstance.objects.get(notebook=notebook_id)
+
+def interruptInstance(request, notebook_id):
+    try:
+        engine = models.EngineInstance.objects.get(notebook=notebook_id)
+        backend = engine.backend
+    except ObjectDoesNotExist:
+        return HttpResponse()
+    rpc.interruptInstance(backend.address, engine.id)
+    return HttpResponse()
+
+
+
+
+

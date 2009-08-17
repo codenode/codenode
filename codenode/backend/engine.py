@@ -73,6 +73,8 @@ class IEngine(Interface):
         from an objects set of attributes.
         """
 
+
+
 class Engine:
     """
     Implementation of IEngine using an xml rpc client.
@@ -81,18 +83,34 @@ class Engine:
     implements(IEngine)
 
 
-    def __init__(self, port, id):
+    def __init__(self, d, id):
         """
         @param client configured xml rpc client
         """
-        self.client = xmlrpc.Proxy("http://localhost:%s" % port)
         self.id = id
+        self.client = None
+        self.deferred = d
+        d.addCallback(self._start)
+        d.addErrback(self._fail)
+        self.ready = False
+
+    def _start(self, port):
+        self.client = xmlrpc.Proxy("http://localhost:%s" % port)
+        self.ready = True
+        return True
+
+    def _fail(self, r):
+        return False
 
     @defer.inlineCallbacks
     def evaluate(self, to_evaluate):
         """
         return a Deferred
         """
+        if not self.ready:
+            is_ready_now = yield self.deferred
+            if not is_ready_now:
+                defer.returnValue("Engine Failed To Start")
         result = yield self.client.callRemote('evaluate', to_evaluate)
         defer.returnValue(result)
 
@@ -101,6 +119,10 @@ class Engine:
         """
         return a Deferred
         """
+        if not self.ready:
+            is_ready_now = yield self.deferred
+            if not is_ready_now:
+                defer.returnValue("Engine Failed To Start")
         result = yield self.client.callRemote('complete', to_complete)
         defer.returnValue(result)
 

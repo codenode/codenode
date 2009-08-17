@@ -1,11 +1,13 @@
 
 from zope.interface import implements 
 
+from twisted.internet import defer
 from twisted.web import xmlrpc
 from twisted.web import resource
 from twisted.web import server
 
 from django.utils import simplejson as json
+from django.core.exceptions import ObjectDoesNotExist
 
 from codenode.frontend.notebook import models as nb_models
 from codenode.frontend.backend import models as bkend_models
@@ -22,23 +24,59 @@ class InstanceInterpreterProxy(object):
 
     implements(engine.IEngine)
 
-    def __init__(self, address, id):
-        self.client = xmlrpc.Proxy(str(address) + '/interpreter/' + str(id))
+    def __init__(self, engine_instance_d):
+        #self.client = xmlrpc.Proxy(str(address) + '/interpreter/' + str(id))
+        self.client = None
+        engine_instance_d.addCallback(self._start_client)
+        engine_instance_d.addErrback(self._fail_client)
+        self.deferred = engine_instance_d
 
+    def _start_client(self, engine_instance):
+        address = engine_instance[0]
+        id = engine_instance[1]
+        self.client = xmlrpc.Proxy(str(address) + '/interpreter/' + str(id))
+        return True
+
+    def _fail_client(self, r):
+        print 'FAIL CLIENT', r
+        return False
+
+    @defer.inlineCallbacks
     def evaluate(self, to_evaluate):
         """
         """
-        return self.client.callRemote('evaluate', str(to_evaluate))
+        if self.client is None:
+            is_ready_now = yield self.deferred
+            if not is_ready_now:
+                defer.returnValue("Engine Failed To Start")
+        result = yield self.client.callRemote('evaluate', str(to_evaluate))
+        defer.returnValue(result)
 
+    @defer.inlineCallbacks
     def complete_name(self, to_complete):
         """
         """
-        return self.client.callRemote('complete_name', to_complete)
+        if self.client is None:
+            is_ready_now = yield self.deferred
+            if not is_ready_now:
+                defer.returnValue("Engine Failed To Start")
+        result = yield self.client.callRemote('complete_name', to_complete)
+        defer.returnValue(result)
 
+    @defer.inlineCallbacks
     def complete_attr(self, to_complete):
         """
         """
-        return self.client.callRemote('complete_attr', to_complete)
+        if self.client is None:
+            is_ready_now = yield self.deferred
+            if not is_ready_now:
+                defer.returnValue("Engine Failed To Start")
+        result = yield self.client.callRemote('complete_attr', to_complete)
+        defer.returnValue(result)
+
+class NoInstance(Exception):
+    """This Notebook has no engine instance associated with it."""
+    pass
 
 
 class BackendManager(object):
@@ -57,20 +95,33 @@ class BackendManager(object):
     - nb does not exist; return error.
     """
 
-    def getBackendEngine(self, notebook_id, user_id=None):
+
+    def getInstance(self, notebook_id, user_id=None):
         #nb = nb_models.Notebook.objects.filter(owner=user_id).get(guid=notebook_id)
         nb = nb_models.Notebook.objects.get(guid=notebook_id)
         # if there is no instance, create one, the notebook should have a
         # default engine type already configured
-        engine_inst = bkend_models.EngineInstance.objects.get(notebook=nb)
-        return InstanceInterpreterProxy(engine_inst.backend.address, engine_inst.instance_id)
+        try:
+            engine_inst = bkend_models.EngineInstance.objects.get(notebook=nb)
+            return (engine_inst.backend.address, engine_inst.instance_id,)
+        except ObjectDoesNotExist:
+            raise NoInstance
+        #return InstanceInterpreterProxy(engine_inst.backend.address, engine_inst.instance_id)
 
-    def runEngineInstance(self, notebook_id, user_id=None):
+    @defer.inlineCallbacks
+    def runInstance(self, notebook_id, user_id=None):
         nb = nb_models.Notebook.objects.get(guid=notebook_id)
-        backend = nb.engine_type.backend
-        client = xmlrpc.Proxy(backend.address + '/admin')
-        d = client.callRemote("runEngineInstance", nb.engine_type.name)
-        return d
+        engine_type = bkend_models.EngineTypeToNotebook.objects.get(notebook=nb).type
+        backend = engine_type.backend
+        address = str(backend.address)
+        client = xmlrpc.Proxy(address + '/admin/')
+        instance_id = yield client.callRemote("runEngineInstance", str(engine_type.name))
+        bkend_models.EngineInstance(type=engine_type,
+                                    id=instance_id,
+                                    backend=backend,
+                                    owner=nb.owner,
+                                    notebook=nb)
+        defer.returnValue((address, instance_id,))
 
 
 
@@ -85,15 +136,23 @@ class NotebookEngineRequestHandler(resource.Resource):
     def getChild(self, path, request):
         """Path should be notebook id
         """
-        engine_instance = self.backend.getBackendEngine(path)
-        return NotebookMethods(engine_instance)
+        try:
+            engine_instance = self.backend.getInstance(path)
+        except NoInstance:
+            engine_instance = self.backend.runInstance(path)
+        def maybedefer(engine_instance):
+            return engine_instance
+        return NotebookMethods(defer.maybeDeferred(maybedefer, engine_instance))
 
 
 
 class NotebookMethods(resource.Resource):
 
-    def __init__(self, engine):
+    def __init__(self, engine_instance):
         resource.Resource.__init__(self)
+        print 'NotebookMETHODS', engine_instance
+        engine = InstanceInterpreterProxy(engine_instance)
+        self.putChild("start", Start(engine))
         self.putChild("evaluate", Evaluate(engine))
         self.putChild("complete", Complete(engine))
 
@@ -116,6 +175,22 @@ def save_cell(notebook_id, cell_id, content, type, style, props):
         nb.save()
     else:
         cell.save()
+
+class Start(resource.Resource):
+
+    def __init__(self, engine):
+        resource.Resource.__init__(self)
+        self.engine = engine
+
+    def render(self, req):
+        """
+        """
+        data = "{'result':'ok'}"
+        jsobj = json.dumps(data)
+        request.setHeader("content-type", "application/json")
+        request.write(jsobj)
+        request.finish()
+        return server.NOT_DONE_YET
 
 class Evaluate(resource.Resource):
 
@@ -145,6 +220,7 @@ class Evaluate(resource.Resource):
         return server.NOT_DONE_YET
 
     def _engine_cb(self, result, request, cellid):
+        print 'engine CB', result
         count, out, err = result['input_count'], result['out'], result['err']
         output = out + err
         if "__image__" in output:

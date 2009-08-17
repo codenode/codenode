@@ -61,8 +61,8 @@ class EngineTypeToNotebook(models.Model):
     """Relate a notebook document to an engine type.
     This table is for remembering a notebook's default engine type.
     """
-    notebook = models.ForeignKey(Notebook, unique=True)
     type = models.ForeignKey(EngineType)
+    notebook = models.ForeignKey(Notebook, unique=True, related_name='engine_types')
 
 
 

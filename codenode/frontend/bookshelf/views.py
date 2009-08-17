@@ -19,9 +19,9 @@ from codenode.frontend.backend import models as backend_models
 def bookshelf(request, template_name='bookshelf/bookshelf.html'):
     """Render the Bookshelf interface.
     """
-    engine_types = backend_models.EngineType.objects.values_list("name")
+    engine_types = backend_models.EngineType.objects.values_list("name", flat=True)
     return render_to_response(template_name, 
-        {'notebook_types':engine_types, 'path':request.path}, context_instance=RequestContext(request))
+        {'engine_types':engine_types, 'path':request.path}, context_instance=RequestContext(request))
 
 @login_required
 def load_bookshelf_data(request):
@@ -89,10 +89,14 @@ def change_notebook_location(request):
 @login_required
 def new_notebook(request):
     """Create a new Notebook.
+    Set notebook default type, and start instance.
     """
-    system = request.GET.get("system", "")
+    engine_type_name = request.GET.get("engine_type", "")
     nb = notebook_models.Notebook(owner=request.user, title="Untitled", location="root")
     nb.save()
+    engine_type = backend_models.EngineType.objects.get(name=engine_type_name)
+    default_engine = backend_models.EngineTypeToNotebook(notebook=nb, type=engine_type)
+    default_engine.save()
     redirect = "/notebook/%s" % nb.guid
     return HttpResponseRedirect(redirect)
 

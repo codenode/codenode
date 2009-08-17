@@ -25,6 +25,9 @@ from codenode.backend.kernel.procman import ProcessManager
 from codenode.backend.kernel.process import KernelProcessControl
 from codenode.frontend.async import backend
 
+import codenode
+lib_path = codenode.__path__[0]
+
 from django.conf import settings
 VERSION = '0.2'
 
@@ -51,6 +54,10 @@ class DesktopOptions(usage.Options):
             ['kernel_port', 'q', settings.KERNEL_PORT, 'Kernel Server port'],
             ['env_path', 'e', os.path.join(os.getenv('HOME'), '.codenode', 'codenode'), 
                 'Path containing config, tac, and db'],
+            ['server_log', None, os.path.join(os.path.abspath('.'), 'server.log'), 
+                'log file for codenoded server'],
+            ['static_files', None, os.path.join(lib_path, 'frontend', 'static'),
+                'Path to static web application files'],
         ]
 
     optFlags = [
@@ -83,6 +90,10 @@ class WebAppOptions(usage.Options):
             ['url_static_root', 's', '/', 'Static root url path for web server'],
             ['env_path', 'e', os.path.join(os.getenv('HOME'), '.codenode', 'codenode'), 
                 'Path containing config, tac, and db'],
+            ['server_log', None, os.path.join(os.path.abspath('.'), 'server.log'), 
+                'log file for codenoded server'],
+            ['static_files', None, os.path.join(lib_path, 'frontend', 'static'),
+                'Path to static web application files'],
         ]
 
     optFlags = [
@@ -236,15 +247,27 @@ class WebAppServiceMaker(object):
         web_app_service = service.MultiService()
 
 
-        staticfiles = options['env_path'] + "/frontend/static" #XXX
+        staticfiles = options['static_files']
         web_resource = webResourceFactory(staticfiles)
-        serverlog = options['env_path'] + "/data/server.log" #XXX
+        serverlog = options['server_log']
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 
         tcp_server = internet.TCPServer(options['port'], 
                                     web_resource_factory, 
                                     interface=options['host'])
         tcp_server.setServiceParent(web_app_service)
+
+        from twisted.conch.manhole import ColoredManhole
+        from twisted.conch.insults import insults
+        from twisted.conch.telnet import TelnetTransport, TelnetBootstrapProtocol
+        from twisted.internet import protocol
+
+        f = protocol.ServerFactory()
+        f.protocol = lambda: TelnetTransport(TelnetBootstrapProtocol,
+                                        insults.ServerProtocol,
+                                        ColoredManhole, locals())
+        tsvc = internet.TCPServer(6023, f)
+        tsvc.setServiceParent(web_app_service)
         return web_app_service
 
 

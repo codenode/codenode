@@ -11,7 +11,7 @@ class Notebook(models.Model):
     viewers = models.ManyToManyField(User, blank=True, related_name='notebook_viewer')
     title = models.CharField(max_length=100, default='untitled')
     # The location should be handled by a bookshelf model
-    location = models.CharField(max_length=100)
+    location = models.CharField(max_length=100, default='root')
     #style = models.CharField(max_length=2048) #json object that holds style settings.
     created_time = models.DateTimeField(auto_now_add=True)
     orderlist = models.TextField(editable=False, default='orderlist')

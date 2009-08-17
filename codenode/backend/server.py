@@ -46,10 +46,10 @@ class BackendAdminRC(xmlrpc.XMLRPC):
     def xmlrpc_runEngineInstance(self, engine_type):
         return self.backend.runEngineInstance(engine_type)
 
-    def xmlrpc_terminateEngineInstance(self, engine_id):
+    def xmlrpc_terminateInstance(self, engine_id):
         self.backend.terminateEngineInstance(engine_id)
 
-    def xmlrpc_interruptEngineInstance(self, engine_id):
+    def xmlrpc_interruptInstance(self, engine_id):
         self.backend.interruptEngineIntance(engine_id)
         return
 
@@ -64,17 +64,18 @@ class BackendClient(resource.Resource):
         self.putChild("", self)
 
     def getChild(self, path, request):
-        return BackendClientRC(self.backend, path)
+        engine = self.backend.getEngine(path)
+        return BackendClientRC(engine)
 
     def render(self, request):
         return "backend client"
 
 class BackendClientRC(xmlrpc.XMLRPC):
 
-    def __init__(self, backend, id):
+    def __init__(self, engine):
         xmlrpc.XMLRPC.__init__(self)
-        self.backend = backend
-        engine = backend.client_manager.getEngine(id)
+        #self.backend = backend
+        #engine = backend.client_manager.getEngine(id)
         self.engine = engine
 
     def xmlrpc_evaluate(self, to_evaluate):

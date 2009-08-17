@@ -10,3 +10,8 @@ def runEngineInstance(address, engine_type):
     client = xmlrpclib.ServerProxy(address + '/admin/')
     engine_id = client.runEngineInstance(engine_type)
     return engine_id
+
+def interruptInstance(address, instance_id):
+    client = xmlrpclib.ServerProxy(address + '/admin/')
+    client.interruptInstance(instance_id)
+

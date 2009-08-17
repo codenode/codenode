@@ -3,6 +3,7 @@ from django.contrib import admin
 from codenode.frontend.backend.models import BackendServer
 from codenode.frontend.backend.models import EngineType
 from codenode.frontend.backend.models import EngineInstance
+from codenode.frontend.backend.models import EngineTypeToNotebook
 
 from codenode.frontend.backend import rpc
 
@@ -40,3 +41,9 @@ class EngineInstanceAdmin(admin.ModelAdmin):
 
 
 admin.site.register(EngineInstance, EngineInstanceAdmin)
+
+class EngineTypeToNotebookAdmin(admin.ModelAdmin):
+    """
+    """
+
+admin.site.register(EngineTypeToNotebook, EngineTypeToNotebookAdmin)

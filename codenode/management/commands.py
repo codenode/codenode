@@ -44,8 +44,42 @@ def run_command(daemonize=False): #, frontendpid=None, kernelpid=None):
     """
     os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
     abspath = os.path.abspath(".")
-    os.system("twistd -n codenode --env_path=%s" % abspath)
+    server_log = os.path.join(abspath, 'data', 'server.log')
+    static_files = os.path.join(abspath, 'frontend', 'static')
+    cmd = "twistd "
+    if not daemonize:
+        cmd += "-n "
+    cmd += "codenode "
+    cmd += "--env_path=%s " % abspath
+    cmd += "--server_log=%s " % server_log
+    cmd += "--static_files=%s " % static_files
+    os.system(cmd)
 
+def frontend_command(daemonize=False, env_path=None, devel=False):
+    """
+    Run the frontend only.
+    """
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
+    abspath = os.path.abspath(".")
+    server_log = os.path.join(abspath, 'data', 'server.log')
+    static_files = os.path.join(abspath, 'frontend', 'static')
+    cmd = "twistd "
+    if not daemonize:
+        cmd += "-n "
+    cmd += "codenoded "
+    cmd += "--env_path=%s " % abspath
+    cmd += "--server_log=%s " % server_log
+    cmd += "--static_files=%s " % static_files
+    os.system(cmd)
+
+
+def backend_command(daemonize=False):
+    """
+    Run a backend.
+    """
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
+    abspath = os.path.abspath(".")
+    os.system("twistd -n codenode --env_path=%s" % abspath)
 
 def help_command(**options):
     """

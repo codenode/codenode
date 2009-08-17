@@ -18,6 +18,7 @@ class EngineRPCServer(SimpleXMLRPCServer):
         SimpleXMLRPCServer.__init__(self, addr)
         self.user_namespace = namespace
         self._interpreter = interpreter
+        self.interpreter = self._interpreter(self.user_namespace)
 
     def _dispatch(self, method, params):
         try:

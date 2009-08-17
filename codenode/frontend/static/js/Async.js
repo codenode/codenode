@@ -12,6 +12,7 @@
 
  */
 DATA_URL = '/notebook/'+document.location.pathname.split('/')[2]+'/';
+CONTROL_URL = '/backend/'+document.location.pathname.split('/')[2]+'/';
 INTERPRETER_URL = '/asyncnotebook/'+document.location.pathname.split('/')[2]+'/';
 Notebook.Async = function() {
 };
@@ -21,7 +22,7 @@ Notebook.Async = function() {
 
 Notebook.Async.initialize = function() {
     // eval json written to html body by server
-    var url = BASE_URL+'nbobject';
+    var url = DATA_URL+'nbobject';
     var success = function (res) {
         Notebook.Load.takeCellsData(res);
         }
@@ -31,7 +32,7 @@ Notebook.Async.initialize = function() {
 };
 
 Notebook.Async.startEngine = function() {
-    var path = BASE_URL+'start';
+    var path = CONTROL_URL+'start';
     $.ajax({
         url:path,
         type:'GET',
@@ -48,7 +49,7 @@ Notebook.Async.startEngine = function() {
 
 Notebook.Async.signalKernel = function(action) {
     var self = Notebook.Async;
-    var path = BASE_URL+'kernel';
+    var path = CONTROL_URL+'kernel';
     var data = {'action':action};
     $.ajax({
             url:path,
