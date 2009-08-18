@@ -182,7 +182,7 @@ class Start(resource.Resource):
         resource.Resource.__init__(self)
         self.engine = engine
 
-    def render(self, req):
+    def render(self, request):
         """
         """
         data = "{'result':'ok'}"

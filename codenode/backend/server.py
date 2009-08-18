@@ -106,6 +106,10 @@ class BackendConfig(usage.Options):
             ['env_path', 'e', os.path.abspath('.'), 'Codenode environment path'],
             ]
 
+    optFlags = [
+            ['devel_mode', 'd', 'Development mode'],
+            ]
+
     def opt_version(self):
         print 'codenode backend version: %s' % BACKEND_VERSION
         sys.exit(0)
@@ -130,6 +134,20 @@ class BackendServerServiceMaker(object):
         eng_proxy_factory = server.Site(BackendRoot(backend))
         internet.TCPServer(options['port'], eng_proxy_factory,
                 interface=options['host']).setServiceParent(backendServices)
+
+        if options['devel_mode']:
+            from twisted.conch.manhole import ColoredManhole
+            from twisted.conch.insults import insults
+            from twisted.conch.telnet import TelnetTransport, TelnetBootstrapProtocol
+            from twisted.internet import protocol
+
+            f = protocol.ServerFactory()
+            f.protocol = lambda: TelnetTransport(TelnetBootstrapProtocol,
+                                            insults.ServerProtocol,
+                                            ColoredManhole, globals())
+            telnel_manhole = internet.TCPServer(6024, f)
+            telnel_manhole.setServiceParent(backendServices)
+
         return backendServices
 
 

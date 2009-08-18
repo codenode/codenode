@@ -32,7 +32,7 @@ Notebook.Async.initialize = function() {
 };
 
 Notebook.Async.startEngine = function() {
-    var path = CONTROL_URL+'start';
+    var path = INTERPRETER_URL+'start';
     $.ajax({
         url:path,
         type:'GET',

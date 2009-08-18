@@ -252,22 +252,23 @@ class WebAppServiceMaker(object):
         serverlog = options['server_log']
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 
-        tcp_server = internet.TCPServer(options['port'], 
+        frontend_server = internet.TCPServer(options['port'], 
                                     web_resource_factory, 
                                     interface=options['host'])
-        tcp_server.setServiceParent(web_app_service)
+        frontend_server.setServiceParent(web_app_service)
 
-        from twisted.conch.manhole import ColoredManhole
-        from twisted.conch.insults import insults
-        from twisted.conch.telnet import TelnetTransport, TelnetBootstrapProtocol
-        from twisted.internet import protocol
+        if options['devel_mode']:
+            from twisted.conch.manhole import ColoredManhole
+            from twisted.conch.insults import insults
+            from twisted.conch.telnet import TelnetTransport, TelnetBootstrapProtocol
+            from twisted.internet import protocol
 
-        f = protocol.ServerFactory()
-        f.protocol = lambda: TelnetTransport(TelnetBootstrapProtocol,
-                                        insults.ServerProtocol,
-                                        ColoredManhole, locals())
-        tsvc = internet.TCPServer(6023, f)
-        tsvc.setServiceParent(web_app_service)
+            f = protocol.ServerFactory()
+            f.protocol = lambda: TelnetTransport(TelnetBootstrapProtocol,
+                                            insults.ServerProtocol,
+                                            ColoredManhole, globals())
+            telnel_manhole = internet.TCPServer(6023, f)
+            telnel_manhole.setServiceParent(web_app_service)
         return web_app_service
 
 

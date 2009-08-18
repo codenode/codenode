@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-export PYTHONPATH=$PWD
-./bin/codenode-admin frontend --devel=True
