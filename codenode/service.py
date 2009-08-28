@@ -192,6 +192,9 @@ class DesktopServiceMaker(object):
         The kernel server process is another twistd plugin, and needs a 
         few options passed to it.  
         """
+        from codenode.frontend.search import search
+        search.create_index()
+
         desktop_service = service.MultiService()
 
         nbSessionManager = SessionManager(options)
