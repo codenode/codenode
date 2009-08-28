@@ -70,9 +70,9 @@ def test_search():
 def test_view_search():
     nb1 = models.Notebook(owner=f['user1'])
     nb1.save()
-    nb2 = models.Notebook(owner=f['user2'])
+    nb2 = models.Notebook(owner=f['user2'], title="Foo is Foo")
     nb2.save()
-    nb3 = models.Notebook(owner=f['user2'], title="Foo is Foo")
+    nb3 = models.Notebook(owner=f['user2'])
     nb3.save()
  
     cell1 = models.Cell(
@@ -104,5 +104,10 @@ def test_view_search():
     assert logged_in
     response = c.get('/search', {'q':'foo'})
     resp = json.loads(response.content)
-    print "rrrrrrrrrrrrressssssssspppppp ", resp, nb1.guid, nb2.guid, nb3.guid
-    assert nb3.guid in resp["results"]
+    assert resp["query"] == "foo"
+    result_nbid = resp["results"][0][0]
+    result_title = resp["results"][0][1]
+    assert nb2.title == result_title
+    assert nb1.guid != result_nbid #incorrect notebook owner 
+    assert nb2.guid == result_nbid #contains search term
+    assert nb3.guid != result_nbid  #no search terms

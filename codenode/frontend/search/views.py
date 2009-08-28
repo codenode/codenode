@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils import simplejson as json
 
+from codenode.frontend.notebook.models import Notebook
 from codenode.frontend.search import search
 
 @login_required
@@ -10,6 +11,9 @@ def search_view(request):
     result0 = search.search(q)
     result1 = search.search(q, default_field="title")
     result0.upgrade_and_extend(result1)
-    results = [res["nbid"] for res in result0] # if res["owner"] == request.user]
+    owner = request.user.username
+    nbids = [res["nbid"] for res in result0 if res["owner"] == owner]
+    nbs = Notebook.objects.filter(guid__in=nbids, owner=request.user).order_by("created_time")
+    results = [[e.guid, e.title, e.system, str(e.last_modified_time()), e.location] for e in nbs]
     jsobj = json.dumps({"query":q, "results":results})
     return HttpResponse(jsobj, mimetype='application/json')
