@@ -77,6 +77,8 @@ ACCOUNT_ACTIVATION_DAYS = 3
 AUTH_PROFILE_MODULE = "usersettings.UserSettings"
 
 ###############################
+#Search
+SEARCH_INDEX = PROJECT_PATH+'/../data/search_index'
 
 APP_HOST = 'localhost'
 APP_PORT = 8000
