@@ -1,11 +1,12 @@
 import os
 import shutil
+import sys
 
 import codenode
 from codenode import management
 
 
-def init_command(name=None):
+def init_command(name=None, test=False):
     """
     Initialize a codenode.
 
@@ -13,14 +14,30 @@ def init_command(name=None):
     sub-directories, config files, and other data to run
     an instance of codenode.
     
+    Use the test flag to create a development environment
+    where the code is symlinked.
+    
     EXAMPLES:
         codenode-admin init -name mycodenode
+        
+        codenode-admin init -name mycodenode -test
     """
     osjoin = os.path.join
     abspath = os.path.abspath(".")
     envroot = osjoin(abspath, name)
     pkgroot = os.sep.join(codenode.__file__.split(os.sep)[:-1])
     os.mkdir(envroot)
+    
+    copytree = shutil.copytree
+    
+    if test:
+        try: 
+            copytree = os.symlink
+        except AttributeError:
+            pass   
+    
+    
+    
     for dir in ["frontend", "backend"]:
         os.makedirs(osjoin(envroot, dir))
         open(osjoin(osjoin(envroot, dir), "__init__.py"), "w").close()
@@ -30,13 +47,13 @@ def init_command(name=None):
     for dir in ["static", "templates", "compress"]:
         dirroot = osjoin("frontend", dir)
         pkgdirroot = osjoin(pkgroot, dirroot)
-        shutil.copytree(pkgdirroot, osjoin(envroot, dirroot))
+        copytree(pkgdirroot, osjoin(envroot, dirroot))
 
     pkgdataroot = osjoin(pkgroot, "data")
-    shutil.copytree(pkgdataroot, osjoin(envroot, "data"))
+    copytree(pkgdataroot, osjoin(envroot, "data"))
 
     pkgtwistedroot = osjoin(pkgroot, "twisted")
-    shutil.copytree(pkgtwistedroot, osjoin(envroot, "twisted"))
+    copytree(pkgtwistedroot, osjoin(envroot, "twisted"))
 
 
 def run_command(daemonize=False): #, frontendpid=None, kernelpid=None):
