@@ -1,47 +1,53 @@
-The Kernel Server
-=================
+The Codenode Backend - Code Execution Handling
+==============================================
 
-The *Kernel* and all associated *Engines* are the components
-of `codenode` that handle the execution of a give Notebook's code.
+.. _backend:
+
+The *Kernel* and all associated *Engines* are the components of `codenode` that 
+handle the execution of a given Notebook's code.
+
 The following is a techinical overview of the *Kernel* and all *Engines*
 which combined is refered to as the "Backend" `codenode`.
 
 
+.. image:: images/codenode_backend.png
 
-Definitions
------------
+Definitions of Kernel, Engine, and Interpreter
+----------------------------------------------
 
-^Kernel (aka Kernel Server)
+Kernel (aka Kernel Server)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 A Twisted application running these services:
+
 #. Perspective-Broker server
 #. Process Manager for managing computation engines
 
-^Engine (aka. Computation Engine)
-One process (Python, Sage, etc) where one notebooks computation takes place. 
-Engines have two main parts:
-#. XML-RPC server which provides a specific set of methods (according
-    to the Engine interface/API) for the Kernel to call.
-#. An Interpreter object with the same set of methods. The RPC server
-    essentially wraps this interpreter giving it a network interface.
+Engine (aka. Computation Engine)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+One process (Python, Sage, etc) where Notebook computation occurs. 
 
-^Interpreter Object 
-An object (implemented in a interpreted like Python), that provides 
-a consistent interface (an API) to the fundamental capabilities 
-of that language.
+Engines have two main parts:
+#. XML-RPC server, providing a specific set of methods (according to the Engine interface/API) for the Kernel to call.
+#. An Interpreter object with the same set of methods at the XML_RPC server. The RPC server essentially wraps this interpreter giving it a network interface.
+
+Interpreter Object 
+^^^^^^^^^^^^^^^^^^^
+An object (implemented in an interpreted like Python), that provides 
+a consistent interface (an API) to the fundamental capabilities of that language.
    
 
-Overview
---------
+Details of the Kernel
+---------------------
 
 The Kernel serves two purposes: 
 #. Provides a network interface to the `codenode` application server for
 relaying computation requests and results (data, plot images, etc.). 
-#> Manages (starts, and stops) Engine processes.
+#. Manages (starts, and stops) Engine processes.
 
 **For every notebook running in a browser, there is one engine.**
 
-The primary purpose of the *Interpreter Object* is to minimize the 
-amount of specialized code that has to be added to it when a complex 
+The primary purpose of the `Interpreter Object` is to minimize
+specialized code that has to be added to it when a complex 
 feature (like plotting or Mathematica like graphical interact). 
 
 The most common operation a given language's interpreter can do
@@ -52,25 +58,25 @@ The most common operation a given language's interpreter can do
 
 
 
-Implementation Details
-----------------------
+Kernel Implementation Details
+-----------------------------
 
 Before the Kernel Server can start up, it needs to know a few things:
 * The port the Perspective broker server should listen on
 * The env_path, which defaults to .knoboo/kernel. 
 
 This is where it reads the conf and tac configuration files. 
-* The conf file holds configuration parameters about what
-  systems/programs are available (i.e. Python or Sage), what path the
-  engines should run in, what uid the engine process should run as, and
-  server parameters (host, and port) that will be used by twistd
-  application.
-* The tac is a config file that holds the twisted application 
-  configuration script...it should really never need to be touched and
-  is kind of a formalism until twisted application is more customized
-  for codenode. 
+The conf file holds configuration parameters about what systems/programs 
+are available (i.e. Python or Sage), what path the engines should run in, 
+what uid the engine process should run as, and server parameters (host, and port) 
+that will be used by twistd application.
+
+The tac is a config file that holds the twisted application configuration script
+It should really never need to be touched and is kind of a formalism until 
+twisted application is more customized for codenode. 
 
 The startup sequence 
+^^^^^^^^^^^^^^^^^^^^
 (**FIXME**)
 ./kernel-start invokes /bin/codenode-kernel
 
@@ -79,9 +85,9 @@ The twistd options include
 * daemonize?
 * log file name/path
 * pid file name/path
-* location of tac file (this has to happen until the twisted Application
-   is customized such that it doesn't need to read app config info from a
-   tac file)
+
+(location of tac file: this has to happen until the twisted Application is customized such 
+that it doesn't need to read app config info from a tac file)
 
 Then twistd application framework takes over...
 It loads the tac file which reads the command line options again.

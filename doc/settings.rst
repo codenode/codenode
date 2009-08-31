@@ -1,26 +1,28 @@
 Settings for Users and Admins
 =============================
 
-Users
------
+.. _settings:
 
-* Indentity
-* Login Credentials
-* User Interface preferences
+User Settings
+-------------
+
+* User Interface preferences - Behavior and Styling.
+* Identity - Username and Fullname.
+* Login Credentials - Change/Update.
 
 
-Admin
------
+Admin Interface and Settings
+----------------------------
 
 The `codenode` Admin interface is implemented by
 using the `Django` Admin interface. The most
 important functionality it provides is the following.
 
-* Users
-* Groups
-* Data
+* Users - Create, Modify, Delete.
+* Groups - Create, Modify, Delete.
+* Data - Inspect Notebook and Cell data, etc.
 
-Please see the Django Admin interface documentation to 
-learn more advanced features of the `codenode` Admin interface.
+Please see the `Django Admin Interface docs <http://docs.djangoproject.com/en/dev/ref/contrib/admin>`_
+to learn more advanced features of the `codenode` Admin interface.
 
 

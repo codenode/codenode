@@ -1,32 +1,65 @@
-Commands for running and managing codenode
+Commands For Running and Managing Codenode
 ==========================================
 
-codenode-admin
---------------
+The codenode Command Line Admin Tool
+------------------------------------
+``codenode-admin`` is the tool to create, run, and manage codenode.
 
-Command line tool to quickly get started, manage
-your codenodes, and to start and stop them.
+**Running codenode, quickstart**::
+
+    $ codenode-admin init -name mycodenode
+    $ cd mycodenode
+    $ codenode-admin run
+    #Now open browser to http://localhost:8000
+
+
+For all options, run::
+
+    $ codenode-admin --help
+
+
+``codenode-admin``  exists as a tool to quickly get started,
+and to easily run common commands.
+
+In fact, ``codenode-admin`` largely are wrapper around the
+following two command line tools of **Django** and **Twisted**.
+
+For more advanced usage of `codenode`, it is very useful to
+understand the capabilities of each tool.
 
 
 django-admin.py
----------------
+^^^^^^^^^^^^^^^
 
-Describe usage and how it is wrapped.
+For more info, type::
+
+    $ django-admin.py --help
+
+[TODO] Describe usage (i.e. ``django-admin.py syncdb``),  and how it is wrapped.
 
 
-codenode twistd plugins
------------------------
-There are three services in this distribution:
-codenode
-codenoded
-codenode-kernel
+twistd
+^^^^^^
 
-^codenode
-For loca use.
+codenode includes three ``twistd`` Twisted command-line tool plugs.
 
-^codenoded
-Web Application Server
+For locally running codenode ("Fronted" and "Backend" combined),
+the ``codenode`` ``twistd`` plugin in used, to see all options, type::
 
-^codenode-kernel
-The part where the code is run.
+    $ twistd codenode --help
+
+
+The "Frontend" twistd plugin is ``codenoded``.  For options type::
+
+    $ twistd codenoded --help
+
+
+The "Backend"  twistd plugin is ``codenode-kernel``.  For options type::
+
+    $ twistd codenode-kernel --help
+
+
+
+
+
 
