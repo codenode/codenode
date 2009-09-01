@@ -42,3 +42,8 @@ Support
 -------
 Please ask any questions or give any feedback!
 For help and feedback, go here: http://groups.google.com/group/codenode-devel
+
+
+License
+-------
+Codenode is free software, licensed under the BSD. See the ``LICENSE`` file.
