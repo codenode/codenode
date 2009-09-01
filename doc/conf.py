@@ -1,6 +1,10 @@
 import sys
-#sys.path.insert(0, os.path.abspath('../codenode/codenode'))
-#import codenode
+import os
+sys.path.insert(0, os.path.abspath('../codenode/codenode'))
+import codenode
+
+#Sphinx extension modules
+extensions = ['sphinx.ext.autodoc']
 
 project="Codenode"
 copyright="Codenode Group 2009"
@@ -8,10 +12,9 @@ language="en"
 
 master_doc = "index"
 
-version = 0.1
-#version = cn.__version__
-#release = cn.__version__
+version = codenode.__version__
 
+unused_docs = ['README']
 
 #HTML opts
 html_logo="images/codenode_logo_small.png"

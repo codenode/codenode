@@ -1,3 +1,5 @@
+.. _concepts_terminology:
+
 Important Concepts and Terminology
 ==================================
 
@@ -16,7 +18,7 @@ Features:
     * Search the content of all `Notebooks`.  
 
 .. seealso::
-    For more `Bookshelf` details, see :ref:`here <bookshelf>`.
+    For more `Bookshelf` details and screenshot, see :ref:`here <bookshelf>`.
 
 
 
@@ -35,7 +37,7 @@ sections, or plain text that acts as documentation or context.
 
 
 .. seealso::
-    For more `Notebook` details, see :ref:`here <notebook>`.
+    For more `Notebook` details and screenshot, see :ref:`here <notebook>`.
 
 
 .. _glossary_of_terms:

@@ -5,6 +5,10 @@ The Notebook
 
 The Notebook is where you write and run code.
 
+**Screenshot of an example Notebook:**
+
+.. image:: images/notebook_medium.png
+
 
 Notebook Topbar - Buttons and Options
 -------------------------------------

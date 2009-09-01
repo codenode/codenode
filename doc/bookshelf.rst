@@ -5,20 +5,24 @@ The Bookshelf
 
 The `Bookshelf` is the management interface to all `Notebooks`, and associated data.
 
+**Screenshot of an example Bookshelf:**
+
+.. image:: images/bookshelf_medium.png
+
 Create a new Notebook
 ---------------------
-Click on the drop-down listing of all available Notebook types.
+Click the 'New Notebook' button to create a new Notebook 
+from the listing of all available Notebook types.
 
 Search
 ------
-All Notebook (Cell) content is continually being indexed 
+All Notebook (all Cells in a given Notebook) content is continually being indexed 
 to provide searching capabilities of both the code and the text.
 
 Sorting and Viewing
 -------------------
 All titles in the Notebook listing column are clickable, to perform a sorting action.  
 Clicking again performs the same sort, but in reverse.
-
 
 Folders
 -------
