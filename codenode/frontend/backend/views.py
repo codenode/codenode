@@ -2,6 +2,7 @@
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
+from django.utils import simplejson as json
 
 from codenode.frontend.backend import models
 from codenode.frontend.notebook import models as nb_models

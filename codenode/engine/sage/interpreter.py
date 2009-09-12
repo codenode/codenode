@@ -1,5 +1,5 @@
 
-from codenode.backend.kernel.engine.python.interpreter import Interpreter as Python
+from codenode.engine.interpreter import Interpreter as Python
 from sage.misc.preparser import preparse
 
 
