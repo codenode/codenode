@@ -59,6 +59,18 @@ class EngineRPCServer(SimpleXMLRPCServer):
             result = 'Interpreter Error: Interpeter is probably starting up.'
         return result
 
+    def xmlrpc_complete(self, to_complete):
+        """Search for possible completion matches of source in the
+        usernamespace.
+        return a list of matches
+        """
+        try:
+            result = self.interpreter.complete(to_complete)
+        except AttributeError:
+            result = 'Interpreter Error: Interpeter is probably starting up.'
+        return result
+
+
     def xmlrpc_complete_name(self, to_complete):
         """Search for possible completion matches of source in the
         usernamespace.

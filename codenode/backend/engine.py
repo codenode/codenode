@@ -75,54 +75,34 @@ class IEngine(Interface):
 
 
 
-class Engine:
+class EngineInstanceClient(object):
     """
-    Implementation of IEngine using an xml rpc client.
     """
 
     implements(IEngine)
-
-
-    def __init__(self, d, id):
+    
+    def __init__(self, port):
         """
-        @param client configured xml rpc client
         """
-        self.id = id
-        self.client = None
-        self.deferred = d
-        d.addCallback(self._start)
-        d.addErrback(self._fail)
-        self.ready = False
-
-    def _start(self, port):
         self.client = xmlrpc.Proxy("http://localhost:%s" % port)
-        self.ready = True
-        return True
-
-    def _fail(self, r):
-        return False
 
     @defer.inlineCallbacks
-    def evaluate(self, to_evaluate):
+    def engine_evaluate(self, to_evaluate):
         """
         return a Deferred
         """
-        if not self.ready:
-            is_ready_now = yield self.deferred
-            if not is_ready_now:
-                defer.returnValue("Engine Failed To Start")
         result = yield self.client.callRemote('evaluate', to_evaluate)
         defer.returnValue(result)
 
     @defer.inlineCallbacks
-    def complete(self, to_complete):
+    def engine_complete(self, to_complete):
         """
         return a Deferred
         """
-        if not self.ready:
-            is_ready_now = yield self.deferred
-            if not is_ready_now:
-                defer.returnValue("Engine Failed To Start")
         result = yield self.client.callRemote('complete', to_complete)
         defer.returnValue(result)
+
+
+
+
 

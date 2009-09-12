@@ -13,7 +13,7 @@
  */
 DATA_URL = '/notebook/'+document.location.pathname.split('/')[2]+'/';
 CONTROL_URL = '/backend/'+document.location.pathname.split('/')[2]+'/';
-INTERPRETER_URL = '/asyncnotebook/'+document.location.pathname.split('/')[2]+'/';
+INTERPRETER_URL = '/asyncnotebook/'+document.location.pathname.split('/')[2];
 Notebook.Async = function() {
 };
 
@@ -32,10 +32,12 @@ Notebook.Async.initialize = function() {
 };
 
 Notebook.Async.startEngine = function() {
-    var path = INTERPRETER_URL+'start';
+    var path = INTERPRETER_URL;
+    var data = JSON.stringify({method:'start'});
     $.ajax({
         url:path,
-        type:'GET',
+        type:'POST',
+        data:data,
         dataType:'json',
         success: function(result) {
             //engine started
@@ -68,18 +70,20 @@ Notebook.Async.signalError = function(result) {
 
 Notebook.Async.evalCell = function(cellid, input) {
     var self = Notebook.Async;
-    var path = INTERPRETER_URL+'evaluate';
+    var path = INTERPRETER_URL;
     if (input == '?') {
         var input = 'introspect?';
     }
-    var data = {'cellid':cellid, 'input':input};
+    var data = JSON.stringify({method:'evaluate', 'cellid':cellid, 'input':input});
+    /*
+    $.post(path, data, self.evalSuccess, 'json')
+    */
     $.ajax({
             url:path,
             type:'POST',
             data:data,
             dataType:'json',
             success:self.evalSuccess});
-
     return;
 }; 
 
@@ -155,8 +159,8 @@ Notebook.Async.changeNotebookTitle = function(title, success, error) {
 Notebook.Async.completeName = function(cellid, mode, input, success, error) {
     //request match from server
     // this ultimatly returns a list of 0 or more match possibilities
-    var path = INTERPRETER_URL+'complete';
-    var data = {'cellid':cellid, 'mode':mode, 'input':input};
+    var path = INTERPRETER_URL;
+    var data = JSON.stringify({method:'complete', 'mode':mode, 'cellid':cellid, 'input':input});
     $.ajax({
             url:path,
             type:'POST',

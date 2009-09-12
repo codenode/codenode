@@ -3,12 +3,15 @@ import sys
 import time
 import uuid
 
+import simplejson as json
+
 from signal import SIGINT
 
 from twisted.python import log
 from twisted.runner import procmon
 from twisted.internet import defer
 from twisted.internet import reactor
+from twisted.internet import protocol
 from twisted.application import service
 from twisted.application import internet
 from twisted.plugin import getPlugins
@@ -17,18 +20,28 @@ from twisted.web import server
 
 from zope.interface import Interface, implements
 
-from codenode.backend.engine import Engine
+from codenode.backend.engine import EngineInstanceClient
 from codenode.backend.engine import IEngineConfiguration
 
-class EngineProcessLogger(procmon.LoggingProtocol):
+class BackendError(Exception):
+    """Invalid backend operation...
+    """
 
-    deferred = None
+
+class EngineProcessProtocol(protocol.ProcessProtocol):
+
+    def __init__(self):
+        self.deferred = defer.Deferred()
 
     def connectionMade(self):
-        procmon.LoggingProtocol.connectionMade(self)
+        """This call means the process has started, but not the
+        interpreter, yet.
+        """
 
     def outReceived(self, data):
-        procmon.LoggingProtocol.outReceived(self, data)
+        """Simple protocol for the interpreter to notify us when it is
+        really running.
+        """
         if data[0:4] == "port":
             port = data.split(':')[1]
             self.deferred.callback(port)
@@ -36,39 +49,42 @@ class EngineProcessLogger(procmon.LoggingProtocol):
     def interrupt(self):
         self.transport.signalProcess(SIGINT)
 
-class EngineManager(procmon.ProcessMonitor):
+class EngineProcessManager(procmon.ProcessMonitor):
 
-    start_deferreds = {}
+    engineProtocol = EngineProcessProtocol
+    START_TIMEOUT = 60 #seconds
+
+    def __init__(self):
+        procmon.ProcessMonitor.__init__(self)
 
     def addProcess(self, name, proc_config):
         """
+        proc_config is an object implementing IEngineConfiguration
         """
         if self.processes.has_key(name):
             raise KeyError("remove %s first" % name)
+        p = self.engineProtocol()
+        p.service = self
+        p.name = name
+        proc_config.processProtocol = p
         self.processes[name] = proc_config
-        d = defer.Deferred()
-        self.start_deferreds[name] = d
         if self.active:
             self.startProcess(name)
-        return d
+        return p.deferred
 
     def startProcess(self, name):
         """
         """
         if self.protocols.has_key(name):
             return
-        p = self.protocols[name] = EngineProcessLogger()
-        p.service = self
-        p.name = name
-        d = self.start_deferreds[name]
-        del self.start_deferreds[name]
-        p.deferred = d
         p_conf = self.processes[name]
+        p = self.protocols[name] = p_conf.processProtocol
         bin = p_conf.bin
         args = [bin] + p_conf.args
         env = p_conf.env
         path = p_conf.path
         self.timeStarted[name] = time.time()
+        p.deferred.setTimeout(self.START_TIMEOUT)
         reactor.spawnProcess(p, bin, args=args, env=env, path=path)
 
     def interruptProcess(self, name):
@@ -79,150 +95,168 @@ class EngineManager(procmon.ProcessMonitor):
         self.protocols[name].interrupt()
 
 
-class EngineProxyManager(service.Service):
+class EngineClientManager(service.Service):
     """
-    Manages engine clients.
-
-    Like a session manager.
-
-    Store Engine clients by id 
     """
+
+    sessionFactory = EngineInstanceClient
 
     def __init__(self):
-        self.engines = {}
+        self.sessions = {}
 
-    def getEngine(self, engine_id):
-        if not self.engines.has_key(engine_id):
-            raise KeyError("Bad engine client id: %s" % engine_id)
-        return self.engines[engine_id]
-
-    def addEngine(self, engine):
-        self.engines[engine.id] = engine
-
-    def addEngineNotYetRunning(self, d, id):
+    def getSession(self, engine_id):
         """
         """
-        c = Engine(d, id)
-        d.addErrback(self._engine_failed, id)
-        self.engines[id] = c
+        try:
+            return self.sessions[engine_id]
+        except KeyError:
+            return None#raise?
 
+    def newSession(self, engine_id, port):
+        """
+        """
+        sess = self.sessionFactory(port)
+        self.sessions[engine_id] = sess
+        return sess
 
-    def _engine_failed(self, r, id):
-        self.removeEngine(id)
-        return r
-
-    def removeEngine(self, engine_id):
-        if not self.engines.has_key(engine_id):
-            raise KeyError("Engine client %s does not exist" % engine_id)
-        del self.engines[engine_id]
-
-
-
-
-
-def _fail(reason):
-    print reason
-    return reason
-
-class IBackend(Interface):
-
-    def listEngineTypes(self):
-        """Return a list of the types of Engines registered with the backend. 
+    def removeSession(self, engine_id):
+        """
         """
 
-    def listEngineInstances(self):
-        """Return a list of all running Engine instances.
-        """
 
-    def runEngineInstance(self, engine_type):
-        """Instantiate an Engine type.
-        This spawns an Engine Process, and upon success of that, creates an
-        Engine Client/Proxy instance.
-        """
-
-    def restartEngineInstance(self, engine_id):
-        """Restart an Engine process. 
-        This says nothing about persistence of state/namespace
-        @todo Formalize implications of persistence.
-        """
-
-    def terminateEngineInstance(self, engine_id):
-        """Kill an Engine process.
-        This says nothing about persistence of state/namespace
-        @todo Formalize implications of persistence.
-        """
-
-class Backend(object):
+class Backend(service.Service):
     """
-    Backend service.
+    Application level interface for managing, controlling, and accessing
+    engine/engine processes.
 
-    Provides an api for managing engine processes and proxying engine
-    interpreter interface
+    This class/service delegates to a processes manager and a
+    client-session manager.
 
-    A frontend can use a transport to 
-     - connect, 
-     - query the list of engine plugins, 
-     - query the list of running engine instances.
-    A notebook/user makes 
-     - requests to running engine interpreter (api) (routed by engine instance name)
-     - requests to start/stop engines (by engine type)
+    The processes manager knows how to deal with engine processes (os
+    processes).
+
+    The client-session manager knows how to communicate with the
+    interpreter of the engine processes, and is the place to implement
+    protocol parsing/formating outside of the interpreter but before the
+    transport.
     """
 
-    implements(IBackend)
+    def __init__(self, processManager, clientManager):
+        """
+        processManager manages os processes
+        clientManager manages engine client-sessions
 
-    def __init__(self, pm, cm):
-        self.client_manager = cm
-        self.process_manager = pm
+        engine_types dict name: config_object
+        engine_allocations dict access_id:engine_type
+        engine_instances dict access_id:engine_id
+        """
+        self.processManager = processManager
+        self.clientManager = clientManager
         self.engine_types = {}
-        self.updateEngineTypes()
+        self.engine_allocations = {}
+        self.engine_instances = {}
 
     def updateEngineTypes(self):
         engines = getPlugins(IEngineConfiguration)
         self.engine_types = dict([(repr(e), e) for e in engines])
 
     def listEngineTypes(self):
-        return self.engine_types.keys()
+        log.msg("list engine types")
+        types = self.engine_types.keys()
+        log.msg(types)
+        return types
 
     def listEngineInstances(self):
-        insts = self.process_manager.processes.keys()
+        return self.processManager.processes.keys()
 
-    def runEngineInstance(self, engine_type):
-        """
-        Create an engine process with a unique id.
-        When the process is running, create a client service object to
-        handle requests 
-
-        return unique id of engine instance to be used by the notebook/user
-        for interactive requests.
+    def allocateEngine(self, engine_type):
+        """Create a new access id for running engines of given type.
+        return access_id
         """
         if engine_type not in self.engine_types.keys():
-            raise KeyError("%s not an engine type" % engine_type)
-        engine_config = self.engine_types[engine_type]
-        id = uuid.uuid4().hex
-        d = self.process_manager.addProcess(id, engine_config)
-        self.client_manager.addEngineNotYetRunning(d, id)
-        #d.addCallback(self._start_client, id)
-        #d.addErrback(_fail)
-        return id
+            raise KeyError("%s is not a recognized engine type" % engine_type)
+        access_id = uuid.uuid4().hex
+        self.engine_allocations[access_id] = engine_type
+        return access_id
 
-    def getEngine(self, engine_id):
-        return self.client_manager.getEngine(engine_id)
-
-    def terminateEngineInstance(self, engine_id):
-        """Stop an engine instance.
+    def getEngine(self, access_id):
+        """Get an engine client
+        return deferred
         """
-        self.proc_manager.stopProcess(engine_id)
-        self.client_manager.removeEngine(engine_id)
+        try:
+            engine_id = self.engine_instances[access_id]
+        except KeyError:
+            return self.runEngine(access_id)
+        return defer.maybeDeferred(self.clientManager.getSession, engine_id)
 
-    def describeEngineInstance(self, id):
-        """Get the state of an instance.
+    def runEngine(self, access_id):
         """
-
-    def interruptEngineIntance(self, engine_id):
-        """Send process SIGINT
         """
-        self.proc_manager.interruptProcess(engine_id)
+        if self.engine_instances.has_key(access_id):
+            return #access id already has engine, try terminating it
+        try:
+            engine_type = self.engine_allocations.get(access_id)
+        except KeyError:
+            log.err("Engine access_id %s NOT in engine_allocations" % access_id)
+            raise BackendError("%s is not a valid access id" % access_id)
+        try:
+            engine_config = self.engine_types.get(engine_type)
+        except KeyError:
+            log.err("Engine Type %s not in engine_types (was the engine plugin moved?)" % engine_type)
+        engine_id = uuid.uuid4().hex
+        self.engine_instances[access_id] = engine_id
+        d = self.processManager.addProcess(engine_id, engine_config)
+        d.addCallback(self._newClientSession, engine_id)
+        d.addErrback(self._engineFailed, engine_id)
+        return d
 
-        
+    def _newClientSession(self, port, engine_id):
+        """
+        """
+        return self.clientManager.newSession(engine_id, port)
+
+    def _engineFailed(self, reason, engine_id):
+        """
+        """
+        del self.engine_instances[engine_id]
+        return reason
+
+
+
+class BackendEngineBus(object):
+    """
+    Common entry point for all engine requests. 
+    Look up engine client by access_id.
+
+    This is responsible for routing the engine message
+    from the browser/frontend to the engine by access_id.
+    This does not need to process the message (un-serialize, inspect, 
+    or otherwise).
+    """
+
+    def __init__(self, backend):
+        self.backend = backend
+
+    @defer.inlineCallbacks
+    def handleRequest(self, access_id, msg):
+        """
+        msg comes in as dictionary
+        """
+        engine_client = yield self.backend.getEngine(access_id)
+        engine_method = msg.get('method')
+        engine_arg = msg.get('input')
+
+        try:
+            log.msg('Getting engine method' + engine_method)
+            meth = getattr(engine_client, "engine_%s" % (engine_method,))
+        except KeyError:
+            log.err("Engine client has no method '%s'!" % (engine_method,))
+            # return an error code
+        # best way to return deferred??
+        result = yield meth(engine_arg)
+        json_obj = json.dumps(result)
+        defer.returnValue(json_obj)
+
+
 
 

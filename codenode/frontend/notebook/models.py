@@ -59,6 +59,18 @@ class Cell(models.Model):
     props = models.TextField() 
     last_modified = models.DateTimeField(auto_now=True)
 
+    def save_evaluate(self, json_obj):
+        """
+        save a cell during an evalutate. (Temp name)
+        format:
+        {content:input,
+         
+        """
+
+    def save_result(self, json_obj):
+        """
+        save data resulting from an evaluation. (Temp name)
+        """
 
     class Meta:
         verbose_name = _('Cell')

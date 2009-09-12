@@ -1,5 +1,8 @@
 import os
 
+# Which json lib to use?
+import simplejson as json
+
 from twisted.python import log
 from twisted.python import usage
 from twisted.internet import defer
@@ -40,58 +43,75 @@ class BackendAdminRC(xmlrpc.XMLRPC):
     def xmlrpc_listEngineTypes(self):
         return self.backend.listEngineTypes()
 
+    def xmlrpc_allocateEngine(self, engine_type):
+        return self.backend.allocateEngine(engine_type)
+
     def xmlrpc_listEngineInstances(self):
         return self.backend.listEngineInstances()
 
-    def xmlrpc_runEngineInstance(self, engine_type):
-        return self.backend.runEngineInstance(engine_type)
-
     def xmlrpc_terminateInstance(self, engine_id):
         self.backend.terminateEngineInstance(engine_id)
+        return
 
     def xmlrpc_interruptInstance(self, engine_id):
         self.backend.interruptEngineIntance(engine_id)
         return
 
+class EngineSessionAdapter(resource.Resource):
+    """
+    There should be a better way to do this, have to figure that out.
+    """
 
-class BackendClient(resource.Resource):
-
-    def __init__(self, backend):
+    def __init__(self, engine_bus, access_id):
         resource.Resource.__init__(self)
-        self.backend = backend
-
-        #self.putChild("RPC2", BackendClientRC(backend))
-        self.putChild("", self)
-
-    def getChild(self, path, request):
-        engine = self.backend.getEngine(path)
-        return BackendClientRC(engine)
+        self.engine_bus = engine_bus
+        self.access_id = access_id
 
     def render(self, request):
-        return "backend client"
+        """
+        This is where we un-serialize the content sent between the frontend
+        and backend engine bus.
+        """
+        content = request.content.read()
+        msg = json.loads(content)
+        d = self.engine_bus.handleRequest(self.access_id, msg)
+        d.addCallback(self._success, request)
+        d.addErrback(self._fail, request)
+        return server.NOT_DONE_YET
 
-class BackendClientRC(xmlrpc.XMLRPC):
+    def _success(self, result, request):
+        """
+        XXX is result already serialized?
+        """
+        request.write(result)
+        request.finish()
 
-    def __init__(self, engine):
-        xmlrpc.XMLRPC.__init__(self)
-        #self.backend = backend
-        #engine = backend.client_manager.getEngine(id)
-        self.engine = engine
+    def _fail(self, reason, request):
+        """
+        """
+        request.write(str(reason))
+        request.finish()
 
-    def xmlrpc_evaluate(self, to_evaluate):
-        return self.engine.evaluate(to_evaluate)
+class EngineBusAdapter(resource.Resource):
 
-    def xmlrpc_complete(self, to_complete):
-        return self.engine.complete(to_complete)
+    def __init__(self, engine_bus):
+        resource.Resource.__init__(self)
+        self.engine_bus = engine_bus
+
+    def getChild(self, path, request):
+        """XXX Can this refer back to itself?
+        """
+        return EngineSessionAdapter(self.engine_bus, path)
+
 
 class BackendRoot(resource.Resource):
 
-    def __init__(self, backend):
+    def __init__(self, backend, engine_bus):
         resource.Resource.__init__(self)
         self.backend = backend
 
         self.putChild("admin", BackendAdmin(backend))
-        self.putChild("interpreter", BackendClient(backend))
+        self.putChild("engine", EngineBusAdapter(engine_bus))
         self.putChild("", self)
 
     def render(self, request):
@@ -124,14 +144,20 @@ class BackendServerServiceMaker(object):
     def makeService(self, options):
 
         backendServices = service.MultiService()
-        client_manager = core.EngineProxyManager() #sessions
-        client_manager.setServiceParent(backendServices)
-        proc_manager = core.EngineManager()
-        proc_manager.setServiceParent(backendServices)
 
-        backend = core.Backend(proc_manager, client_manager)
+        clientManager = core.EngineClientManager() #sessions
+        clientManager.setServiceParent(backendServices)
 
-        eng_proxy_factory = server.Site(BackendRoot(backend))
+        processManager = core.EngineProcessManager()
+        processManager.setServiceParent(backendServices)
+
+        backend = core.Backend(processManager, clientManager)
+        backend.updateEngineTypes()
+
+        backendEngineBus = core.BackendEngineBus(backend)
+
+        eng_proxy_factory = server.Site(BackendRoot(backend,
+            backendEngineBus))
         internet.TCPServer(options['port'], eng_proxy_factory,
                 interface=options['host']).setServiceParent(backendServices)
 

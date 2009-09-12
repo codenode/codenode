@@ -6,10 +6,10 @@ def listEngineTypes(address):
     engine_types = client.listEngineTypes()
     return engine_types
 
-def runEngineInstance(address, engine_type):
-    client = xmlrpclib.ServerProxy(address + '/admin/')
-    engine_id = client.runEngineInstance(engine_type)
-    return engine_id
+def allocateEngine(address, engine_type):
+    client = xmlrpclib.ServerProxy(str(address) + '/admin/')
+    access_id = client.allocateEngine(str(engine_type))
+    return access_id
 
 def interruptInstance(address, instance_id):
     client = xmlrpclib.ServerProxy(address + '/admin/')

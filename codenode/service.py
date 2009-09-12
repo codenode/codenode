@@ -172,10 +172,11 @@ def webResourceFactory(staticfiles):
 
     static_resource = static.File(staticfiles)
 
-    backend_manager = backend.BackendManager()
-    notebook_resource = backend.NotebookEngineRequestHandler(backend_manager)
+    backend_sessions = backend.BackendSessionManager()
+    engine_bus = backend.FrontendEngineBus(backend_sessions)
 
-    resource_root.putChild("asyncnotebook", notebook_resource)
+
+    resource_root.putChild("asyncnotebook", backend.EngineBusAdapter(engine_bus))
     resource_root.putChild("static", static_resource)
 
     return resource_root

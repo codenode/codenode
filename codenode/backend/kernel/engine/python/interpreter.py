@@ -16,6 +16,7 @@ abstracted out completly
 """
 
 import sys
+import re
 from code import softspace, InteractiveInterpreter
 
 #from codenode.kernel.engine.python.outputtrap import OutputTrap
@@ -82,6 +83,24 @@ class Interpreter(InteractiveInterpreter):
         """See what information there is about this objects methods and
         attributes."""
         info = introspect(input_string)
+
+    def complete(self, input_string):
+        """
+        Complete a name or attribute.
+        """
+        reName = "([a-zA-Z_][a-zA-Z_0-9]*)$"
+        reAttribute = "([a-zA-Z_][a-zA-Z_0-9]*[.]+[a-zA-Z_.0-9]*)$"
+        nameMatch = re.match(reName, input_string)
+        attMatch = re.match(reAttribute, input_string)
+        if nameMatch:
+            matches = self.completer.global_matches(input_string)
+            return matches
+        if attMatch:
+            matches = self.completer.attr_matches(input_string)
+            return matches
+        return []
+
+
 
     def complete_name(self, input_string):
         """See what possible completions there are for this object

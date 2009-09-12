@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from codenode.frontend.bookshelf import models as bookshelf_models
 from codenode.frontend.notebook import models as notebook_models
 from codenode.frontend.backend import models as backend_models
+from codenode.frontend.backend import rpc
 
 @login_required
 def bookshelf(request, template_name='bookshelf/bookshelf.html'):
@@ -92,10 +93,13 @@ def new_notebook(request):
     Set notebook default type, and start instance.
     """
     engine_type_name = request.GET.get("engine_type", "")
-    nb = notebook_models.Notebook(owner=request.user, title="Untitled", location="root")
+    nb = notebook_models.Notebook(owner=request.user)
     nb.save()
     engine_type = backend_models.EngineType.objects.get(name=engine_type_name)
-    default_engine = backend_models.EngineTypeToNotebook(notebook=nb, type=engine_type)
+    access_id = rpc.allocateEngine(engine_type.backend.address, engine_type.name)
+    default_engine = backend_models.NotebookBackendRecord(notebook=nb,
+                                                engine_type=engine_type, 
+                                                access_id=access_id)
     default_engine.save()
     redirect = "/notebook/%s" % nb.guid
     return HttpResponseRedirect(redirect)

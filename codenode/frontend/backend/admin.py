@@ -2,8 +2,7 @@ from django.contrib import admin
 
 from codenode.frontend.backend.models import BackendServer
 from codenode.frontend.backend.models import EngineType
-from codenode.frontend.backend.models import EngineInstance
-from codenode.frontend.backend.models import EngineTypeToNotebook
+from codenode.frontend.backend.models import NotebookBackendRecord
 
 from codenode.frontend.backend import rpc
 
@@ -27,23 +26,9 @@ class EngineTypeAdmin(admin.ModelAdmin):
 
 admin.site.register(EngineType, EngineTypeAdmin)
 
-class EngineInstanceAdmin(admin.ModelAdmin):
+
+class NotebookBackendRecordAdmin(admin.ModelAdmin):
     """
     """
 
-    def save_model(self, request, obj, form, change):
-        if not change:
-            engine_type = obj.type.name
-            backend_address = obj.backend.address
-            id = rpc.runEngineInstance(backend_address, engine_type)
-            obj.instance_id = id
-            obj.save()
-
-
-admin.site.register(EngineInstance, EngineInstanceAdmin)
-
-class EngineTypeToNotebookAdmin(admin.ModelAdmin):
-    """
-    """
-
-admin.site.register(EngineTypeToNotebook, EngineTypeToNotebookAdmin)
+admin.site.register(NotebookBackendRecord, NotebookBackendRecordAdmin)
