@@ -161,7 +161,7 @@ class Backend(service.Service):
         self.engine_types = dict([(repr(e), e) for e in engines])
 
     def listEngineTypes(self):
-        log.msg("list engine types")
+        self.updateEngineTypes() # change this to a periodic update?
         types = self.engine_types.keys()
         log.msg(types)
         return types

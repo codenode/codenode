@@ -116,6 +116,7 @@ Notebook.Async.evalSaveError = function(response) {
 Notebook.Async.saveToDatabase = function(orderlist, cellsdata, success, error) {
     var path = DATA_URL+'save';
     var cells = JSON.stringify(cellsdata);
+    var orderlist = JSON.stringify(orderlist);
     var data = {'orderlist':orderlist, 'cellsdata':cells};
     $.ajax({
             url:path,
@@ -142,7 +143,7 @@ Notebook.Async.deleteCells = function(mainid, ids) {
 };
 
 Notebook.Async.changeNotebookTitle = function(title, success, error) {
-    var path = DATA_URL+'change';
+    var path = DATA_URL+'title';
     var data = {'newtitle':title};
     $.ajax({
             url:path,

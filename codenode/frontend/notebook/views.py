@@ -39,9 +39,9 @@ def nbobject(request, nbid):
 @login_required
 def title(request, nbid):
     if request.method == "POST":
-        newtitle = request.POST.get('newtitle', [None])[0]
+        newtitle = request.POST.get('newtitle')
         nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
-        nb.title = unicode(title)
+        nb.title = unicode(newtitle)
         nb.save()
         data = {'response':'ok', 'title':newtitle}
         jsobj = json.dumps(data)
@@ -53,13 +53,8 @@ def save(request, nbid):
     TODO think about moving saving logic into model/model manager 
     """
     nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
-    orderlist = request.POST.get('orderlist', [])
-    print request.POST
-    print request.REQUEST
-    #orderlist = ",".join(request.POST.get('orderlist', []))
-    cellsdata = request.POST.get('cellsdata', [None])
-    print cellsdata
-    cellsdata = json.loads(cellsdata)
+    orderlist = request.POST.get('orderlist')
+    cellsdata = json.loads(request.POST.get('cellsdata'))
 
     for cellid, data in cellsdata.items():
         cells = notebook_models.Cell.objects.filter(guid=cellid, notebook=nb)
@@ -84,8 +79,7 @@ def save(request, nbid):
             nb.cell_set.add(cell)
     nb.orderlist = orderlist
     nb.save()
-
-    resp = "{'resp':'ok'}"
+    resp = {'resp':'ok'}
     jsobj = json.dumps(resp)
     return HttpResponse(jsobj, mimetype="application/json")
 
