@@ -37,7 +37,11 @@ def load_bookshelf_data(request):
     if sort == "desc":
         order = "-"+order
     q = notebook_models.Notebook.objects.filter(owner=request.user, location=location).order_by(order)
-    data = [[e.guid, e.title, 'dumb', e.last_modified_time(request.user, e), e.location] for e in q]
+    data = [[e.guid, 
+            e.title, 
+            e.backend.all()[0].engine_type.name, 
+            e.last_modified_time(request.user, e), 
+            e.location] for e in q]
     jsobj = json.dumps(data)
     return HttpResponse(jsobj, mimetype='application/json')
 

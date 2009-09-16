@@ -1,10 +1,13 @@
 import os
 
+import codenode
 from codenode.backend.engine import EngineConfigurationBase
 
-SAGE_ROOT = 'path/to/sage/install/root'
+SAGE_ROOT = '/path/to/sage_root'
 
-boot = """from codenode.engine.server import EngineRPCServer
+boot = """import sys
+sys.path.append('%s')
+from codenode.engine.server import EngineRPCServer
 from codenode.engine.sage.interpreter import Interpreter
 from codenode.engine import runtime 
 from codenode.engine.sage import runtime as sage_runtime
@@ -13,7 +16,7 @@ port = runtime.find_port()
 server = EngineRPCServer(('localhost', port), Interpreter, namespace)
 runtime.ready_notification(port)
 server.serve_forever()
-"""
+"""%(codenode.__path__[0][:-9])
 
 def build_env(sage_root):
     """
@@ -30,6 +33,7 @@ def build_env(sage_root):
     SAGE_PACKAGES = os.path.join(SAGE_ROOT, 'spkg')
     SAGE_LOCAL = os.path.join(SAGE_ROOT, 'local')
     SAGE_DATA = os.path.join(SAGE_ROOT, 'data')
+    SAGE_DOC = os.path.join(SAGE_ROOT, 'devel', 'sage', 'doc')
     SAGE_BIN = os.path.join(SAGE_LOCAL, 'bin')
     if uname == 'Darwin':
         PATH = ':'.join([
@@ -45,6 +49,8 @@ def build_env(sage_root):
     GPHELP = os.path.join(SAGE_LOCAL, 'bin', 'gphelp')
     GPDOCDIR = os.path.join(SAGE_LOCAL, 'share', 'pari', 'doc')
 
+    SINGULARPATH = os.path.join(SAGE_LOCAL, 'share', 'singular')
+
 
     DOT_SAGE = os.path.join(os.getenv('HOME'), '.sage') #kernel_env path
 
@@ -56,8 +62,13 @@ def build_env(sage_root):
                                     #codenode_path])
     PYTHONHOME = SAGE_LOCAL
 
+    SAGE_TESTDIR = os.path.join(SAGE_ROOT, 'tmp')
+
     LD_LIBRARY_PATH = build_path_list(['LD_LIBRARY_PATH'],
-                                [LIBRARY_PATH, os.path.join(LIBRARY_PATH, 'openmpi')])
+                                [LIBRARY_PATH, 
+                                os.path.join(LIBRARY_PATH, 'openmpi'),
+                                os.path.join(LIBRARY_PATH, 'R', 'lib')])
+
 
     if uname == 'Darwin':
         DYLD_LIBRARY_PATH =  build_path_list([
@@ -69,22 +80,28 @@ def build_env(sage_root):
     else:
         DYLD_LIBRARY_PATH = ''
 
+    RHOME = os.path.join(LIBRARY_PATH, 'R')
+
     env = dict([('SAGE_ROOT', SAGE_ROOT),
                 ('SAVEDIR', SAVEDIR),
                 ('SAGE_PACKAGES', SAGE_PACKAGES),
                 ('SAGE_LOCAL', SAGE_LOCAL),
                 ('SAGE_DATA', SAGE_DATA),
                 ('SAGE_BIN', SAGE_BIN),
+                ('SAGE_DOC', SAGE_DOC),
                 ('PATH', PATH),
                 ('LIBRARY_PATH', LIBRARY_PATH),
                 ('GP_DATA_DIR', GP_DATA_DIR),
                 ('GPHELP', GPHELP),
                 ('GPDOCDIR', GPDOCDIR),
+                ('SINGULARPATH', SINGULARPATH),
                 ('DOT_SAGE', DOT_SAGE),
                 ('MATPLOTLIBRC', MATPLOTLIBRC),
                 ('PYTHONPATH', PYTHONPATH),
                 ('PYTHONHOME', PYTHONHOME),
                 ('LD_LIBRARY_PATH', LD_LIBRARY_PATH),
+                ('SAGE_TESTDIR', SAGE_TESTDIR),
+                ('RHOME', RHOME),
                 ('DYLD_LIBRARY_PATH',DYLD_LIBRARY_PATH)])
     os.environ.update(env)
     return os.environ

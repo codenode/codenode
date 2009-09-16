@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+export PYTHONPATH=$PWD/..
+rm env/data/codenode.db
+cd env
+django-admin.py syncdb --pythonpath=$PWD --settings="frontend.settings"

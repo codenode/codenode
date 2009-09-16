@@ -45,6 +45,11 @@ class EngineProcessProtocol(protocol.ProcessProtocol):
         if data[0:4] == "port":
             port = data.split(':')[1]
             self.deferred.callback(port)
+    
+    def errReceived(self, data):
+        """
+        """
+        log.msg("Engine error", data)
 
     def interrupt(self):
         self.transport.signalProcess(SIGINT)
