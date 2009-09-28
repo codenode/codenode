@@ -149,7 +149,7 @@ class Interpreter(InteractiveInterpreter):
                     #sys.stderr.write(e.value)
                     # XXX This could be bad if something other than the
                     # kernelConnection triggers an interrupt
-                    self.interrupted = True
+                    #self.interrupted = True
                     return command_count
             if more:
                 pass

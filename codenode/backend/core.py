@@ -123,10 +123,12 @@ class EngineClientManager(service.Service):
         except KeyError:
             return None#raise?
 
-    def newSession(self, engine_id, port):
+    def newSession(self, engine_id, port, backend):
         """
         """
         sess = self.sessionFactory(port)
+        sess.engine_id = engine_id
+        sess.backend = backend
         self.sessions[engine_id] = sess
         return sess
 
@@ -226,8 +228,10 @@ class Backend(service.Service):
 
     def _newClientSession(self, port, engine_id):
         """
+        XXX added hack reference to processManager. Improve this next
+        iteration.
         """
-        return self.clientManager.newSession(engine_id, port)
+        return self.clientManager.newSession(engine_id, port, self)
 
     def _engineFailed(self, reason, engine_id):
         """
@@ -235,7 +239,17 @@ class Backend(service.Service):
         del self.engine_instances[engine_id]
         return reason
 
+    def interruptEngine(self, engine_id):
+        self.processManager.interruptProcess(engine_id)
 
+    def stopEngine(self, engine_id):
+        """XXX hacky. improve next iteration.
+        """
+        for access_id, v in self.engine_instances.iteritems():
+            if engine_id == v:
+                self.processManager.stopProcess(engine_id)
+                del self.engine_instances[access_id]
+                break
 
 class EngineBus(object):
     """

@@ -86,12 +86,14 @@ class EngineInstanceClient(object):
         """
         """
         self.client = xmlrpc.Proxy("http://localhost:%s" % port)
+        self.engine_id = ''
+        self.backend = None
 
     def __str__(self):
-        return 'Engine Client %s' % str(self.client)
+        return 'Engine Client %s' % str(self.engine_id)
 
     def __repr__(self):
-        return 'Engine Client %s' % str(self.client)
+        return 'Engine Client %s' % str(self.engine_id)
 
     @defer.inlineCallbacks
     def send(self, msg):
@@ -146,7 +148,10 @@ class EngineInstanceClient(object):
         data = {'completions':result}
         defer.returnValue(data)
 
+    def engine_interrupt(self, a, b):
+        self.backend.interruptEngine(self.engine_id)
 
-
+    def engine_kill(self, a, b):
+        self.backend.stopEngine(self.engine_id)
 
 

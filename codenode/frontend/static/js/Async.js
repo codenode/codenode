@@ -51,8 +51,8 @@ Notebook.Async.startEngine = function() {
 
 Notebook.Async.signalKernel = function(action) {
     var self = Notebook.Async;
-    var path = CONTROL_URL+'kernel';
-    var data = {'action':action};
+    var path = INTERPRETER_URL;
+    var data = JSON.stringify({'method':action});
     $.ajax({
             url:path,
             type:'POST',
