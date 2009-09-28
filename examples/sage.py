@@ -103,8 +103,9 @@ def build_env(sage_root):
                 ('SAGE_TESTDIR', SAGE_TESTDIR),
                 ('RHOME', RHOME),
                 ('DYLD_LIBRARY_PATH',DYLD_LIBRARY_PATH)])
-    os.environ.update(env)
-    return os.environ
+    environ = os.environ.copy()
+    environ.update(env)
+    return environ
 
 def build_path_list(env_variables, other_paths):
     path = []

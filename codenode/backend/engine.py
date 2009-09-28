@@ -3,6 +3,7 @@ from zope.interface import Interface, implements
 
 from twisted.web import xmlrpc
 from twisted.plugin import IPlugin
+from twisted.python import log
 from twisted.internet import defer
 
 
@@ -86,21 +87,64 @@ class EngineInstanceClient(object):
         """
         self.client = xmlrpc.Proxy("http://localhost:%s" % port)
 
+    def __str__(self):
+        return 'Engine Client %s' % str(self.client)
+
+    def __repr__(self):
+        return 'Engine Client %s' % str(self.client)
+
     @defer.inlineCallbacks
-    def engine_evaluate(self, to_evaluate):
+    def send(self, msg):
+        """simple version of general way to send something to the engine
+        process. 
+        """
+        log.msg('Engine client send msg content: %s' % str(msg))
+        engine_method = msg['method']
+        log.msg('Engine method %s' % engine_method)
+        engine_arg = msg.get('input', None)
+        cellid = msg.get('cellid', None)
+        try:
+            log.msg('Getting engine method' + engine_method)
+            meth = getattr(self, "engine_%s" % engine_method)
+        except KeyError:
+            log.err("Engine client has no method '%s'!" % (engine_method,))
+            defer.returnValue({'result':'err'})
+        result = yield meth(engine_arg, cellid)
+        defer.returnValue(result)
+
+    @defer.inlineCallbacks
+    def engine_start(self, args, arg):
+        """dummy
+        """
+        defer.returnValue({'result':'started'})
+
+
+    @defer.inlineCallbacks
+    def engine_evaluate(self, to_evaluate, cellid):
         """
         return a Deferred
         """
         result = yield self.client.callRemote('evaluate', to_evaluate)
-        defer.returnValue(result)
+        # temporary formating hack;
+        count, out, err = result['input_count'], result['out'], result['err']
+        output = out + err
+        if "__image__" in output:
+            output = output[9:] + err
+            style = "outputimage"
+        else:
+            style = "outputtext"
+        outcellid = cellid + "o" #denote an 'output' cell
+        data = {'content':output, 'count':count, 'cellstyle':style, 'cellid':cellid}
+        defer.returnValue(data)
 
     @defer.inlineCallbacks
-    def engine_complete(self, to_complete):
+    def engine_complete(self, to_complete, cellid):
         """
         return a Deferred
         """
         result = yield self.client.callRemote('complete', to_complete)
-        defer.returnValue(result)
+        data = {'completions':result}
+        defer.returnValue(data)
 
 
 

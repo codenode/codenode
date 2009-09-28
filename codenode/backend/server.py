@@ -57,52 +57,6 @@ class BackendAdminRC(xmlrpc.XMLRPC):
         self.backend.interruptEngineIntance(engine_id)
         return
 
-class EngineSessionAdapter(resource.Resource):
-    """
-    There should be a better way to do this, have to figure that out.
-    """
-
-    def __init__(self, engine_bus, access_id):
-        resource.Resource.__init__(self)
-        self.engine_bus = engine_bus
-        self.access_id = access_id
-
-    def render(self, request):
-        """
-        This is where we un-serialize the content sent between the frontend
-        and backend engine bus.
-        """
-        content = request.content.read()
-        msg = json.loads(content)
-        d = self.engine_bus.handleRequest(self.access_id, msg)
-        d.addCallback(self._success, request)
-        d.addErrback(self._fail, request)
-        return server.NOT_DONE_YET
-
-    def _success(self, result, request):
-        """
-        XXX is result already serialized?
-        """
-        request.write(result)
-        request.finish()
-
-    def _fail(self, reason, request):
-        """
-        """
-        request.write(str(reason))
-        request.finish()
-
-class EngineBusAdapter(resource.Resource):
-
-    def __init__(self, engine_bus):
-        resource.Resource.__init__(self)
-        self.engine_bus = engine_bus
-
-    def getChild(self, path, request):
-        """XXX Can this refer back to itself?
-        """
-        return EngineSessionAdapter(self.engine_bus, path)
-
 
 class BackendRoot(resource.Resource):
 
@@ -111,7 +65,7 @@ class BackendRoot(resource.Resource):
         self.backend = backend
 
         self.putChild("admin", BackendAdmin(backend))
-        self.putChild("engine", EngineBusAdapter(engine_bus))
+        self.putChild("engine", core.EngineBusAdapter(engine_bus))
         self.putChild("", self)
 
     def render(self, request):
@@ -121,8 +75,8 @@ class BackendRoot(resource.Resource):
 class BackendConfig(usage.Options):
 
     optParameters = [
-            ['host', 'h', settings.BACKEND_HOST, 'Interface to listen on'],
-            ['port', 'p', settings.BACKEND_PORT, 'Port number to listen on', int],
+            ['host', 'h', settings.HOST, 'Interface to listen on'],
+            ['port', 'p', settings.PORT, 'Port number to listen on', int],
             ['env_path', 'e', os.path.abspath('.'), 'Codenode environment path'],
             ]
 
@@ -154,7 +108,7 @@ class BackendServerServiceMaker(object):
         backend = core.Backend(processManager, clientManager)
         backend.updateEngineTypes()
 
-        backendEngineBus = core.BackendEngineBus(backend)
+        backendEngineBus = core.EngineBus(backend)
 
         eng_proxy_factory = server.Site(BackendRoot(backend,
             backendEngineBus))
@@ -171,8 +125,8 @@ class BackendServerServiceMaker(object):
             f.protocol = lambda: TelnetTransport(TelnetBootstrapProtocol,
                                             insults.ServerProtocol,
                                             ColoredManhole, globals())
-            telnel_manhole = internet.TCPServer(6024, f)
-            telnel_manhole.setServiceParent(backendServices)
+            telnet_manhole = internet.TCPServer(6024, f)
+            telnet_manhole.setServiceParent(backendServices)
 
         return backendServices
 

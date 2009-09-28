@@ -27,6 +27,12 @@ class BackendError(Exception):
     """Invalid backend operation...
     """
 
+class InvalidEngineType(BackendError):
+    """Invalid Name of Engine Type"""
+
+class InvalidAccessId(BackendError):
+    """Invalid Engine Access Id"""
+
 
 class EngineProcessProtocol(protocol.ProcessProtocol):
 
@@ -182,6 +188,7 @@ class Backend(service.Service):
             raise KeyError("%s is not a recognized engine type" % engine_type)
         access_id = uuid.uuid4().hex
         self.engine_allocations[access_id] = engine_type
+        log.msg('Allocated engine access id: %s for type: %s' % (access_id, engine_type,))
         return access_id
 
     def getEngine(self, access_id):
@@ -197,15 +204,17 @@ class Backend(service.Service):
     def runEngine(self, access_id):
         """
         """
-        if self.engine_instances.has_key(access_id):
-            return #access id already has engine, try terminating it
+        #if self.engine_instances.has_key(access_id):
+        #    return #access id already has engine, try terminating it
         try:
-            engine_type = self.engine_allocations.get(access_id)
+            engine_type = self.engine_allocations[access_id]
+            log.msg('Running new engine type: %s for access id: %s' % (engine_type, access_id))
         except KeyError:
             log.err("Engine access_id %s NOT in engine_allocations" % access_id)
-            raise BackendError("%s is not a valid access id" % access_id)
+            raise InvalidAccessId("%s is not a valid access id" % access_id)
         try:
             engine_config = self.engine_types.get(engine_type)
+            log.msg('engine config for type: %s  %s' % (engine_type, str(engine_config)))
         except KeyError:
             log.err("Engine Type %s not in engine_types (was the engine plugin moved?)" % engine_type)
         engine_id = uuid.uuid4().hex
@@ -228,7 +237,7 @@ class Backend(service.Service):
 
 
 
-class BackendEngineBus(object):
+class EngineBus(object):
     """
     Common entry point for all engine requests. 
     Look up engine client by access_id.
@@ -247,20 +256,69 @@ class BackendEngineBus(object):
         """
         msg comes in as dictionary
         """
-        engine_client = yield self.backend.getEngine(access_id)
-        engine_method = msg.get('method')
-        engine_arg = msg.get('input')
-
+        log.msg('handling engine request for %s' % access_id)
         try:
-            log.msg('Getting engine method' + engine_method)
-            meth = getattr(engine_client, "engine_%s" % (engine_method,))
-        except KeyError:
-            log.err("Engine client has no method '%s'!" % (engine_method,))
-            # return an error code
-        # best way to return deferred??
-        result = yield meth(engine_arg)
-        json_obj = json.dumps(result)
-        defer.returnValue(json_obj)
+            engine_client = yield self.backend.getEngine(access_id)
+            log.msg('got engine Client %s' % str(engine_client))
+        except InvalidAccessId:
+            err = {'status':'ERR', 'response':'InvalidAccessId'}
+            log.err('InvalidAccessId %s' % access_id)
+            defer.returnValue(err)
+
+        result = yield engine_client.send(msg)
+        sucs = {'status':'OK', 'response':result}
+        defer.returnValue(sucs)
+
+
+class EngineSessionAdapter(resource.Resource):
+    """
+    There should be a better way to do this, have to figure that out.
+    """
+
+    def __init__(self, engine_bus, access_id):
+        resource.Resource.__init__(self)
+        self.engine_bus = engine_bus
+        self.access_id = access_id
+
+    def render(self, request):
+        """
+        This is where we un-serialize the content sent between the frontend
+        and backend engine bus.
+        """
+        content = request.content.read()
+        msg = json.loads(content)
+        d = self.engine_bus.handleRequest(self.access_id, msg)
+        d.addCallback(self._success, request)
+        d.addErrback(self._fail, request)
+        return server.NOT_DONE_YET
+
+    def _success(self, result_ser, request):
+        """
+        XXX is result already serialized?
+        """
+        log.msg('EngineSessionAdapter success %s' % result_ser)
+        result = json.dumps(result_ser)
+        request.write(result)
+        request.finish()
+
+    def _fail(self, reason, request):
+        """
+        """
+        log.err('EngineSessionAdapter fail %s' % reason)
+        result = json.dumps({'status':'ERR', 'response':str(reason)})
+        request.write(result)
+        request.finish()
+
+class EngineBusAdapter(resource.Resource):
+
+    def __init__(self, engine_bus):
+        resource.Resource.__init__(self)
+        self.engine_bus = engine_bus
+
+    def getChild(self, path, request):
+        """XXX Can this refer back to itself?
+        """
+        return EngineSessionAdapter(self.engine_bus, path)
 
 
 

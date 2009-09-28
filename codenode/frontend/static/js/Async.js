@@ -93,7 +93,7 @@ Notebook.Async.evalSuccess = function(response) {
     var cellid = response.cellid;
     var incount = 'In[' + response.count + ']:';
     var outcount = 'Out[' + response.count + ']:';
-    $('#'+cellid)[0].saved = true; //not evaluating
+    //$('#'+cellid)[0].saved = true; //not evaluating
     //This is where numbering of cells could go.
     $('#'+cellid)[0].numberLabel(incount);
     var cellstyle = response.cellstyle;

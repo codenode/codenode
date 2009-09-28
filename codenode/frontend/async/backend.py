@@ -12,164 +12,153 @@ from twisted.python import log
 
 from django.utils import simplejson as json
 
-from codenode.frontend.notebook import models as nb_models
-from codenode.frontend.backend import models as bkend_models
+from codenode.frontend.notebook import models as notebook_models
 
-class EngineSession:
+class BackendAdmin:
     """
-    Engine Session. Client for interacting with backend engine.
-    (Simple cache of parameters for communicating with backend process.)
-
-    Translate notebook id to instance id.
-    Keep current instance id in db. If it ever becomes invalid, replace it
-    with the current valid instance.
-
+    This is a base/mix in class for conveniently admin related requests
+    (not specific to an engine). These functions still use the rpc client
+    instead of the web client. The usage of both clients is kind of an
+    experiment still, but the main reason is that the admin client is for
+    making specific method calls on the backend. Engine requests are
+    (ideally) just passed along to the engine with out inspecting the
+    details (which method, etc.); in practice the requests are still
+    inspected though, so the natural seam between these interactions hasn't
+    fully revealed itself yet...
     """
-
-    def __init__(self, access_id, address):
-        """
-        """
-        self.base_url = os.path.join(str(address), 'engine', str(access_id))
 
     @defer.inlineCallbacks
-    def send(self, msg):
+    def newAccessId(self, engine_type):
         """
-        Send serialized JSON message to backend engine.
+        Backend administrative call.
         """
-        postdata = json.dumps(msg)
-        result = yield getPage(self.base_url,
+        url = os.path.join(self.base_url, 'admin', '')
+        client = xmlrpc.Proxy(url)
+        access_id = yield client.callRemote('allocateEngine', str(engine_type))
+        defer.returnValue(access_id)
+
+
+class BackendClient(object, BackendAdmin):
+    """
+    Has address to use for all requests.
+    """
+
+    def __init__(self, address):
+        """
+        """
+        self.base_url = str(address)
+
+    def __repr__(self):
+        return 'BackendClient("%s")' % self.base_url
+
+    def __str__(self):
+        return 'BackendClient @ %s)' % self.base_url
+
+    @defer.inlineCallbacks
+    def _send(self, access_id, msg):
+        """
+        Send to backend engine.
+        """
+        url = os.path.join(self.base_url, 'engine', str(access_id))
+        result = yield getPage(url,
                         contextFactory=None,
                         method='POST',
-                        postdata=postdata)
+                        postdata=str(msg))
+        defer.returnValue(result)
+
+    @defer.inlineCallbacks
+    def send(self, access_id, msg):
+        """
+        Use JSON for serialization.
+        """
+        ser_msg = json.dumps(msg)
+        log.msg('to _send: %s' % ser_msg)
+        result_ser = yield self._send(access_id, ser_msg)
+        log.msg('_send result: %s' % result_ser)
+        result = json.loads(result_ser)
         defer.returnValue(result)
 
 
-
-class BackendSessionManager(object):
+class BackendBus(object):
     """
-    Keep persistent web resource/rpc-clients, one per active
-    notebook/engine.
+    This holds on to backend clients (which cache backend address).
 
-    Keep track of EngineSessions by notebook id.
-    Engine Sessions are inited with an engine type name and a possible 
-    engine instance id.
+    The context coming in is the notebook id. Look up the backend to pass
+    message to; create backend if one does not exist yet.
 
-    Engine Sessions are responsible for updating the engine instance id
-    (which is updated when ever a new instance is created to replace the
-    last instance).
+    In comes browser to frontend bus message.
 
-    Engine Sessions are responsible for reporting errors:
-     - Bad Engine Type, the current Engine Type does not exist on the
-       backend
-     - Instance Failure (can't start engine)
-     - Instance Termination (instance died, possibly mid-evaluation)
+    Message has method attribute in header. Depending on this method, route
+    message to appropriate component.
 
-    Engine Sessions keep track of last accessed time.
-    Periodic watch dog scans for idle sessions and executes a clean-up
-    operation governed by the users configuration/preference/etc.
-     - remove front end session, kill backend instance
-     - remove front end session, don't kill backend instance
-     - don't remove front end session
+    Handle response from backend client.
+    - OK, rely response
+    - ERR, check reason, take correcting action, or propagate error
 
+    backends dict of backend_name to backend_client instance
+    notebook_map dict of notebook_id to (backend, access_id,)
     """
 
-    sessionFactory = EngineSession
+    backendFactory = BackendClient
 
     def __init__(self):
-        self.sessions = {}
-
-
-    def getSession(self, notebook_id):
         """
-        return session object
         """
+        self.backends = {}
+        self.notebook_map = {}
+
+    def addBackend(self, backend_name, backend_address):
+        """
+        """
+        backend = self.backendFactory(backend_address)
+        self.backends[backend_name] = backend
+        return backend
+
+    def addNotebook(self, notebook_id):
+        """
+        """
+        nb = notebook_models.Notebook.objects.get(guid=notebook_id)
+        access_id = nb.backend.all()[0].access_id
+        backend_name = nb.backend.all()[0].engine_type.backend.name
         try:
-            return self.sessions[notebook_id]
+            backend = self.backends[backend_name]
         except KeyError:
-            return self.newSession(notebook_id)
+            backend_address = nb.backend.all()[0].engine_type.backend.address
+            backend = self.addBackend(backend_name, backend_address)
+        # check key d n e
+        self.notebook_map[notebook_id] = (backend, access_id,)
+        return (backend, access_id,)
 
-    def newSession(self, notebook_id):
-        """
-        XXX figure out simpler efficient db query here
-        """
-        nb = nb_models.Notebook.objects.get(guid=notebook_id)
-        nb_record = bkend_models.NotebookBackendRecord.objects.get(notebook=nb)
-        address = nb_record.engine_type.backend.address
-        access_id = nb_record.access_id
-        sess = self.sessionFactory(access_id, address)
-        self.sessions[notebook_id] = sess 
-        return sess
-
-
-
-
-class FrontendEngineBus(object):
-    """
-    """
-
-    def __init__(self, backend_sessions):
-        """
-        The frontend bus forwards messages to the backend bus, and inspects
-        the message to see if local action is required as well. 
-        Messages from the client (javascript in browser) 
-
-        XXX create common use cell save function in model so this can carry
-        a simple convenience method for saving
-
-        Mediates backend engine sessions with frontend data
-        storing/retrieving. 
-        """
-        self.backend_sessions = backend_sessions
-
+    @defer.inlineCallbacks
     def handleRequest(self, notebook_id, msg):
         """
-        msg comes in as dictionary
         """
-        engine_sess = self.backend_sessions.getSession(notebook_id)
-
-        engine_method = str(msg['method'])
-        d = engine_sess.send(msg)
-        d.addErrback(self._backendErrback, notebook_id)
-
-        if engine_method == 'evaluate':
-            """Save result returned from backend 
-            """
-            d.addCallback(self._evaluateCallback, msg['cellid'])
-            #self.saveCell(msg)
-        if engine_method == 'complete':
-            d.addCallback(self._competeCallback)
-
-        return d
-
-    def _evaluateCallback(self, result, cellid):
-        """
-        """
-        log.msg('Engine result ', result)
-        result = json.loads(result)
-        count, out, err = result['input_count'], result['out'], result['err']
-        output = out + err
-        if "__image__" in output:
-            output = output[9:] + err
-            style = "outputimage"
-        else:
-            style = "outputtext"
-        outcellid = cellid + "o" #denote an 'output' cell
-        data = {'content':output, 'count':count, 'cellstyle':style, 'cellid':cellid}
-        return data
-
-    def _competeCallback(self, result):
-        """
-        """
-        data = {'completions':result}
-        return data
-
-    def _backendErrback(self, reason, notebook_id):
-        """
-        """
-
-    def saveCell(self, cell_data, notebook_id):
-        """
-        """
+        try:
+            backend, access_id = self.notebook_map[notebook_id]
+        except KeyError:
+            backend, access_id = self.addNotebook(notebook_id)
+        log.msg('notebooks backend: %s' % backend)
+        result = yield backend.send(access_id, msg)
+        log.msg('backend.send result: %s' % str(result))
+        status = result['status']
+        if status == 'OK':
+            defer.returnValue(result['response'])
+        if status == 'ERR':
+            """check error"""
+            log.err('Backend error %s' % str(result['response']))
+            err = result['response']
+            if err == 'InvalidAccessId':
+                #self.reset_access_id(self, notebook_id)
+                nb = notebook_models.Notebook.objects.get(guid=notebook_id)
+                engine_type = str(nb.backend.all()[0].engine_type.name)
+                new_access_id = yield backend.newAccessId(engine_type)
+                nb.backend.all()[0].access_id = new_access_id
+                nb.save()
+                self.notebook_map[notebook_id] = (backend, new_access_id,)
+                result_retry = yield backend.send(new_access_id, msg)
+                status = result_retry['status']
+                # TODO: Better handling. return no matter what for now
+                defer.returnValue(result_retry['response'])
 
 
 
@@ -194,6 +183,7 @@ class EngineSessionAdapter(resource.Resource):
         content = request.content.read()
         if content:
             msg = json.loads(content)
+            log.msg('Engine message deserialized %s' % str(msg))
         else:
             return
         d = self.engine_bus.handleRequest(self.notebook_id, msg)
@@ -208,6 +198,8 @@ class EngineSessionAdapter(resource.Resource):
 
     def _fail(self, reason, request):
         """
+        Add conditional to return real traceback...only do it if
+        settings.DEBUG is true, or something.
         """
         log.err(reason)
         request.write(str(reason))
@@ -224,21 +216,6 @@ class EngineBusAdapter(resource.Resource):
         """XXX Can this refer back to itself?
         """
         return EngineSessionAdapter(self.engine_bus, path)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
