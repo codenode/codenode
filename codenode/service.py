@@ -135,6 +135,22 @@ def webResourceFactory(staticfiles):
 
     return resource_root
 
+class BackendSupervisor(procmon.ProcessMonitor):
+    """Quick fix hack until better process supervisor is
+    implemented.
+    """
+
+    def startProcess(self, name):
+        if self.protocols.has_key(name):
+            return
+        p = self.protocols[name] = procmon.LoggingProtocol()
+        p.service = self
+        p.name = name
+        args, uid, gid = self.processes[name]
+        self.timeStarted[name] = procmon.time.time()
+        reactor.spawnProcess(p, args[0], args, env=None, uid=uid, gid=gid)
+
+
 
 class DesktopServiceMaker(object):
 
@@ -168,21 +184,6 @@ class DesktopServiceMaker(object):
         ################################################
         # local backend server
         #
-        class BackendSupervisor(procmon.ProcessMonitor):
-            """Quick fix hack until better process supervisor is
-            implemented.
-            """
-
-            def startProcess(self, name):
-                if self.protocols.has_key(name):
-                    return
-                p = self.protocols[name] = procmon.LoggingProtocol()
-                p.service = self
-                p.name = name
-                args, uid, gid = self.processes[name]
-                self.timeStarted[name] = procmon.time.time()
-                reactor.spawnProcess(p, args[0], args, env=None, uid=uid, gid=gid)
-
         twistd_bin = commands.getoutput('which twistd')
         backend_args = [twistd_bin, '-n',
                             '--pidfile', os.path.join(options['env_path'], 'backend.pid'),
