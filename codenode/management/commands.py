@@ -39,11 +39,12 @@ def init_command(name=None):
 
 def run_command(daemonize=False): #, frontendpid=None, kernelpid=None):
     """
-    Run a codenode.  Use inside a directory created with "codenode-admin init".
+    Run local desktop version of Codenode.  
+    Use inside a directory created with "codenode-admin init".
 
     """
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
     abspath = os.path.abspath(".")
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
     server_log = os.path.join(abspath, 'data', 'server.log')
     static_files = os.path.join(abspath, 'frontend', 'static')
     cmd = "twistd "
@@ -55,18 +56,18 @@ def run_command(daemonize=False): #, frontendpid=None, kernelpid=None):
     cmd += "--static_files=%s " % static_files
     os.system(cmd)
 
-def frontend_command(daemonize=False, env_path=None, devel=False):
+def frontend_command(daemonize=False, env_path='.', devel=False):
     """
-    Run the frontend only.
+    Run the Frontend server.
     """
     os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
-    abspath = os.path.abspath(".")
+    abspath = os.path.abspath(env_path)
     server_log = os.path.join(abspath, 'data', 'server.log')
     static_files = os.path.join(abspath, 'frontend', 'static')
     cmd = "twistd "
     if not daemonize:
         cmd += "-n "
-    cmd += "codenoded "
+    cmd += "codenode-frontend "
     cmd += "--env_path=%s " % abspath
     cmd += "--server_log=%s " % server_log
     cmd += "--static_files=%s " % static_files
@@ -75,11 +76,16 @@ def frontend_command(daemonize=False, env_path=None, devel=False):
 
 def backend_command(daemonize=False):
     """
-    Run a backend.
+    Run a Backend Server.
     """
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
+    #os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
     abspath = os.path.abspath(".")
-    os.system("twistd -n codenode --env_path=%s" % abspath)
+    cmd = "twistd "
+    if not daemonize:
+        cmd += "-n "
+    cmd += "codenode-backend "
+    cmd += "--env_path=%s " % abspath
+    os.system(cmd)
 
 def help_command(**options):
     """

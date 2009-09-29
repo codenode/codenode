@@ -11,18 +11,17 @@ codenode web and kernel services.
 """
 
 import os
+import commands
 
 from zope.interface import implements
 
 from codenode.external.twisted.web import server, resource, wsgi, static
 from twisted.cred import portal, checkers, credentials
-from twisted.spread import pb
 from twisted.internet import reactor, defer
 from twisted.application import internet, service
 from twisted.python import usage
+from twisted.runner import procmon
 
-#from codenode.backend.kernel.procman import ProcessManager
-#from codenode.backend.kernel.process import KernelProcessControl
 from codenode.frontend.async import backend
 
 import codenode
@@ -31,11 +30,6 @@ lib_path = codenode.__path__[0]
 from django.conf import settings
 VERSION = '0.2'
 
-
-class KernelConfig(object):
-    kernel = {}
-    database = {}
-    server = {}
 
 
 class DesktopOptions(usage.Options):
@@ -50,10 +44,7 @@ class DesktopOptions(usage.Options):
     optParameters = [
             ['host', 'h', settings.APP_HOST, 'Host address to listen on'],
             ['port', 'p', settings.APP_PORT, 'Port number to listen on'],
-            ['kernel_host', 'k', settings.KERNEL_HOST, 'kernel Server host'],
-            ['kernel_port', 'q', settings.KERNEL_PORT, 'Kernel Server port'],
-            ['env_path', 'e', os.path.join(os.getenv('HOME'), '.codenode', 'codenode'), 
-                'Path containing config, tac, and db'],
+            ['env_path', 'e', os.path.abspath('.'), 'Path to Codenode project dir'],
             ['server_log', None, os.path.join(os.path.abspath('.'), 'server.log'), 
                 'log file for codenoded server'],
             ['static_files', None, os.path.join(lib_path, 'frontend', 'static'),
@@ -70,7 +61,7 @@ class DesktopOptions(usage.Options):
         print 'codenode Desktop version: %s' % VERSION
         sys.exit(0)
 
-class WebAppOptions(usage.Options):
+class FrontendOptions(usage.Options):
     """Main command line options for the app server.
      - host name
      - port number
@@ -82,14 +73,10 @@ class WebAppOptions(usage.Options):
     optParameters = [
             ['host', 'h', settings.APP_HOST, 'Host address to listen on'],
             ['port', 'p', settings.APP_PORT, 'Port number to listen on'],
-            ['kernel_host', 'k', settings.KERNEL_HOST, 'kernel Server host'],
-            ['kernel_port', 'q', settings.KERNEL_PORT, 'Kernel Server port'],
-            ['kernel_service', None, settings.KERNEL_SERVICE, 'Provider of notebook kernel service'],
             ['static_path', None, None, 'Static path for web server'],
             ['url_root', 'u', '/', 'Root url path for web server'],
             ['url_static_root', 's', '/', 'Static root url path for web server'],
-            ['env_path', 'e', os.path.join(os.getenv('HOME'), '.codenode', 'codenode'), 
-                'Path containing config, tac, and db'],
+            ['env_path', 'e', os.path.abspath('.'), 'Path to Codenode project dir'],
             ['server_log', None, os.path.join(os.path.abspath('.'), 'server.log'), 
                 'log file for codenoded server'],
             ['static_files', None, os.path.join(lib_path, 'frontend', 'static'),
@@ -106,37 +93,6 @@ class WebAppOptions(usage.Options):
         print 'codenode WebApp version: %s' % VERSION
         sys.exit(0)
 
-
-class KernelServerOptions(usage.Options):
-    """Options for the kernel server
-    """
-    dconfig = {'python':'/usr/bin/python'}
-
-    optParameters = [
-            ['host', 'h', settings.KERNEL_HOST, 'Interface to listen on'],
-            ['port', 'p', settings.KERNEL_PORT, 'Port number to listen on'],
-            ['env_path', 'e', os.path.join(os.getenv('HOME'), '.codenode', 'kernel'), 
-                'Path containing config, tac, and db'],
-            ['engines-path', None, settings.ENGINES_PATH, 'run-path for engine processes'],
-            ['engines-root', None, None, 
-                'root path for chroot of engine process'],
-            ['engines-pythonpath', None, None, 'Packages in chroot jail'],
-            ['engines-uid', 'u', None, 
-                'uid of engine processes. Overriden if max-engines > 1'],
-            ['engines-gid', 'g', None, 'gid of engine processes'],
-            ['engines-max', 'm', 1, 
-                'Maximum number of simultaneous engine processes'],
-        ]
-
-    optFlags = [
-            ['secure', 's', 'NOT IMPLEMENTED! Use HTTPS SSL'],
-        ] 
-
-
-
-    def opt_version(self):
-        print 'codenode Kernel version: %s' % KERNEL_VERSION
-        sys.exit(0)
 
 
 
@@ -184,7 +140,7 @@ class DesktopServiceMaker(object):
 
     implements(service.IServiceMaker, service.IPlugin)
     tapname = "codenode"
-    description = ""
+    description = """A localhost only version for personal desktop-app-like usage."""
     options = DesktopOptions
 
     def makeService(self, options):
@@ -209,33 +165,45 @@ class DesktopServiceMaker(object):
                                     interface='localhost')
         tcp_server.setServiceParent(desktop_service)
 
-
-        ##########################
-        #XXX Hack Time. Fix This!!
+        ################################################
+        # local backend server
         #
-        kernel_config = KernelConfig()
-        kernel_config.kernel["kernel_path"] = os.path.abspath(".")
-        kernel_config.kernel["kernel_host"] = "localhost"
-        kernel_config.kernel["kernel_port"] = 8337
+        class BackendSupervisor(procmon.ProcessMonitor):
+            """Quick fix hack until better process supervisor is
+            implemented.
+            """
 
-        kernel_process_control = KernelProcessControl(kernel_config)
-        kernel_process_control.buildProcess()
+            def startProcess(self, name):
+                if self.protocols.has_key(name):
+                    return
+                p = self.protocols[name] = procmon.LoggingProtocol()
+                p.service = self
+                p.name = name
+                args, uid, gid = self.processes[name]
+                self.timeStarted[name] = procmon.time.time()
+                reactor.spawnProcess(p, args[0], args, env=None, uid=uid, gid=gid)
+
+        twistd_bin = commands.getoutput('which twistd')
+        backend_args = [twistd_bin, '-n',
+                            '--pidfile', os.path.join(options['env_path'], 'backend.pid'),
+                            'codenode-backend',
+                            '--env_path', options['env_path']
+                        ]
+        backendSupervisor = BackendSupervisor()
+        backendSupervisor.addProcess('backend', backend_args)
+        backendSupervisor.setServiceParent(desktop_service)
         #
-        ##########################
-
-        procman = ProcessManager()
-        procman.addProcess(kernel_process_control)
-        procman.setServiceParent(desktop_service)
+        ################################################
 
         return desktop_service
 
 
-class WebAppServiceMaker(object):
+class FrontendServiceMaker(object):
 
     implements(service.IServiceMaker, service.IPlugin)
-    tapname = "codenoded"
-    description = ""
-    options = WebAppOptions
+    tapname = "codenode-frontend"
+    description = "Frontend Server"
+    options = FrontendOptions
 
     def makeService(self, options):
         """
@@ -244,7 +212,6 @@ class WebAppServiceMaker(object):
         """
 
         web_app_service = service.MultiService()
-
 
         staticfiles = options['static_files']
         web_resource = webResourceFactory(staticfiles)

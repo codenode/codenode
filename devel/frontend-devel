@@ -2,4 +2,4 @@
 
 export PYTHONPATH=$PWD/..
 cd env
-twistd -n --pidfile=./frontend.pid codenoded --env_path=$PWD --devel_mode
+twistd -n --pidfile=./frontend.pid codenode-frontend --env_path=$PWD --devel_mode

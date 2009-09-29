@@ -60,7 +60,7 @@ setup(
     version='0.01',
     url='http://codenode.org',
     download_url='http://pypi.python.org/pypi/codenode',
-    install_requires=['twisted', 'django'],
+    install_requires=['twisted', 'django', 'simplejson'],
     packages=packages,
     package_data=package_data,
     scripts=["codenode/scripts/codenode-admin"],
