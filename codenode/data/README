@@ -1,1 +1,26 @@
-This dir contains a pre-initialized database.
+This directory contains a pre-initialized database, 
+the search_index, and possible several log files.
+
+pre-initialized database 
+------------------------
+The pre-initialized database is created out of convenience
+and contains one default user with username=admin, password=admin.
+
+The database is created by running the following command:
+    $ django-admin.py syncdb --settings=frontend.settings --pythonpath=.
+In the top-level directory created by running:
+    $ codenode-admin init -name some_codenode
+
+
+search_index
+------------
+The Whoosh search_index directory is created when the following command is run:
+    $ twistd codenode
+Which in turn causes the following code to execute:
+    from codenode.frontend.search import search
+    search.create_index() #this is idempotent
+    
+
+log files
+---------
+From the Twisted server process.

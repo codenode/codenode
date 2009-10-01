@@ -45,6 +45,14 @@ body {
     padding: 3px 0px 3px 26px;
     color:#9F9F9F;
 }
+#tablestate_search {
+    padding:6px;
+    background-color:#D5FFAF;
+}
+#tablestate_search .squery {
+    font-weight:bold;
+    font-style:italic;
+}
 #new_notebook {
     margin-right:7px;
 }

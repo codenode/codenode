@@ -23,7 +23,10 @@
     <p id="allusers"><b>All Users: </b>{{ allusers|join:",  " }}</p>
     <input type="submit" value="Share This Notebook">
   </form>
-  
+  <h2>Link for Sharing</h2>
+  {% url notebook-by-title owner=user.username,title=title as share_url %}
+  <p>You can link to this notebook using this url: <a href="{{share_url}}">{{share_url}}</a></p>
+
   </div>
 {% endblock %}
 

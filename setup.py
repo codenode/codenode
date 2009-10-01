@@ -55,18 +55,20 @@ package_data = {'codenode':[
 ]}
 
 
+
 setup(
     name='codenode',
-    version='0.01',
+    version='0.1',
     url='http://codenode.org',
     download_url='http://pypi.python.org/pypi/codenode',
-    install_requires=['twisted', 'django', 'simplejson'],
+    install_requires=['Twisted>=8.2.0', 'Django>=1.0.2-final', 'Whoosh>=0.2.5', 'Sphinx', 'simplejson'],
     packages=packages,
     package_data=package_data,
     scripts=["codenode/scripts/codenode-admin"],
     description='Interactive Programming Notebook for the Web Browser',
     author='Alex Clemesha & Dorian Raymer',
     author_email='codenode-devel@googlegroups.com',
-    license='GPL',
-    classifiers = ['Development Status :: 3 - Alpha']
+    license='BSD',
+    classifiers = ['Development Status :: 3 - Alpha'],
+    setup_requires=['nose>=0.11']
 )

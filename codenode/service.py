@@ -1,10 +1,10 @@
-##################################################################### 
-# Copyright (C) 2009 Alex Clemesha <clemesha@gmail.com>
-#                and Dorian Raymer <deldotdr@gmail.com>
+######################################################################### 
+# Copyright (C) 2007, 2008, 2009 
+# Alex Clemesha <alex@clemesha.org> & Dorian Raymer <deldotdr@gmail.com>
 # 
-#  Distributed under the terms of the GNU General Public License (GPL)
-#                  http://www.gnu.org/licenses/
-##################################################################### 
+# This module is part of codenode, and is distributed under the terms 
+# of the BSD License:  http://www.opensource.org/licenses/bsd-license.php
+#########################################################################
 """
 codenode web and kernel services.
 
@@ -96,7 +96,7 @@ class FrontendOptions(usage.Options):
 
 
 
-def webResourceFactory(staticfiles):
+def webResourceFactory(staticfiles, datafiles):
     """This factory function creates an instance of the front end web
     resource tree containing both the django wsgi and the async
     notebook resources.
@@ -127,12 +127,14 @@ def webResourceFactory(staticfiles):
     resource_root = Root(django_wsgi_resource)
 
     static_resource = static.File(staticfiles)
+    data_resource = static.File(datafiles)
 
     backend_bus = backend.BackendBus()
 
     resource_root.putChild("asyncnotebook", backend.EngineBusAdapter(backend_bus))
     resource_root.putChild("static", static_resource)
-
+    resource_root.putChild("data", data_resource)
+    
     return resource_root
 
 class BackendSupervisor(procmon.ProcessMonitor):
@@ -169,10 +171,14 @@ class DesktopServiceMaker(object):
         The kernel server process is another twistd plugin, and needs a 
         few options passed to it.  
         """
+        from codenode.frontend.search import search
+        search.create_index()
+
         desktop_service = service.MultiService()
 
         staticfiles = options['env_path'] + "/frontend/static" #XXX
-        web_resource = webResourceFactory(staticfiles)
+        datafiles = options['env_path'] + "/data" #XXX
+        web_resource = webResourceFactory(staticfiles, datafiles)
         serverlog = options['env_path'] + "/data/server.log" #XXX
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 

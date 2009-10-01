@@ -1,7 +1,17 @@
+######################################################################### 
+# Copyright (C) 2007, 2008, 2009 
+# Alex Clemesha <alex@clemesha.org> & Dorian Raymer <deldotdr@gmail.com>
+# 
+# This module is part of codenode, and is distributed under the terms 
+# of the BSD License:  http://www.opensource.org/licenses/bsd-license.php
+#########################################################################
+
 import os
 import shutil
+
 import codenode
 from codenode import management
+
 
 def init_command(name=None):
     """
@@ -86,6 +96,16 @@ def backend_command(daemonize=False):
     cmd += "codenode-backend "
     cmd += "--env_path=%s " % abspath
     os.system(cmd)
+
+def syncdb_command():
+    """
+    Run Django's `syncdb`.
+    """
+    #from django.core.management import call_command
+    #os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
+    #call_command("syncdb")
+    os.system('django-admin.py syncdb --pythonpath="." --settings="frontend.settings"')
+
 
 def help_command(**options):
     """

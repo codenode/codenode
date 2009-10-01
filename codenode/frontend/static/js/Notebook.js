@@ -1,11 +1,11 @@
 /*
-##################################################################### 
-# Copyright (C) 2007 Dorian Raymer <deldotdr@gmail.com>          
+######################################################################### 
+# Copyright (C) 2007, 2008, 2009 
+# Alex Clemesha <alex@clemesha.org> & Dorian Raymer <deldotdr@gmail.com>
 # 
-#  Distributed under the terms of the GNU General Public License (GPL)
-#                  http://www.gnu.org/licenses/
-##################################################################### 
-
+# This module is part of codenode, and is distributed under the terms 
+# of the BSD License:  http://www.opensource.org/licenses/bsd-license.php
+#########################################################################
  Notebook.js - Notebook.x is the main notebook namespace. 
                This initialize functions sets up some menus and 
                the top spawner onload.

@@ -1,4 +1,12 @@
 /*
+######################################################################### 
+# Copyright (C) 2007, 2008, 2009 
+# Alex Clemesha <alex@clemesha.org> & Dorian Raymer <deldotdr@gmail.com>
+# 
+# This module is part of codenode, and is distributed under the terms 
+# of the BSD License:  http://www.opensource.org/licenses/bsd-license.php
+#########################################################################
+
 
 TODO:
     * Loading dialog
@@ -65,6 +73,9 @@ BookShelf = {
             case 'archive':
                 message = "You have no archived notebooks.";
                 break;
+            case 'search':
+                message = "Your search returned no results.";
+                break;
             default:
                 message = "There are no notebooks in this folder.";
                 break;
@@ -77,6 +88,10 @@ BookShelf = {
         $('tbody.notebooktbody').empty();
         $('#table_empty, #empty-trash').remove();
 
+        var hash = window.location.hash.split('#')[1];
+        if (hash != 'search') {
+            $("#tablestate_search").remove();
+        }
         /* The are no Notebooks in this section, so display appropiate message */
         if (data.length < 1) {
             BookShelf.sectionMessage();
@@ -84,7 +99,6 @@ BookShelf = {
         };
 
         /* Enable the 'Empty Trash' functionality */
-        var hash = window.location.hash.split('#')[1];
         if (hash == 'trash') {
             var p = $.P({id:"empty-trash"}, " Empty Trash");
             $('table.notebookview').before(p);
@@ -358,11 +372,11 @@ BookShelf = {
      *     table is redrawn with the data of all matched notebooks.
      */
     searchNotebooks: function() {
-        var q = $("#searchquery").attr("value");
+        var q = $("#search input").attr("value");
         if (q) {
             $.ajax({
                 type: "GET",
-                url: "search", 
+                url: "/search", 
                 data: {"q": q}, 
                 dataType: "json",
                 success: BookShelf.searchResults
@@ -379,9 +393,11 @@ BookShelf = {
      *  and redraw a new notebook table with the matches
      */
     searchResults: function(data) {
-        var msgs = [$.SPAN({},"Search results for:"), $.SPAN({className:'squery'}, data.query)];
-        var msg = $.P({id:"tablestate_search"}, msgs);
-        //$("table").before(msg);
+        $("#tablestate_search").remove();
+        var msgs = [$.SPAN({},"Search results for: "), $.SPAN({className:'squery'}, data.query)];
+        var msg = $.P({id:"tablestate_search"}, msgs)
+        $("table").before(msg);
+        window.location='#search';
         BookShelf.populateTable(data.results);
     },
     /* === End Search notebooks functionality === */
@@ -573,7 +589,7 @@ BookShelfStyling = {
         var split_opts = {type: 'v', initA: true, splitbarClass: 'panehandle'};
         $('#splitpane').splitter(split_opts);
     	$("#attach_overlay").jqm();
-        $("#search input").focus(function(){$(this).css("color", "#F00").attr("value", "Sorry! Work in progress.")});
+        $("#search input").focus(function(){$(this).css("color", "#000").attr("value", "")});
         $("#search input").blur(function(){$(this).css("color", "#9F9F9F").attr("value", "Search Notebooks")});
         $("#status_close, .button, .drop").hover(function(){$(this).addClass('pointer');}, function(){$(this).removeClass('pointer');});
     },

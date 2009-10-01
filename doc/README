@@ -1,0 +1,9 @@
+How to build the docs
+=====================
+
+From the top level ``codenode`` directory, type::
+
+    $ sphinx-build doc docbuild
+
+To create a directory ``docbuild`` that is the fully built docs.
+
