@@ -20,7 +20,8 @@ from codenode.frontend.backend import rpc
 def bookshelf(request, template_name='bookshelf/bookshelf.html'):
     """Render the Bookshelf interface.
     """
-    engine_types = backend_models.EngineType.objects.values_list("name", flat=True)
+    #engine_types = backend_models.EngineType.objects.values_list("name", flat=True)
+    engine_types = backend_models.EngineType.objects.all()
     return render_to_response(template_name, 
         {'engine_types':engine_types, 'path':request.path}, context_instance=RequestContext(request))
 
@@ -96,10 +97,11 @@ def new_notebook(request):
     """Create a new Notebook.
     Set notebook default type, and start instance.
     """
-    engine_type_name = request.GET.get("engine_type", "")
+    #engine_type_name = request.GET.get("engine_type", "")
+    engine_type_id = request.GET.get("engine_type", "")
     nb = notebook_models.Notebook(owner=request.user)
     nb.save()
-    engine_type = backend_models.EngineType.objects.get(name=engine_type_name)
+    engine_type = backend_models.EngineType.objects.get(id=engine_type_id)
     access_id = rpc.allocateEngine(engine_type.backend.address, engine_type.name)
     default_engine = backend_models.NotebookBackendRecord(notebook=nb,
                                                 engine_type=engine_type, 

@@ -20,7 +20,7 @@
           <ul id="notebook_list">
             {% for engine_type in engine_types %}
             <li><a {% if user.get_profile.notebook_opens_in_new_window %} target='_blank' {% endif %} 
-                href="new?engine_type={{ engine_type }}">{{ engine_type|capfirst }}</a></li>
+                href="new?engine_type={{ engine_type.id }}">{{ engine_type.name|capfirst }} {{engine_type.backend.name}}</a></li>
             {% endfor %}
           </ul>
 
