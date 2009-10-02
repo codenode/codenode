@@ -221,7 +221,8 @@ class FrontendServiceMaker(object):
         web_app_service = service.MultiService()
 
         staticfiles = options['static_files']
-        web_resource = webResourceFactory(staticfiles)
+        datafiles = options['env_path'] + "/data" #XXX
+        web_resource = webResourceFactory(staticfiles, datafiles)
         serverlog = options['server_log']
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 

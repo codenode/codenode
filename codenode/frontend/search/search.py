@@ -43,7 +43,7 @@ def update_index(**kwargs):
     writer.add_document(nbid=nbid, owner=owner, title=title, content=content)
     writer.commit()
 #Django signal registration
-signals.post_save.connect(update_index, sender=models.Cell)
+#signals.post_save.connect(update_index, sender=models.Cell)
 
 def search(q, default_field="content"):
     ix = index.open_dir(SEARCH_INDEX)

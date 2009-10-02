@@ -84,16 +84,8 @@ APP_HOST = 'localhost'
 APP_PORT = 8000
 
 #Available types of notebooks: #XXX Clean up and do intelligent detection:
-NOTEBOOK_TYPES = ["python", "sage"]
-PYTHON_BINARY = commands.getoutput("/usr/bin/which python")
-SAGE_BINARY = "/Applications/sage/sage"
-
-KERNEL_SERVICE = 'codenode'
-KERNEL_HOST = 'localhost'
-KERNEL_PORT = 8337
 
 ENV_PATH = os.path.join(os.path.abspath('.'), 'data') #XXX
-ENGINES_PATH = os.path.join(os.path.abspath('.'), 'data')
 
 
 COMPRESS = False

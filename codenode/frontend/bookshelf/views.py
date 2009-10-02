@@ -53,26 +53,26 @@ def folders(request):
     """Handle creating, retrieving, updating, deleting of folders.
     """
     if request.method == "GET":
-        q = Folder.objects.filter(owner=request.user)
+        q = bookshelf_models.Folder.objects.filter(owner=request.user)
         data = [[e.guid, e.title] for e in q]
     if request.method == "POST":
         if "create" in request.POST:
-            newfolder = Folder(owner=request.user, title="New Folder")
+            newfolder = bookshelf_models.Folder(owner=request.user, title="New Folder")
             newfolder.save()
             data = [[newfolder.guid, "New Folder"]]
         if "update" in request.POST:
             guid = request.POST.get("id", "")
-            folder = Folder.objects.get(guid=guid)
+            folder = bookshelf_models.Folder.objects.get(guid=guid)
             folder.title = request.POST.get("newname", "")
             folder.save()
             data = [[folder.guid, folder.title]]
         if "delete" in request.POST:
             folderid = request.POST.get("folderid", "")
             nbids =  request.POST.getlist("nbids")
-            folder = Folder.objects.get(owner=request.user, guid=folderid)
+            folder = bookshelf_models.Folder.objects.get(owner=request.user, guid=folderid)
             folder.delete()
             for nbid in nbids:
-                nb = Notebook.objects.get(owner=request.user, guid=nbid)
+                nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
                 nb.delete()
             data = {"response":"ok"}
     jsobj = json.dumps(data)
@@ -86,7 +86,7 @@ def change_notebook_location(request):
     dest = request.POST.get("dest" '')
     ids = request.POST.getlist("nbid")
     for nbid in ids:
-        nb = Notebook.objects.get(owner=request.user, guid=nbid)
+        nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
         nb.location = dest
         nb.save()
     jsobj = json.dumps({"response":"ok"})
@@ -117,7 +117,7 @@ def empty_trash(request):
     """ 
     nbids = request.POST.getlist("nbids")
     for nbid in nbids:
-        nb = Notebook.objects.get(owner=request.user, guid=nbid)
+        nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
         nb.delete()
     jsobj = json.dumps({"response":"ok"})
     return HttpResponse(jsobj, mimetype='application/json')
