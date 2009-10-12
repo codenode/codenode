@@ -30,6 +30,7 @@ Table of Contents
     commands
     backend
     optimizing
+    development
     philosophy
 
 

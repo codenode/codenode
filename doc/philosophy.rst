@@ -9,7 +9,7 @@ Even better, it doesn't even have to be *your* web browser.
 You can use the one at school, work, or your friends laptop to
 send that important email or update your groups wiki page.
 
-`codenode` creates an entire programming environment, in a web browser,
+`Codenode` creates an entire programming environment, in a web browser,
 so you can run your code anywhere, at anytime.
 
 Take for example a common situation:  You are at school or work,
@@ -25,7 +25,7 @@ You simply login to you account and get coding right away.
 Core ideas, developer focused
 -----------------------------
 
-`codenode` is a system that allows computation of arbitrary code pieces from a
+`Codenode` is a system that allows computation of arbitrary code pieces from a
 web browser.  Along with management of this (remote or local) running code,
 we aim to present the source and result of these computations, in a clean, 
 modern, and useful way.
