@@ -74,7 +74,7 @@ def revert_to_revision(id):
     nb = Notebook.objects.get(guid=nbrev.guid)
     nb.orderlist = nbrev.orderlist
     nb.save()
-    orderlist = nbrev.orderlist.split(",")
+    orderlist = json.loads(nbrev.orderlist)
     for cellid in orderlist:
         cellrev = Cell.revisions.filter(guid=cellid, _audit_timestamp__lte=ts).order_by("-_audit_timestamp")[0] #most recent
         cell = Cell.objects.get(guid=cellrev.guid)
