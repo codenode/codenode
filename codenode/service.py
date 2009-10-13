@@ -77,9 +77,9 @@ class FrontendOptions(usage.Options):
             ['url_root', 'u', '/', 'Root url path for web server'],
             ['url_static_root', 's', '/', 'Static root url path for web server'],
             ['env_path', 'e', os.path.abspath('.'), 'Path to Codenode project dir'],
-            ['server_log', None, os.path.join(os.path.abspath('.'), 'server.log'), 
+            ['server_log', None, os.path.join(os.path.abspath('.'), 'data', 'server.log'), 
                 'log file for codenoded server'],
-            ['static_files', None, os.path.join(lib_path, 'frontend', 'static'),
+            ['static_files', None, os.path.join(os.path.abspath('.'), 'frontend', 'static'),
                 'Path to static web application files'],
         ]
 
@@ -217,10 +217,15 @@ class FrontendServiceMaker(object):
         This service is like the desktop, but is not responsible for
         controlling the kernel server process.
         """
+        from codenode.frontend.search import search
+        search.create_index()
 
         web_app_service = service.MultiService()
 
-        staticfiles = options['static_files']
+        if options['devel_mode']:
+            staticfiles = os.path.join(lib_path, 'frontend', 'static')
+        else:
+            staticfiles = options['static_files']
         datafiles = options['env_path'] + "/data" #XXX
         web_resource = webResourceFactory(staticfiles, datafiles)
         serverlog = options['server_log']

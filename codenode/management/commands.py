@@ -47,7 +47,7 @@ def init_command(name=None):
     shutil.copytree(pkgtwistedroot, osjoin(envroot, "twisted"))
 
 
-def run_command(daemonize=False): #, frontendpid=None, kernelpid=None):
+def run_command(daemonize=False): #, frontendpid=None):
     """
     Run local desktop version of Codenode.  
     Use inside a directory created with "codenode-admin init".

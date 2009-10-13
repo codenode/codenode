@@ -6,6 +6,7 @@
 # of the BSD License:  http://www.opensource.org/licenses/bsd-license.php
 #########################################################################
 
+from django.utils import simplejson as json
 from codenode.frontend.notebook.models import Notebook, Cell
 
 def get_nb_revisions(nbid, n=25):
@@ -41,7 +42,7 @@ def get_recent_cells(orderlist, current_audit_ts):
     """The latest (cellid, content) for all cells in give 'orderlist'.
     The 'current_nb_ts' is the timestamp of the notebook snapshot.
     """
-    orderlist = orderlist.split(",")
+    orderlist = json.loads(orderlist)
     allcontent = []
     for cellid in orderlist:
         cellrevs = Cell.revisions.filter(guid=cellid, _audit_timestamp__lte=current_audit_ts).order_by("-_audit_timestamp")[0] #most recent
