@@ -85,9 +85,13 @@ class IEngine(Interface):
 
 class EngineInstanceClient(object):
     """
+    This does not properly implement IEngine yet.
+
+    The context of the cellid is needed here still; this context should
+    remain in the Frontend bus instead.
     """
 
-    implements(IEngine)
+    #implements(IEngine)
     
     def __init__(self, port):
         """
