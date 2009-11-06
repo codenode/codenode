@@ -6,6 +6,9 @@
 # of the BSD License:  http://www.opensource.org/licenses/bsd-license.php
 #########################################################################
 import os
+import uuid
+import pickle
+#from StringIO import StringIO
 
 from zope.interface import implements 
 
@@ -19,7 +22,18 @@ from twisted.python import log
 
 from django.utils import simplejson as json
 
+from django.conf import settings
+
 from codenode.frontend.notebook import models as notebook_models
+
+def write_image(image):
+    fn = str(uuid.uuid4()) + '.png'
+    fullpath = os.path.join(settings.PLOT_IMAGES, fn)
+    f = open(fullpath, 'w')
+    f.write(image)
+    f.close()
+    return fn
+
 
 class BackendAdmin:
     """
@@ -81,7 +95,6 @@ class BackendClient(object, BackendAdmin):
         ser_msg = json.dumps(msg)
         log.msg('to _send: %s' % ser_msg)
         result_ser = yield self._send(access_id, ser_msg)
-        log.msg('_send result: %s' % result_ser)
         result = json.loads(result_ser)
         defer.returnValue(result)
 
@@ -146,7 +159,6 @@ class BackendBus(object):
             backend, access_id = self.addNotebook(notebook_id)
         log.msg('notebooks backend: %s' % backend)
         result = yield backend.send(access_id, msg)
-        log.msg('backend.send result: %s' % str(result))
         status = result['status']
         if status == 'OK':
             defer.returnValue(result['response'])
@@ -193,12 +205,28 @@ class EngineSessionAdapter(resource.Resource):
             log.msg('Engine message deserialized %s' % str(msg))
         else:
             return
+        cellid = msg.get('cellid', '')
         d = self.engine_bus.handleRequest(self.notebook_id, msg)
-        d.addCallback(self._success, request)
+        d.addCallback(self._success, request, cellid)
         d.addErrback(self._fail, request)
         return server.NOT_DONE_YET
 
-    def _success(self, data, request):
+    def _success(self, data, request, cellid):
+        """
+        horrible. not always eval...
+        """
+        out = data['out']
+        if type(out) is str:
+            if out.startswith("__imagefile__"):
+                image_pick = out[13:]
+                image_io = pickle.loads(image_pick)
+                image = image_io.getvalue()
+                image_file_name = write_image(image)
+                data['out'] = image_file_name
+                data['cellstyle'] = 'outputimage'
+            else:
+                data['cellstyle'] = 'outputtext'
+        data['cellid'] = cellid
         jsobj = json.dumps(data)
         request.write(jsobj)
         request.finish()
@@ -209,7 +237,10 @@ class EngineSessionAdapter(resource.Resource):
         settings.DEBUG is true, or something.
         """
         log.err(reason)
-        request.write(str(reason))
+        if settings.DEBUG:
+            request.write(str(reason))
+        else:
+            request.write('err') #XXX improve error handling
         request.finish()
 
 class EngineBusAdapter(resource.Resource):

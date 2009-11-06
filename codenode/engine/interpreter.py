@@ -95,11 +95,11 @@ class Interpreter(InteractiveInterpreter):
         attMatch = re.match(reAttribute, input_string)
         if nameMatch:
             matches = self.completer.global_matches(input_string)
-            return matches
+            return {'out':matches}
         if attMatch:
             matches = self.completer.attr_matches(input_string)
-            return matches
-        return []
+            return {'out':matches}
+        return {'out':[]}
 
 
 

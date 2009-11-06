@@ -317,7 +317,6 @@ class EngineSessionAdapter(resource.Resource):
         """
         XXX is result already serialized?
         """
-        log.msg('EngineSessionAdapter success %s' % result_ser)
         result = json.dumps(result_ser)
         request.write(result)
         request.finish()

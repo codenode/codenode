@@ -91,13 +91,13 @@ Notebook.Async.evalSuccess = function(response) {
     var self = Notebook.Async;
     var t = Notebook.TreeBranch;
     var cellid = response.cellid;
-    var incount = 'In[' + response.count + ']:';
-    var outcount = 'Out[' + response.count + ']:';
+    var incount = 'In[' + response.input_count + ']:';
+    var outcount = 'Out[' + response.input_count + ']:';
     //$('#'+cellid)[0].saved = true; //not evaluating
     //This is where numbering of cells could go.
     $('#'+cellid)[0].numberLabel(incount);
     var cellstyle = response.cellstyle;
-    var content = response.content;
+    var content = response.out + response.err;
     t.spawnOutputCellNode(cellid, cellstyle, content, outcount);
     $('#'+cellid)[0].evalResult();
     Notebook.Save._save(self.evalSaveSuccess, self.evalSaveError);

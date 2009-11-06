@@ -537,7 +537,7 @@ Notebook.Cell.prototype.content = function(newcontent) {
                 case 'outputtext':
                     return this.contentNode().childNodes[0].value;
                 case 'outputimage':
-                    return $(this.contentNode()).find('img.outputimage')[0].src;
+                    return $(this.contentNode()).find('img.outputimage')[0].name;
             }
         }
         if (this.celltype == 'group') {
@@ -565,7 +565,9 @@ Notebook.Cell.prototype.content = function(newcontent) {
                     //look for img node by using getFirstElByTagAndClass
                     //this.contentNode().childNodes[0].src = newcontent;
                     //$(this.contentNode().firstChild).ready(console.info(this.contentNode().firstChild.firstChild.height));
-                    $(this.contentNode()).find('img.outputimage')[0].src = newcontent;
+                    // parameterize image path
+                    $(this.contentNode()).find('img.outputimage')[0].src = '/data/'+newcontent;
+                    $(this.contentNode()).find('img.outputimage')[0].name = newcontent;
                     break;
             }
         }

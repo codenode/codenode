@@ -135,20 +135,12 @@ class EngineInstanceClient(object):
     @defer.inlineCallbacks
     def engine_evaluate(self, to_evaluate, cellid):
         """
+        This makes the actual remote call. Possible to add hooks around
+        this.
         return a Deferred
         """
         result = yield self.client.callRemote('evaluate', to_evaluate)
-        # temporary formating hack;
-        count, out, err = result['input_count'], result['out'], result['err']
-        output = out + err
-        if "__image__" in output:
-            output = output[9:] + err
-            style = "outputimage"
-        else:
-            style = "outputtext"
-        outcellid = cellid + "o" #denote an 'output' cell
-        data = {'content':output, 'count':count, 'cellstyle':style, 'cellid':cellid}
-        defer.returnValue(data)
+        defer.returnValue(result)
 
     @defer.inlineCallbacks
     def engine_complete(self, to_complete, cellid):
@@ -156,8 +148,7 @@ class EngineInstanceClient(object):
         return a Deferred
         """
         result = yield self.client.callRemote('complete', to_complete)
-        data = {'completions':result}
-        defer.returnValue(data)
+        defer.returnValue(result)
 
     def engine_interrupt(self, a, b):
         self.backend.interruptEngine(self.engine_id)

@@ -177,7 +177,10 @@ class DesktopServiceMaker(object):
         desktop_service = service.MultiService()
 
         staticfiles = options['env_path'] + "/frontend/static" #XXX
-        datafiles = options['env_path'] + "/data" #XXX
+        datafiles = options['env_path'] + "/data/plot_images" #XXX
+        #Temporary hack
+        if not os.path.exists(datafiles):
+            os.mkdir(datafiles)
         web_resource = webResourceFactory(staticfiles, datafiles)
         serverlog = options['env_path'] + "/data/server.log" #XXX
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
@@ -226,7 +229,10 @@ class FrontendServiceMaker(object):
             staticfiles = os.path.join(lib_path, 'frontend', 'static')
         else:
             staticfiles = options['static_files']
-        datafiles = options['env_path'] + "/data" #XXX
+        datafiles = options['env_path'] + "/data/plot_images" #XXX
+        #Temporary hack
+        if not os.path.exists(datafiles):
+            os.mkdir(datafiles)
         web_resource = webResourceFactory(staticfiles, datafiles)
         serverlog = options['server_log']
         web_resource_factory = server.Site(web_resource, logPath=serverlog)

@@ -86,7 +86,7 @@ APP_PORT = 8000
 #Available types of notebooks: #XXX Clean up and do intelligent detection:
 
 ENV_PATH = os.path.join(os.path.abspath('.'), 'data') #XXX
-
+PLOT_IMAGES = os.path.join(ENV_PATH, 'plot_images')
 
 COMPRESS = False
 COMPRESS_VERSION = True
