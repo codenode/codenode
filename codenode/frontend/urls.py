@@ -17,6 +17,7 @@ urlpatterns = patterns("",
     (r'^$', 'django.views.generic.simple.redirect_to', {'url':'bookshelf'}), #uses template/homepage.html 
     (r'^bookshelf/', include('codenode.frontend.bookshelf.urls')),
     (r'^notebook/', include('codenode.frontend.notebook.urls')),
+    (r'^backend/', include('codenode.frontend.backend.urls')),
     (r'^accounts/', include('codenode.frontend.registration.urls')),
     (r'^settings/', include('codenode.frontend.usersettings.urls')),
     (r'^util/', include('codenode.frontend.util.urls')),

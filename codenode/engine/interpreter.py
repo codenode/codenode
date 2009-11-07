@@ -17,6 +17,7 @@ abstracted out completly
 """
 
 import sys
+import re
 from code import softspace, InteractiveInterpreter
 
 #from codenode.kernel.engine.python.outputtrap import OutputTrap
@@ -84,6 +85,24 @@ class Interpreter(InteractiveInterpreter):
         attributes."""
         info = introspect(input_string)
 
+    def complete(self, input_string):
+        """
+        Complete a name or attribute.
+        """
+        reName = "([a-zA-Z_][a-zA-Z_0-9]*)$"
+        reAttribute = "([a-zA-Z_][a-zA-Z_0-9]*[.]+[a-zA-Z_.0-9]*)$"
+        nameMatch = re.match(reName, input_string)
+        attMatch = re.match(reAttribute, input_string)
+        if nameMatch:
+            matches = self.completer.global_matches(input_string)
+            return {'out':matches}
+        if attMatch:
+            matches = self.completer.attr_matches(input_string)
+            return {'out':matches}
+        return {'out':[]}
+
+
+
     def complete_name(self, input_string):
         """See what possible completions there are for this object
         (input_string)."""
@@ -131,7 +150,7 @@ class Interpreter(InteractiveInterpreter):
                     #sys.stderr.write(e.value)
                     # XXX This could be bad if something other than the
                     # kernelConnection triggers an interrupt
-                    self.interrupted = True
+                    #self.interrupted = True
                     return command_count
             if more:
                 pass

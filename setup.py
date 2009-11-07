@@ -61,7 +61,7 @@ setup(
     version='0.1',
     url='http://codenode.org',
     download_url='http://pypi.python.org/pypi/codenode',
-    install_requires=['Twisted>=8.2.0', 'Django>=1.0.2-final', 'Whoosh>=0.2.5', 'Sphinx'],
+    install_requires=['Twisted>=8.2.0', 'Django>=1.0.2-final', 'Whoosh>=0.2.5', 'Sphinx', 'simplejson'],
     packages=packages,
     package_data=package_data,
     scripts=["codenode/scripts/codenode-admin"],

@@ -18,9 +18,9 @@
           </span>
 
           <ul id="notebook_list">
-            {% for notebook in notebook_types %}
+            {% for engine_type in engine_types %}
             <li><a {% if user.get_profile.notebook_opens_in_new_window %} target='_blank' {% endif %} 
-                href="new?system={{ notebook }}">{{ notebook|capfirst }} Notebook</a></li>
+                href="new?engine_type={{ engine_type.id }}">{{ engine_type.name|capfirst }} {{engine_type.backend.name}}</a></li>
             {% endfor %}
           </ul>
 
@@ -72,7 +72,7 @@
                 <thead>
                   <td id='column_checked'>&nbsp;</td>
                   <td id='column_title' class='sortable'>Title</td>
-                  <td id='column_system' class='sortable'>System</td>
+                  <td id='column_backend' class='sortable'>Engine</td>
                   <td id='column_lastmodified' class='sortable'>Date</td>
                 </thead>
                 <tbody class='notebooktbody'></tbody>

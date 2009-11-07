@@ -250,7 +250,7 @@ Notebook.Completer = {
 
     completeNameCallback: function(response) {
         var self = Notebook.Completer;
-        var completions = eval(response.completions);
+        var completions = eval(response.out);
         //Notebook.completer.completions = completions; //record of initial completions
         self.completions = completions;
         //$('#'+self.cellid)[0].completion_refinable = true;

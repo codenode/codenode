@@ -605,7 +605,7 @@ Notebook.__init__.Delegator = function() {
     $('#titlecontainer').click(Util.startChangeTitle);
     $('#savebutton').click(function(e){Notebook.Save.save()});
     $('#saveclosebutton').click(function(e){Notebook.Save.saveAndClose()});
-    $('#interruptbutton').click(function(e){Notebook.Async.signalKernel('interupt')});
+    $('#interruptbutton').click(function(e){Notebook.Async.signalKernel('interrupt')});
     $('#killkernelbutton').click(function(e){Notebook.Async.signalKernel('kill')});
 };
 

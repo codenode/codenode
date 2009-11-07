@@ -11,32 +11,25 @@ codenode web and kernel services.
 """
 
 import os
+import commands
 
 from zope.interface import implements
 
 from codenode.external.twisted.web import server, resource, wsgi, static
 from twisted.cred import portal, checkers, credentials
-from twisted.spread import pb
 from twisted.internet import reactor, defer
 from twisted.application import internet, service
 from twisted.python import usage
+from twisted.runner import procmon
 
-from codenode.backend.kernel.server import KernelManagerRealm
-from codenode.backend.kernel.procman import ProcessManager
-from codenode.backend.kernel.process import KernelProcessControl
-from codenode.frontend.async.webresources import Notebook
-from codenode.frontend.async.webresources import SessionManager
-from codenode.frontend.async.webresources import AppEngineSessionManager
+from codenode.frontend.async import backend
+
+import codenode
+lib_path = codenode.__path__[0]
 
 from django.conf import settings
 VERSION = '0.2'
-KERNEL_VERSION = '0.2'
 
-
-class KernelConfig(object):
-    kernel = {}
-    database = {}
-    server = {}
 
 
 class DesktopOptions(usage.Options):
@@ -51,10 +44,11 @@ class DesktopOptions(usage.Options):
     optParameters = [
             ['host', 'h', settings.APP_HOST, 'Host address to listen on'],
             ['port', 'p', settings.APP_PORT, 'Port number to listen on'],
-            ['kernel_host', 'k', settings.KERNEL_HOST, 'kernel Server host'],
-            ['kernel_port', 'q', settings.KERNEL_PORT, 'Kernel Server port'],
-            ['env_path', 'e', os.path.join(os.getenv('HOME'), '.codenode', 'codenode'), 
-                'Path containing config, tac, and db'],
+            ['env_path', 'e', os.path.abspath('.'), 'Path to Codenode project dir'],
+            ['server_log', None, os.path.join(os.path.abspath('.'), 'server.log'), 
+                'log file for codenoded server'],
+            ['static_files', None, os.path.join(lib_path, 'frontend', 'static'),
+                'Path to static web application files'],
         ]
 
     optFlags = [
@@ -67,7 +61,7 @@ class DesktopOptions(usage.Options):
         print 'codenode Desktop version: %s' % VERSION
         sys.exit(0)
 
-class WebAppOptions(usage.Options):
+class FrontendOptions(usage.Options):
     """Main command line options for the app server.
      - host name
      - port number
@@ -79,14 +73,14 @@ class WebAppOptions(usage.Options):
     optParameters = [
             ['host', 'h', settings.APP_HOST, 'Host address to listen on'],
             ['port', 'p', settings.APP_PORT, 'Port number to listen on'],
-            ['kernel_host', 'k', settings.KERNEL_HOST, 'kernel Server host'],
-            ['kernel_port', 'q', settings.KERNEL_PORT, 'Kernel Server port'],
-            ['kernel_service', None, settings.KERNEL_SERVICE, 'Provider of notebook kernel service'],
             ['static_path', None, None, 'Static path for web server'],
             ['url_root', 'u', '/', 'Root url path for web server'],
             ['url_static_root', 's', '/', 'Static root url path for web server'],
-            ['env_path', 'e', os.path.join(os.getenv('HOME'), '.codenode', 'codenode'), 
-                'Path containing config, tac, and db'],
+            ['env_path', 'e', os.path.abspath('.'), 'Path to Codenode project dir'],
+            ['server_log', None, os.path.join(os.path.abspath('.'), 'data', 'server.log'), 
+                'log file for codenoded server'],
+            ['static_files', None, os.path.join(os.path.abspath('.'), 'frontend', 'static'),
+                'Path to static web application files'],
         ]
 
     optFlags = [
@@ -100,40 +94,9 @@ class WebAppOptions(usage.Options):
         sys.exit(0)
 
 
-class KernelServerOptions(usage.Options):
-    """Options for the kernel server
-    """
-    dconfig = {'python':'/usr/bin/python'}
-
-    optParameters = [
-            ['host', 'h', settings.KERNEL_HOST, 'Interface to listen on'],
-            ['port', 'p', settings.KERNEL_PORT, 'Port number to listen on'],
-            ['env_path', 'e', os.path.join(os.getenv('HOME'), '.codenode', 'kernel'), 
-                'Path containing config, tac, and db'],
-            ['engines-path', None, settings.ENGINES_PATH, 'run-path for engine processes'],
-            ['engines-root', None, None, 
-                'root path for chroot of engine process'],
-            ['engines-pythonpath', None, None, 'Packages in chroot jail'],
-            ['engines-uid', 'u', None, 
-                'uid of engine processes. Overriden if max-engines > 1'],
-            ['engines-gid', 'g', None, 'gid of engine processes'],
-            ['engines-max', 'm', 1, 
-                'Maximum number of simultaneous engine processes'],
-        ]
-
-    optFlags = [
-            ['secure', 's', 'NOT IMPLEMENTED! Use HTTPS SSL'],
-        ] 
 
 
-
-    def opt_version(self):
-        print 'codenode Kernel version: %s' % KERNEL_VERSION
-        sys.exit(0)
-
-
-
-def webResourceFactory(nbSessionManager, staticfiles, datafiles):
+def webResourceFactory(staticfiles, datafiles):
     """This factory function creates an instance of the front end web
     resource tree containing both the django wsgi and the async
     notebook resources.
@@ -163,23 +126,39 @@ def webResourceFactory(nbSessionManager, staticfiles, datafiles):
     django_wsgi_resource = wsgi.WSGIResource(reactor, pool, WSGIHandler())
     resource_root = Root(django_wsgi_resource)
 
-    #nbSessionManager = SessionManager() #XXX improve
-    notebook_resource = Notebook(nbSessionManager)
     static_resource = static.File(staticfiles)
     data_resource = static.File(datafiles)
 
-    resource_root.putChild("asyncnotebook", notebook_resource)
+    backend_bus = backend.BackendBus()
+
+    resource_root.putChild("asyncnotebook", backend.EngineBusAdapter(backend_bus))
     resource_root.putChild("static", static_resource)
     resource_root.putChild("data", data_resource)
     
     return resource_root
+
+class BackendSupervisor(procmon.ProcessMonitor):
+    """Quick fix hack until better process supervisor is
+    implemented.
+    """
+
+    def startProcess(self, name):
+        if self.protocols.has_key(name):
+            return
+        p = self.protocols[name] = procmon.LoggingProtocol()
+        p.service = self
+        p.name = name
+        args, uid, gid = self.processes[name]
+        self.timeStarted[name] = procmon.time.time()
+        reactor.spawnProcess(p, args[0], args, env=None, uid=uid, gid=gid)
+
 
 
 class DesktopServiceMaker(object):
 
     implements(service.IServiceMaker, service.IPlugin)
     tapname = "codenode"
-    description = ""
+    description = """A localhost only version for personal desktop-app-like usage."""
     options = DesktopOptions
 
     def makeService(self, options):
@@ -197,10 +176,12 @@ class DesktopServiceMaker(object):
 
         desktop_service = service.MultiService()
 
-        nbSessionManager = SessionManager(options)
         staticfiles = options['env_path'] + "/frontend/static" #XXX
-        datafiles = options['env_path'] + "/data" #XXX
-        web_resource = webResourceFactory(nbSessionManager, staticfiles, datafiles)
+        datafiles = options['env_path'] + "/data/plot_images" #XXX
+        #Temporary hack
+        if not os.path.exists(datafiles):
+            os.mkdir(datafiles)
+        web_resource = webResourceFactory(staticfiles, datafiles)
         serverlog = options['env_path'] + "/data/server.log" #XXX
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 
@@ -209,109 +190,73 @@ class DesktopServiceMaker(object):
                                     interface='localhost')
         tcp_server.setServiceParent(desktop_service)
 
-
-        ##########################
-        #XXX Hack Time. Fix This!!
+        ################################################
+        # local backend server
         #
-        kernel_config = KernelConfig()
-        kernel_config.kernel["kernel_path"] = os.path.abspath(".")
-        kernel_config.kernel["kernel_host"] = "localhost"
-        kernel_config.kernel["kernel_port"] = 8337
-
-        kernel_process_control = KernelProcessControl(kernel_config)
-        kernel_process_control.buildProcess()
+        twistd_bin = commands.getoutput('which twistd')
+        backend_args = [twistd_bin, '-n',
+                            '--pidfile', os.path.join(options['env_path'], 'backend.pid'),
+                            'codenode-backend',
+                            '--env_path', options['env_path']
+                        ]
+        backendSupervisor = BackendSupervisor()
+        backendSupervisor.addProcess('backend', backend_args)
+        backendSupervisor.setServiceParent(desktop_service)
         #
-        ##########################
-
-        procman = ProcessManager()
-        procman.addProcess(kernel_process_control)
-        procman.setServiceParent(desktop_service)
+        ################################################
 
         return desktop_service
 
 
-class WebAppServiceMaker(object):
+class FrontendServiceMaker(object):
 
     implements(service.IServiceMaker, service.IPlugin)
-    tapname = "codenoded"
-    description = ""
-    options = WebAppOptions
+    tapname = "codenode-frontend"
+    description = "Frontend Server"
+    options = FrontendOptions
 
     def makeService(self, options):
         """
         This service is like the desktop, but is not responsible for
         controlling the kernel server process.
         """
+        from codenode.frontend.search import search
+        search.create_index()
 
         web_app_service = service.MultiService()
 
-        if options['kernel_service'] == 'appengine':
-            nbSessionManager = AppEngineSessionManager(options)
+        if options['devel_mode']:
+            staticfiles = os.path.join(lib_path, 'frontend', 'static')
         else:
-            nbSessionManager = SessionManager(options)
-
-        staticfiles = options['env_path'] + "/frontend/static" #XXX
-        web_resource = webResourceFactory(nbSessionManager, staticfiles)
-        serverlog = options['env_path'] + "/data/server.log" #XXX
+            staticfiles = options['static_files']
+        datafiles = options['env_path'] + "/data/plot_images" #XXX
+        #Temporary hack
+        if not os.path.exists(datafiles):
+            os.mkdir(datafiles)
+        web_resource = webResourceFactory(staticfiles, datafiles)
+        serverlog = options['server_log']
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 
-        tcp_server = internet.TCPServer(options['port'], 
+        frontend_server = internet.TCPServer(options['port'], 
                                     web_resource_factory, 
                                     interface=options['host'])
-        tcp_server.setServiceParent(web_app_service)
+        frontend_server.setServiceParent(web_app_service)
+
+        if options['devel_mode']:
+            from twisted.conch.manhole import ColoredManhole
+            from twisted.conch.insults import insults
+            from twisted.conch.telnet import TelnetTransport, TelnetBootstrapProtocol
+            from twisted.internet import protocol
+
+            f = protocol.ServerFactory()
+            f.protocol = lambda: TelnetTransport(TelnetBootstrapProtocol,
+                                            insults.ServerProtocol,
+                                            ColoredManhole, globals())
+            telnel_manhole = internet.TCPServer(6023, f)
+            telnel_manhole.setServiceParent(web_app_service)
         return web_app_service
 
 
-
-class KernelServerServiceMaker(object):
-
-    implements(service.IServiceMaker, service.IPlugin)
-    tapname = "codenode-kernel"
-    description = ""
-    options = KernelServerOptions
-
-    def makeService(self, options):
-        """
-        """
-        kernel_service = service.MultiService()
-
-        procman = ProcessManager()
-        procman.setServiceParent(kernel_service)
-        
-        ########################################
-        #XXX Hack left over
-        engines_max = 0 #int(config['engines-max'])
-        if engines_max > 1:
-            from codenode.kernel.interface import UserPool
-            prefix = config['engines-user-prefix']
-            group = config['engines-group']
-            user_pool = UserPool(engines_max, prefix, group)
-        else:
-            user_pool = None
-
-        class InMemoryPasswordDatabase(checkers.InMemoryUsernamePasswordDatabaseDontUse):
-            """This is used for authenticating kernel connections.
-            It is a temporary solution that needs a little more... 
-            """
-
-            def requestAvatarId(self, credentials):
-                return defer.maybeDeferred(
-                        credentials.checkPassword, 
-                        self.users['user1']).addCallback(
-                        self._cbPasswordMatch, str(credentials.username))
-
-
-        realm = KernelManagerRealm(options, procman, user_pool)
-        p = portal.Portal(realm)
-        chk = InMemoryPasswordDatabase(user1="secret")
-        p.registerChecker(chk)
-
-        kernel_server = internet.TCPServer(options['port'], 
-                    pb.PBServerFactory(p),
-                    interface=options['host'])
-        kernel_server.setServiceParent(kernel_service)
-
-        return kernel_service
 
 
 

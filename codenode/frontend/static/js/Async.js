@@ -11,7 +11,9 @@
             communications are defined.
 
  */
-BASE_URL = '/asyncnotebook/'+document.location.pathname.split('/')[2]+'/';
+DATA_URL = '/notebook/'+document.location.pathname.split('/')[2]+'/';
+CONTROL_URL = '/backend/'+document.location.pathname.split('/')[2]+'/';
+INTERPRETER_URL = '/asyncnotebook/'+document.location.pathname.split('/')[2];
 Notebook.Async = function() {
 };
 
@@ -20,7 +22,7 @@ Notebook.Async = function() {
 
 Notebook.Async.initialize = function() {
     // eval json written to html body by server
-    var url = BASE_URL+'nbobject';
+    var url = DATA_URL+'nbobject';
     var success = function (res) {
         Notebook.Load.takeCellsData(res);
         }
@@ -30,10 +32,12 @@ Notebook.Async.initialize = function() {
 };
 
 Notebook.Async.startEngine = function() {
-    var path = BASE_URL+'start';
+    var path = INTERPRETER_URL;
+    var data = JSON.stringify({method:'start'});
     $.ajax({
         url:path,
-        type:'GET',
+        type:'POST',
+        data:data,
         dataType:'json',
         success: function(result) {
             //engine started
@@ -47,8 +51,8 @@ Notebook.Async.startEngine = function() {
 
 Notebook.Async.signalKernel = function(action) {
     var self = Notebook.Async;
-    var path = BASE_URL+'kernel';
-    var data = {'action':action};
+    var path = INTERPRETER_URL;
+    var data = JSON.stringify({'method':action});
     $.ajax({
             url:path,
             type:'POST',
@@ -66,18 +70,20 @@ Notebook.Async.signalError = function(result) {
 
 Notebook.Async.evalCell = function(cellid, input) {
     var self = Notebook.Async;
-    var path = BASE_URL+'eval';
+    var path = INTERPRETER_URL;
     if (input == '?') {
         var input = 'introspect?';
     }
-    var data = {'cellid':cellid, 'input':input};
+    var data = JSON.stringify({method:'evaluate', 'cellid':cellid, 'input':input});
+    /*
+    $.post(path, data, self.evalSuccess, 'json')
+    */
     $.ajax({
             url:path,
             type:'POST',
             data:data,
             dataType:'json',
             success:self.evalSuccess});
-
     return;
 }; 
 
@@ -85,13 +91,13 @@ Notebook.Async.evalSuccess = function(response) {
     var self = Notebook.Async;
     var t = Notebook.TreeBranch;
     var cellid = response.cellid;
-    var incount = 'In[' + response.count + ']:';
-    var outcount = 'Out[' + response.count + ']:';
-    $('#'+cellid)[0].saved = true; //not evaluating
+    var incount = 'In[' + response.input_count + ']:';
+    var outcount = 'Out[' + response.input_count + ']:';
+    //$('#'+cellid)[0].saved = true; //not evaluating
     //This is where numbering of cells could go.
     $('#'+cellid)[0].numberLabel(incount);
     var cellstyle = response.cellstyle;
-    var content = response.content;
+    var content = response.out + response.err;
     t.spawnOutputCellNode(cellid, cellstyle, content, outcount);
     $('#'+cellid)[0].evalResult();
     Notebook.Save._save(self.evalSaveSuccess, self.evalSaveError);
@@ -108,8 +114,9 @@ Notebook.Async.evalSaveError = function(response) {
 
 
 Notebook.Async.saveToDatabase = function(orderlist, cellsdata, success, error) {
-    var path = BASE_URL+'save';
+    var path = DATA_URL+'save';
     var cells = JSON.stringify(cellsdata);
+    var orderlist = JSON.stringify(orderlist);
     var data = {'orderlist':orderlist, 'cellsdata':cells};
     $.ajax({
             url:path,
@@ -121,7 +128,7 @@ Notebook.Async.saveToDatabase = function(orderlist, cellsdata, success, error) {
 };
 
 Notebook.Async.deleteCells = function(mainid, ids) {
-    var path = BASE_URL+'delete';
+    var path = BASE_URL+'deletecell';
     var cellids = JSON.stringify(ids);
     var data = {'cellids':cellids};
     /*xxx: need to finish
@@ -136,7 +143,7 @@ Notebook.Async.deleteCells = function(mainid, ids) {
 };
 
 Notebook.Async.changeNotebookTitle = function(title, success, error) {
-    var path = BASE_URL+'change';
+    var path = DATA_URL+'title';
     var data = {'newtitle':title};
     $.ajax({
             url:path,
@@ -153,8 +160,8 @@ Notebook.Async.changeNotebookTitle = function(title, success, error) {
 Notebook.Async.completeName = function(cellid, mode, input, success, error) {
     //request match from server
     // this ultimatly returns a list of 0 or more match possibilities
-    var path = BASE_URL+'completer';
-    var data = {'cellid':cellid, 'mode':mode, 'input':input};
+    var path = INTERPRETER_URL;
+    var data = JSON.stringify({method:'complete', 'mode':mode, 'cellid':cellid, 'input':input});
     $.ajax({
             url:path,
             type:'POST',

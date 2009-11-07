@@ -1,119 +1,111 @@
-The Codenode Backend - Code Execution Handling
-==============================================
+The Backend
+===========
 
 .. _backend:
 
-The *Kernel* and all associated *Engines* are the components of `codenode` that 
-handle the execution of a given Notebook's code.
 
-The following is a techinical overview of the *Kernel* and all *Engines*
-which combined is refered to as the "Backend" `codenode`.
+The *Backend* is a container for managing notebook *engine*
+processes. Every notebook running in a web browser corresponds to one
+*backend* *engine* process. 
 
+The *Backend* starts *engine* processes and provides a mechanism for
+interacting with the *engine* interpreter when it is running. *Engine*
+types are registered with the *backend* through plug-in files. Plug-in
+files can be added or subtracted at any time the server is running. 
 
-.. image:: images/codenode_backend.png
+A *Frontend* server is associated with one or more *backends*, each of
+which may be running anywhere on the network, including the localhost.
 
-Definitions of Kernel, Engine, and Interpreter
-----------------------------------------------
+The *backend* is set up so that the concerns of how code actually gets
+executed is separate from how code is moved in and out of the web browser
+and saved in the database. The *frontend* is responsible for managing the
+database, and the code execution aspect of the system is handled by the *engine*. 
 
-Kernel (aka Kernel Server)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-A Twisted application running these services:
+Backend Server
+--------------
 
-#. Perspective-Broker server
-#. Process Manager for managing computation engines
+The *backend* provides a general API for managing and interfacing
+*engines*. The *frontend* queries the *backend* through an administrative
+channel for information on what *engine* types it provides, etc. and
+allocates *engine* usage for the notebooks owned by its registered users. 
 
-Engine (aka. Computation Engine)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-One process (Python, Sage, etc) where Notebook computation occurs. 
+The *backend* does not know about notebooks or users registered in the
+*frontend* -- the *backend* only knows about what *engines* it can run and
+what *engines* are currently running. A *notebook* communicates to an
+*engine* through a *frontend*-owned communication bus which, in turn,
+talks to a *backend* where the *engine* lives.
 
-Engines have two main parts:
-#. XML-RPC server, providing a specific set of methods (according to the Engine interface/API) for the Kernel to call.
-#. An Interpreter object with the same set of methods at the XML_RPC server. The RPC server essentially wraps this interpreter giving it a network interface.
+Engine
+------
 
-Interpreter Object 
-^^^^^^^^^^^^^^^^^^^
-An object (implemented in an interpreted like Python), that provides 
-a consistent interface (an API) to the fundamental capabilities of that language.
-   
+*Engine* is the name for the process that actually runs the code entered in
+the web browser. 
 
-Details of the Kernel
----------------------
-
-The Kernel serves two purposes: 
-#. Provides a network interface to the `codenode` application server for
-relaying computation requests and results (data, plot images, etc.). 
-#. Manages (starts, and stops) Engine processes.
-
-**For every notebook running in a browser, there is one engine.**
-
-The primary purpose of the `Interpreter Object` is to minimize
-specialized code that has to be added to it when a complex 
-feature (like plotting or Mathematica like graphical interact). 
-
-The most common operation a given language's interpreter can do
-* execute code in a namespace
-* store namespaces
-* create and delete objects of specific types
-* operate/introspect on object attributes/data
+An *engine* is something that produces output given some input. The design
+of *Codenode* does not make assumptions on precisely what an *engine* does
+or how it does it, but in general, it provides a way to execute arbitrary
+code. `Codenode` provides an implementation of one *engine*, the Python
+interpreter engine. The Python engine executes the code users enter in the
+notebook from the web browser. The Python engine is something that adapts
+the general Python interpreter REPL (read-eval-print loop) into an abstract
+thing callable from anywhere, like a service for computation.
 
 
+The current implementation of the default Python *engine* is an object that
+provides a way to execute arbitrary python code input as a string. The
+object provides other second-order methods like 'complete', which
+facilitates the notebooks tab-completer.::
 
-Kernel Implementation Details
------------------------------
+    >>> from codenode.engine import interpreter
+    >>> in1 = interpreter.Interpreter()
+    >>> in1.evaluate('2+2')
+    {'input_count': 1, 'out': '4\n', 'cmd_count': 1, 'err': '', 'in':
+    '2+2'}
+    >>> in1.evaluate('a = 12')
+    {'input_count': 2, 'out': '', 'cmd_count': 1, 'err': '', 'in': 'a =
+    12'}
+    >>> in1.evaluate('a + a')
+    {'input_count': 3, 'out': '24\n', 'cmd_count': 1, 'err': '', 'in': 'a +
+    a'}
 
-Before the Kernel Server can start up, it needs to know a few things:
-* The port the Perspective broker server should listen on
-* The env_path, which defaults to .knoboo/kernel. 
+    >>> in2 = interpreter.Interpreter()
+    >>> in2.evaluate('a + a')
+    {'input_count': 1, 'out': '', 'cmd_count': 1, 'err': 'Traceback (most
+    recent call last):\n  File "<input>", line 1, in <module>\nNameError:
+    name \'a\' is not defined\n', 'in': 'a + a'}
+    >>> in2.evaluate('a = 42')
+    {'input_count': 2, 'out': '', 'cmd_count': 1, 'err': '', 'in': 'a =
+    42'}
+    >>> in2.evaluate('print a')
+    {'input_count': 3, 'out': '42\n', 'cmd_count': 1, 'err': '', 'in':
+    'print a'}
+    >>> in1.evaluate('print a')
+    {'input_count': 4, 'out': '12\n', 'cmd_count': 1, 'err': '', 'in':
+    'print a'}
+    >>> 
 
-This is where it reads the conf and tac configuration files. 
-The conf file holds configuration parameters about what systems/programs 
-are available (i.e. Python or Sage), what path the engines should run in, 
-what uid the engine process should run as, and server parameters (host, and port) 
-that will be used by twistd application.
 
-The tac is a config file that holds the twisted application configuration script
-It should really never need to be touched and is kind of a formalism until 
-twisted application is more customized for codenode. 
+This separation of interpreter object and RPC server within the *engine*,
+as well as the distinction between *backend server* and *engine process*,
+creates a flexible and friendly development environment with a low barrier
+of entry. New *engine* types can be developed by following a simple recipe,
+adding non-trivial functionality without modifying the internals of
+`codenode`.   
 
-The startup sequence 
+Engine Plug-in files
 ^^^^^^^^^^^^^^^^^^^^
-(**FIXME**)
-./kernel-start invokes /bin/codenode-kernel
 
-... reads the command line options and parses through them for ones relevant to twistd
-The twistd options include 
-* daemonize?
-* log file name/path
-* pid file name/path
+A *backend* supports running one or more types of *engines*. 
+*Engine* types are added to a *backend* via plug-in files. Plug-in files
+live in the twisted/plugins directory of your `codenode` environment
+directory.
 
-(location of tac file: this has to happen until the twisted Application is customized such 
-that it doesn't need to read app config info from a tac file)
+An *engine* plug-in is a file written in the Python language. The plug-in
+specifies the essential attributes of an operating system process (e.g. bin
+path to invoke, command line arguments, environment variables, etc.). 
 
-Then twistd application framework takes over...
-It loads the tac file which reads the command line options again.
-Now they are parsed for codenode application specifics.
+The `codenode` source tree includes an example of a non-trivial *engine
+plug-in* for running *Sage*. 
 
-The parsed options are stored in a dict which is passed to a function in
-knoboo.main.py that puts together the services for the twisted application
-object (this object is what the application framework is looking for)
 
-For the kernel, the two services are 
-* perspective broker server
-* process manager
 
-The main thing perspective broker does is invoke a Portal that holds the
-Kernel Realm. The kernel Realm is very simple at this stage of development.
-
-When a notebook is started in the application server, it connects to the
-kernel server using the login method of the perspective broker
-clientFactory. The pb realm authenticates using a hack credential/checker
-that uses the same cleartext password for any avatarId (which are the
-notebook Id's). Once login succeeds, the realm instantiates an
-avatar/perspective for one engine. A reference to this is returned to the
-app-server pb-client. The connection is now open and symmetric, therefore
-the client never has to login (re-authenticate) again (the avatar persists
-in memory with-out the realm storing an explicit public reference). This is
-in stark contrast to the sessions managment that happens in guard.py, where
-the inability of the HTTP protocol to maintain open symmetric connections
-necessitates re-connection and re-authentication for every request and for
-the avatar to be explicitly stored in a Sessions dictionary in the portal.

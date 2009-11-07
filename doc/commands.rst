@@ -27,6 +27,25 @@ following two command line tools of **Django** and **Twisted**.
 For more advanced usage of `codenode`, it is very useful to
 understand the capabilities of each tool.
 
+To run `codenode` as a 'desktop application' (localhost only), use the
+``run`` command. ``run`` starts the *frontend* and a local *backend*
+automatically::
+
+    $ codenode-admin run
+
+In a public deployment, the *frontend* and *backend* are run separately::
+
+    $ codenode-admin frontend
+
+
+and, similarly, on another server::
+
+    $ codenode-admin backend
+
+
+Killing the *backend* process will kill all child of its *engine*
+processes.
+
 
 django-admin.py
 ^^^^^^^^^^^^^^^
@@ -49,17 +68,27 @@ the ``codenode`` ``twistd`` plugin in used, to see all options, type::
     $ twistd codenode --help
 
 
-The "Frontend" twistd plugin is ``codenoded``.  For options type::
+The "Frontend" twistd plugin is ``codenode-frontend``.  For options type::
 
-    $ twistd codenoded --help
-
-
-The "Backend"  twistd plugin is ``codenode-kernel``.  For options type::
-
-    $ twistd codenode-kernel --help
+    $ twistd codenode-frontend --help
 
 
+The "Backend"  twistd plugin is ``codenode-backend``.  For options type::
+
+    $ twistd codenode-backend --help
 
 
+Development Command Tools
+-------------------------
+
+- ``make-devel-env``
+- ``frontend-devel``
+- ``backend-devel``
+- ``frontend-manhole``
+- ``backend-manhole``
+- ``frontend-models-shell``
+
+
+See the section on :ref:`Development <development>`.
 
 

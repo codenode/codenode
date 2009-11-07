@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+export PYTHONPATH=$PWD/..
+cd env
+django-admin.py shell --settings='frontend.settings' --pythonpath=$PWD
+

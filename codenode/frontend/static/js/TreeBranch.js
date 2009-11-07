@@ -161,7 +161,7 @@ Notebook.TreeBranch.setOutputCell = function(outputnode, inputid) {
             $('#'+e.data)[0].adjustTextarea();
             });
     outputnode.adjustTextarea();
-    outputnode.saved = true;
+    //outputnode.saved = true;
     if ($('#auxdisplay').html() == 'spawner') {
         outputnode.spawnerNode().setFocus();
     }

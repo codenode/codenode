@@ -19,7 +19,7 @@ With `virtualenv` you can create isolated Python environments,
 and then using pip you can directly install new packages into your `virtualenv`s.
 Once you are through using a given `virtualenv`, it is safe to completely remove
 it, and because it is self-contained, no traces of packages install will be left on
-the system.  Using `virtualenv` is an excellent way to avoid Python package dependancy issues.
+the system.  Using `virtualenv` is an excellent way to avoid Python package dependency issues.
 (you can download `virtualenv` via `easy_install virtualenv` or `pip install virtualenv`)
 
 
@@ -35,4 +35,34 @@ To try out the latest features in the master repository::
 To clone a copy for development::
 
     $ git clone git://github.com/codenode/codenode.git
+
+
+
+Deploying With Remote Backend(s)
+--------------------------------
+
+If you are deploying Codenode for public use, you should run the *backend* on
+a different server than the *frontend* (be well aware of the security risks
+associated with running arbitrary python code through the notebook. Letting
+someone run code in the notebook is equivalent to giving them a shell
+account on your server).
+
+A *backend* server is registered with a *frontend* through the admin
+interface of the web application.
+
+.. image:: images/listbackends.png
+
+.. image:: images/addBackend.png
+
+When a user adds a notebook, the *engine* type and *backend* server options
+are presented in a list in the bookshelf.
+
+Dependencies
+------------
+
+- Twisted
+- Django
+- Simplejson
+- Woosh
+- Sphinx
 

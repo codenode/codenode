@@ -15,7 +15,7 @@ from codenode.frontend.notebook.models import Notebook, Cell
 
 
 class CellAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'type', 'last_modified')
+    list_display = ('owner', 'style', 'last_modified')
     search_fields = ('owner__username', 'owner__first_name', 'owner__last_name')
 
 admin.site.register(Cell, CellAdmin)
@@ -29,9 +29,9 @@ class CellInline(admin.TabularInline):
     
 
 class NotebookAdmin(admin.ModelAdmin):
-    list_display = ('title', 'system', 'owner', 'created_time')
+    list_display = ('title', 'owner', 'created_time')
     search_fields = ('owner__username', 'owner__first_name', 'owner__last_name')
-    inlines = [CellInline]
+    #inlines = [CellInline]
 
 admin.site.register(Notebook, NotebookAdmin)
 

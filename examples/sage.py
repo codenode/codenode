@@ -7,12 +7,26 @@
 #########################################################################
 
 import os
-from django.conf import settings
-from codenode.backend.kernel.engine import base
 
+import codenode
+from codenode.backend.engine import EngineConfigurationBase
 
+SAGE_ROOT = '/path/to/sage_root'
 
-def build_env(config):
+boot = """import sys
+sys.path.append('%s')
+from codenode.engine.server import EngineRPCServer
+from codenode.engine.sage.interpreter import Interpreter
+from codenode.engine import runtime 
+from codenode.engine.sage import runtime as sage_runtime
+namespace = sage_runtime.build_namespace
+port = runtime.find_port()
+server = EngineRPCServer(('localhost', port), Interpreter, namespace)
+runtime.ready_notification(port)
+server.serve_forever()
+"""%(codenode.__path__[0][:-9])
+
+def build_env(sage_root):
     """
     user specific variables:
         HOME
@@ -22,11 +36,12 @@ def build_env(config):
 
     """
     uname = os.uname()[0]
-    SAGE_ROOT = config.dconfig.get('sage', 'sage_root')
+    SAGE_ROOT = sage_root
     SAVEDIR = SAGE_ROOT
     SAGE_PACKAGES = os.path.join(SAGE_ROOT, 'spkg')
     SAGE_LOCAL = os.path.join(SAGE_ROOT, 'local')
     SAGE_DATA = os.path.join(SAGE_ROOT, 'data')
+    SAGE_DOC = os.path.join(SAGE_ROOT, 'devel', 'sage', 'doc')
     SAGE_BIN = os.path.join(SAGE_LOCAL, 'bin')
     if uname == 'Darwin':
         PATH = ':'.join([
@@ -42,6 +57,8 @@ def build_env(config):
     GPHELP = os.path.join(SAGE_LOCAL, 'bin', 'gphelp')
     GPDOCDIR = os.path.join(SAGE_LOCAL, 'share', 'pari', 'doc')
 
+    SINGULARPATH = os.path.join(SAGE_LOCAL, 'share', 'singular')
+
 
     DOT_SAGE = os.path.join(os.getenv('HOME'), '.sage') #kernel_env path
 
@@ -49,11 +66,17 @@ def build_env(config):
 
 
     PYTHONPATH = build_path_list(['SAGE_PATH', 'PYTHONPATH'],
-                                [os.path.join(LIBRARY_PATH, 'python')])
+                                [os.path.join(LIBRARY_PATH, 'python'),])
+                                    #codenode_path])
     PYTHONHOME = SAGE_LOCAL
 
+    SAGE_TESTDIR = os.path.join(SAGE_ROOT, 'tmp')
+
     LD_LIBRARY_PATH = build_path_list(['LD_LIBRARY_PATH'],
-                                [LIBRARY_PATH, os.path.join(LIBRARY_PATH, 'openmpi')])
+                                [LIBRARY_PATH, 
+                                os.path.join(LIBRARY_PATH, 'openmpi'),
+                                os.path.join(LIBRARY_PATH, 'R', 'lib')])
+
 
     if uname == 'Darwin':
         DYLD_LIBRARY_PATH =  build_path_list([
@@ -65,25 +88,32 @@ def build_env(config):
     else:
         DYLD_LIBRARY_PATH = ''
 
+    RHOME = os.path.join(LIBRARY_PATH, 'R')
+
     env = dict([('SAGE_ROOT', SAGE_ROOT),
                 ('SAVEDIR', SAVEDIR),
                 ('SAGE_PACKAGES', SAGE_PACKAGES),
                 ('SAGE_LOCAL', SAGE_LOCAL),
                 ('SAGE_DATA', SAGE_DATA),
                 ('SAGE_BIN', SAGE_BIN),
+                ('SAGE_DOC', SAGE_DOC),
                 ('PATH', PATH),
                 ('LIBRARY_PATH', LIBRARY_PATH),
                 ('GP_DATA_DIR', GP_DATA_DIR),
                 ('GPHELP', GPHELP),
                 ('GPDOCDIR', GPDOCDIR),
+                ('SINGULARPATH', SINGULARPATH),
                 ('DOT_SAGE', DOT_SAGE),
                 ('MATPLOTLIBRC', MATPLOTLIBRC),
                 ('PYTHONPATH', PYTHONPATH),
                 ('PYTHONHOME', PYTHONHOME),
                 ('LD_LIBRARY_PATH', LD_LIBRARY_PATH),
+                ('SAGE_TESTDIR', SAGE_TESTDIR),
+                ('RHOME', RHOME),
                 ('DYLD_LIBRARY_PATH',DYLD_LIBRARY_PATH)])
-    return env
-
+    environ = os.environ.copy()
+    environ.update(env)
+    return environ
 
 def build_path_list(env_variables, other_paths):
     path = []
@@ -95,63 +125,18 @@ def build_path_list(env_variables, other_paths):
     path = ':'.join(path)
     return path
 
-def build_namespace():
-    from codenode.backend.kernel.engine.python.introspection import introspect
-    from sage.all import *
-    try:
-        from codenode.external.mmaplotlib.codenode_plot import show
-    except ImportError:
-        pass
-    return locals()
+class Sage(EngineConfigurationBase):
+    bin = os.path.join(SAGE_ROOT, 'local', 'bin', 'python')
+    args = ['-c', boot]
+    env = build_env(SAGE_ROOT)
+    path = SAGE_ROOT
 
-def engine_startup():
-    ENGINE_STARTUP="""
-import sys
-from codenode.backend.kernel.engine.server import EngineRPCServer
-from codenode.backend.kernel.engine.sage.interpreter import Interpreter
-from codenode.backend.kernel.engine.sage.runtime import build_namespace
-if __name__ == "__main__":
-    port = int(sys.argv[1])
-    namespace = build_namespace
-    print "Sage-Python XML-RPC Kernel Serving on port %s" % str(port)
-    server = EngineRPCServer(('localhost', port), Interpreter, namespace)
-    server.serve_forever()
-"""
-    return ENGINE_STARTUP
+    engine_name = 'sage'
+
+sage = Sage()
 
 
-class ProcessSetup(base.ProcessSetup):
 
-    def executable(self):
-        return settings.SAGE_BINARY
-
-    def engine_startup(self, port):
-        ENGINE_STARTUP="""\
-import sys
-from codenode.backend.kernel.engine.server import EngineRPCServer
-from codenode.backend.kernel.engine.sage.interpreter import Interpreter
-from codenode.backend.kernel.engine.sage.runtime import build_namespace
-namespace = build_namespace
-server = EngineRPCServer(('127.0.0.1', int(%s)), Interpreter, namespace)
-server.serve_forever()""" % (port)
-        return ENGINE_STARTUP
-
-    def jailed_engine_startup(self, port, root, uid):
-        ENGINE_STARTUP="""
-import sys
-from codenode.backend.kernel.engine import base
-jail = base.Jail('%s', %s)
-entered = jail.enter_jail()
-if not entered:
-    sys.exit(1)
-from codenode.backend.kernel.engine.server import EngineRPCServer
-from codenode.backend.kernel.engine.sage.interpreter import Interpreter
-from codenode.backend.kernel.engine.sage.runtime import build_namespace
-namespace = build_namespace
-server = EngineRPCServer(('127.0.0.1', %s), Interpreter, namespace)
-server.serve_forever()
-        """ % (root, uid, port, )
-        return ENGINE_STARTUP
 
 
 

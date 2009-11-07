@@ -6,7 +6,7 @@
 # of the BSD License:  http://www.opensource.org/licenses/bsd-license.php
 #########################################################################
 
-from codenode.kernel.engine.python.interpreter import Interpreter as Python
+from codenode.engine.interpreter import Interpreter as Python
 from sage.misc.preparser import preparse
 
 

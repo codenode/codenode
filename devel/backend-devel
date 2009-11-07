@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+export PYTHONPATH=$PWD/..
+cd env
+twistd -n --pidfile=./backend.pid codenode-backend --env_path=$PWD --devel_mode

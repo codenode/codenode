@@ -18,6 +18,7 @@ class EngineRPCServer(SimpleXMLRPCServer):
         SimpleXMLRPCServer.__init__(self, addr)
         self.user_namespace = namespace
         self._interpreter = interpreter
+        self.interpreter = self._interpreter(self.user_namespace)
 
     def _dispatch(self, method, params):
         try:
@@ -57,6 +58,18 @@ class EngineRPCServer(SimpleXMLRPCServer):
         except AttributeError:
             result = 'Interpreter Error: Interpeter is probably starting up.'
         return result
+
+    def xmlrpc_complete(self, to_complete):
+        """Search for possible completion matches of source in the
+        usernamespace.
+        return a list of matches
+        """
+        try:
+            result = self.interpreter.complete(to_complete)
+        except AttributeError:
+            result = 'Interpreter Error: Interpeter is probably starting up.'
+        return result
+
 
     def xmlrpc_complete_name(self, to_complete):
         """Search for possible completion matches of source in the

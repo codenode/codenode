@@ -101,6 +101,7 @@ Notebook.Load = {};
 
 Notebook.Load.takeCellsData = function(nbobject) {
     var orderlist = nbobject.orderlist.split(',');
+    var orderlist = eval(nbobject.orderlist);
     //check if this nb is new/empty
     if (orderlist[0] == 'orderlist') {
         return;
