@@ -17,18 +17,17 @@ from codenode.frontend.search import search
 #  http://groups.google.com/group/whoosh/browse_thread/thread/50a06857db36e792/dcbd7c4e2a4c842b
 
 
-# this stores fixture data
-f = {}
-
-
 class TestSearch(TestCase):
 
-    def setup(self):
-        f['user1'] = User.objects.get(username__exact='test')
-        f['user2'] = User.objects.get(username__exact='test2')
-
-    def teardown(self):
-        f = {}
+    def setUp(self):
+        for user in [User(username='test'), User(username='test2')]:
+            user.set_password('password')
+            user.save()
+        
+        self.user1 = User.objects.get(username__exact='test')
+        self.user2 = User.objects.get(username__exact='test2')
+        
+    def tearDown(self):
         allnotebooks = models.Notebook.objects.all()
         for nb in allnotebooks:
             nb.delete()
@@ -45,9 +44,9 @@ class TestSearch(TestCase):
         #only the Notebook with the correct search
         #terms appears in the results.
         #"""
-        nb1 = models.Notebook(owner=f['user1'])
+        nb1 = models.Notebook(owner=self.user1)
         nb1.save()
-        nb2 = models.Notebook(owner=f['user1'])
+        nb2 = models.Notebook(owner=self.user1)
         nb2.save()
  
         cell1 = models.Cell(
@@ -72,11 +71,11 @@ class TestSearch(TestCase):
 
 
     def test_view_search(self):
-        nb1 = models.Notebook(owner=f['user1'])
+        nb1 = models.Notebook(owner=self.user1)
         nb1.save()
-        nb2 = models.Notebook(owner=f['user2'], title="Foo is Foo")
+        nb2 = models.Notebook(owner=self.user2, title="Foo is Foo")
         nb2.save()
-        nb3 = models.Notebook(owner=f['user2'])
+        nb3 = models.Notebook(owner=self.user2)
         nb3.save()
  
         cell1 = models.Cell(
