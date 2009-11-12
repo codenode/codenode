@@ -8,14 +8,7 @@
 
 from django.conf.urls.defaults import *
 
-from codenode.frontend.notebook.views import notebook
-from codenode.frontend.notebook.views import nbobject
-from codenode.frontend.notebook.views import save
-from codenode.frontend.notebook.views import delete_cell
-from codenode.frontend.notebook.views import title
-from codenode.frontend.notebook.views import share
-from codenode.frontend.notebook.views import revisions
-from codenode.frontend.notebook.views import revert
+from codenode.frontend.notebook.views import *
 
 urlpatterns = patterns('',
     url(r'^(?P<nbid>\w{32})/$', notebook, name='notebook'),
@@ -29,4 +22,5 @@ urlpatterns = patterns('',
     url(r'^share/(?P<nbid>\w{32})$', share, name='share'),
     url(r'^revisions/(?P<nbid>\w{32})$', revisions, name='revisions'),
     url(r'^revert/(?P<id>\d+)$', revert, name='revert'),
+    url(r'^user_style$', user_style, name='user_style'),
 )

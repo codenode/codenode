@@ -9,7 +9,7 @@
 from django.conf import settings
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import RequestContext
+from django.template import Context, RequestContext, loader
 from django.utils import simplejson as json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -162,14 +162,16 @@ def share(request, nbid=None, template_name='notebook/share.html'):
     return render_to_response(template_name, {'form':form, 'nbid':nbid, 'sharedusers':sharedusers, 
                                               'allusers':allusers, 'user':request.user, 'title': nb.title})
 
+@login_required
+def user_style(request, template_name='notebook/user_style.css'):
+    """User configurable dynamically created stylesheet. 
 
-
-
-
-
-
-
-
-
-
-
+    Uses the Users style settings to render a custom
+    style sheet that sets and overides default styles.
+    """
+    user = request.user
+    profile = user.get_profile
+    t = loader.get_template(template_name)
+    test_data = {"show_numbers":True}
+    c = Context(test_data)
+    return HttpResponse(t.render(c), mimetype="text/css")
