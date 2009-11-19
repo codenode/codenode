@@ -4,7 +4,7 @@
 
 {% block extrahead %}
     {% compressed_css 'notebook' %}
-    <link href="/notebook/user_style" rel="stylesheet" type="text/css" />
+    <link href="/notebook/user_style?nocache={{ nocache }}" rel="stylesheet" type="text/css" />
     {% compressed_js 'notebook' %}
     <script type='text/javascript'>
     /* User Specific Settings */

@@ -21,5 +21,8 @@ class UserSettingsForm(ModelForm):
     
     class Meta:
         model = UserSettings
-        fields = ('notebook_opens_in_new_window',)
-
+        fields = (
+            'notebook_opens_in_new_window',
+            'show_cell_numbering',
+            'classic_style',
+        )

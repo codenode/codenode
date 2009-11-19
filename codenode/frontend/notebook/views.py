@@ -6,6 +6,7 @@
 # of the BSD License:  http://www.opensource.org/licenses/bsd-license.php
 #########################################################################
 
+import time
 from django.conf import settings
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
@@ -30,7 +31,9 @@ def notebook(request, nbid=None, owner=None, title=None, template_name='notebook
     if nbid: 
         nb = notebook_models.Notebook.objects.get(owner=request.user, guid=nbid)
         lastmod = nb.created_time #XXX
-        return render_to_response(template_name, {'title':nb.title, 'lastmod':lastmod, 'nbid':nbid, 'user':request.user})
+        tmpl_args = {'title':nb.title, 'lastmod':lastmod, 'nbid':nbid,  
+                    'user':request.user, 'nocache':time.time()}
+        return render_to_response(template_name, tmpl_args)
     
     # otherwise, we need to look it up and redirect
     assert owner and title
@@ -163,15 +166,16 @@ def share(request, nbid=None, template_name='notebook/share.html'):
                                               'allusers':allusers, 'user':request.user, 'title': nb.title})
 
 @login_required
-def user_style(request, template_name='notebook/user_style.css'):
+def user_style(request, template_name='notebook/style.css'):
     """User configurable dynamically created stylesheet. 
 
     Uses the Users style settings to render a custom
     style sheet that sets and overides default styles.
     """
-    user = request.user
-    profile = user.get_profile
-    t = loader.get_template(template_name)
-    test_data = {"show_numbers":True}
-    c = Context(test_data)
-    return HttpResponse(t.render(c), mimetype="text/css")
+    profile = request.user.get_profile()
+    tmpl = loader.get_template(template_name)
+    ctx = Context({
+        "show_cell_numbering":profile.show_cell_numbering,
+        "classic_style":profile.classic_style
+    })
+    return HttpResponse(tmpl.render(ctx), mimetype="text/css")

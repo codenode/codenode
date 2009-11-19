@@ -6,6 +6,8 @@
 # of the BSD License:  http://www.opensource.org/licenses/bsd-license.php
 #########################################################################
 
+from urlparse import urlparse
+
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
@@ -37,11 +39,16 @@ def usersettings(request, template_name='usersettings/usersettings.html'):
             passform.save()
         if settingsform.is_valid():
             settingsform.save()
-        return HttpResponseRedirect("/bookshelf/")
+        redirect = request.POST.get("referer")
+        return HttpResponseRedirect(redirect)
     else:
+        referer = urlparse(request.META.get('HTTP_REFERER', '')).path
+        if referer == '':
+            referer = "/bookshelf/"
         userform = forms.UserForm(instance=request.user)
         passform = PasswordChangeForm(request.user)
         settingsform = forms.UserSettingsForm(instance=profile)
-    return render_to_response(template_name, {'userform':userform, 'passform':passform, 'settingsform':settingsform, 'user':request.user})
+        tmpl_args = {'userform':userform, 'passform':passform, 'settingsform':settingsform, 'user':request.user, 'referer':referer}
+    return render_to_response(template_name, tmpl_args)
 
 

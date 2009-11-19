@@ -11,6 +11,11 @@ from django.contrib.auth.models import User
 
 class UserSettings(models.Model):
     notebook_opens_in_new_window = models.BooleanField(default=False)
+    show_cell_numbering = models.BooleanField(default=False)
+    classic_style = models.BooleanField(default=False)
     user = models.ForeignKey(User, unique=True)
+
+    class Meta:
+        verbose_name_plural = "User Settings"
 
 

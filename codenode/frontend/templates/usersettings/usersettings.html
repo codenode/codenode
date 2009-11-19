@@ -7,6 +7,15 @@
   <div id='container'>
 
     <h2 id='settings'>Settings</h1>
+
+    {% if user.is_staff %}
+      {% if user.is_superuser %}
+        <p>You have <i>SuperUser</i> priviledges. <a href="/admin">Click here for advanced settings</a>.</p>
+      {% else %}
+        <p>You have <i>Staff</i> priviledges. <a href="/admin">Click here for advanced settings</a>.</p>
+      {% endif %}
+    <br><hr>
+    {% endif %}
   
     <form id='createform' method="post" action="">
     
@@ -21,8 +30,16 @@
     <hr>
 
     {{ settingsform.errors }}
-    {{ settingsform.notebook_opens_in_new_window.label_tag }}: {{ settingsform.notebook_opens_in_new_window }}
+    <p>{{ settingsform.notebook_opens_in_new_window.label_tag }}: {{ settingsform.notebook_opens_in_new_window }}</p>
+    <p>{{ settingsform.show_cell_numbering.label_tag }}: {{ settingsform.show_cell_numbering }}</p>
+    <p>{{ settingsform.classic_style.label_tag }}: {{ settingsform.classic_style }}</p>
+
+    <hr>
+
+    <input type="hidden" id="referer" name="referer" value="{{ referer }}">
+
     <p class="submit"><input type="submit" value="Save Changes"></p>
+
     </form>
 
   </div>
