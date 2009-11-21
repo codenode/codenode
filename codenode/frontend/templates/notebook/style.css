@@ -3,7 +3,7 @@
 {% else %}
 
 .cell {
-    margin:10px 4px 0px 0px;
+    margin:10px 14px 0px 0px;
 }
 
 .cell.group {
@@ -22,14 +22,14 @@
 {% endif %}
 
 .cell .contents textarea.input {
-    border:1px solid #A8A8A8;
+    border:1px solid #bfbfbf;
     -moz-border-radius:2px;
     -webkit-border-radius:2px;
-    padding:8px;
+    padding:12px;
     font-size:14px;
 }       
 .cell .contents textarea.outputtext {
-    margin:4px 0px 0px 4px;
+    margin:-4px 0px -12px 4px;
     font-size:14px;
 }
    
@@ -38,7 +38,7 @@
 }
 .cell .contents textarea.input:hover {
     border:none;
-    padding:8px;
+    padding:12px;
 }
 .cell.output div.number {
     color:red;
@@ -50,6 +50,15 @@
 .cell .bracketng img {
     display:none;
 }
+.cell .spawner {
+    margin-top:6px;
+    width:98%;
+    margin-left:2%;
+}
+.cell .spawner textarea {
+    cursor:pointer;
+}
+
 
 /* Cell type "Title" */
 .cell.title .contents {
@@ -97,11 +106,17 @@
 }
 
 /* Cell type "Input" */
-.cell.input .contents textarea.input:hover {
-    border:2px solid #8888FE;
-    padding:7px;
+.cell.input .contents textarea.input {
+    -moz-box-shadow:0 0 6px #bfbfbf;
+    -webkit-box-shadow:0 0 6px #bfbfbf;
 }
-
+.cell.input .contents textarea.input:hover {
+    border:1px solid #A8A8A8;
+}
+.cell.input .contents textarea.input:focus {
+    border:2px solid #999ADF;
+    padding:11px;
+}
 /* Cell type "Output" */
 .cell.outpout .contents textarea.input:hover {
     padding:8px;
@@ -119,7 +134,10 @@
 .cell.group > .bracketng {
     background-color:#efefef;
     margin-right:8px;
-    width:3px;
+    width:5px;
+}
+.cell.group > .bracketng:hover {
+    background-color:#cfcfcf;
 }
 .bracketmasking {
     display:none;
@@ -137,10 +155,6 @@
      display:none;
 }
 {% endif %}
-
-.spawner > textarea.spawninput {
-    pointer:cursor;
-}
 
 
 {% endif %}/* end 'if classic_style'*/

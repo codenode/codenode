@@ -149,7 +149,10 @@ Notebook.DOM._bracket_group = function() {
 
 Notebook.DOM._spawner = function() {
     var node = $.DIV({ 'class':'spawner'},
-        $.TEXTAREA({'class':'spawninput'}));
+        $.TEXTAREA({
+            'class':'spawninput', 
+            'title':'Click, then start typing to create a new Cell.'     
+        }));
     node.lastChild.readOnly = true;
     return node;
 };
