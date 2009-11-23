@@ -10,6 +10,7 @@ class Command(NoArgsCommand):
 
     def handle_noargs(self, **options):
         abspath = os.path.abspath(".")
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
         server_log = os.path.join(abspath, 'data', 'server.log')
         static_files = os.path.join(abspath, 'frontend', 'static')
         cmd = "twistd "

@@ -26,7 +26,7 @@ from zope.interface import Interface, implements
 from codenode.backend import core
 
 # from codenode environment
-from backend import settings
+import _settings as settings
 
 BACKEND_VERSION = '0.2'
 
