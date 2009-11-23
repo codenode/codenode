@@ -141,6 +141,7 @@ INSTALLED_APPS = (
     'codenode.frontend.backend',
     'codenode.frontend.usersettings',
     'compress',
+    'codenode',
     'django_nose',
     'django_extensions',
 )
