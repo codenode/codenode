@@ -68,6 +68,24 @@ called a codenode *environment* and is the development version of::
 make-devel-env without recreating all of the env environment.
 
 
+Devel mode example
+------------------
+
+Open up a terminal and type::
+
+    $ cd $CODENODE_ROOT/devel
+    $ ./make-devel-env
+    $ ./frontend-devel
+
+Open a second terminal and type::
+
+    $ cd $CODENODE_ROOT/devel
+    $ ./backend-devel
+
+Now go to http://localhost:8000/admin, log in with the username and
+password that you entered from ``./make-devel-env``, and go to
+"Backend servers" and add a new, with "Server address" being "http://localhost:8337".
+
 
 Manhole
 -------
