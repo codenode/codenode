@@ -8,8 +8,6 @@ class Command(NoArgsCommand):
     """
 
     def handle_noargs(self, **options):
-
-        #os.environ['DJANGO_SETTINGS_MODULE'] = 'frontend.settings'
         abspath = os.path.abspath(".")
         cmd = "twistd "
         if not options.get('daemonize', False):
