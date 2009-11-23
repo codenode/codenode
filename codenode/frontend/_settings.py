@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'codenode.frontend.usersettings',
     'compress',
     'django_nose',
+    'django_extensions',
 )
 
 TEST_RUNNER = 'django_nose.run_tests'
