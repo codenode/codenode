@@ -176,7 +176,7 @@ class DesktopServiceMaker(object):
 
         desktop_service = service.MultiService()
 
-        staticfiles = options['env_path'] + "/frontend/static" #XXX
+        staticfiles = staticfiles = os.path.join(lib_path, 'frontend', 'static')
         datafiles = options['env_path'] + "/data/plot_images" #XXX
         #Temporary hack
         if not os.path.exists(datafiles):
@@ -229,6 +229,7 @@ class FrontendServiceMaker(object):
             staticfiles = os.path.join(lib_path, 'frontend', 'static')
         else:
             staticfiles = options['static_files']
+        
         datafiles = options['env_path'] + "/data/plot_images" #XXX
         #Temporary hack
         if not os.path.exists(datafiles):
