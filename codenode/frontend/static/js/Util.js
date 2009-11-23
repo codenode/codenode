@@ -104,3 +104,17 @@ Util.init = function() {
     $("#print_list").click(Util.printList); 
 };
 
+Util.helperCell = function() {
+    var n = Notebook.TreeBranch.spawnInputCellNode();
+    Notebook.TreeBranch.putCellNodeAtTop(n) 
+    n.content("Type code here. Hold down 'Shift' and hit 'Enter' to run the code.");
+    var txtarea = n.textareaNode();
+    var orignal_color = $(txtarea).css("color"); 
+    $(txtarea).css("color", "#bfbfbf");
+    $(txtarea).one("focus", function(evt){
+        $(txtarea).val("");
+        $(txtarea).css("color", orignal_color); 
+    });
+};
+
+
