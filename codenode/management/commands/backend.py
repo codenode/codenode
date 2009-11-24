@@ -2,6 +2,9 @@ import os
 
 from django.core.management.base import NoArgsCommand
 
+from run import run
+
+
 class Command(NoArgsCommand):
     """
     Run a Backend Server.
@@ -15,4 +18,4 @@ class Command(NoArgsCommand):
             cmd += "-n "
         cmd += "codenode-backend "
         cmd += "--env_path=%s " % abspath
-        os.system(cmd)
+        run(cmd.split()[1:])

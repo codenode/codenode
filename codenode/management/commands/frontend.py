@@ -2,6 +2,8 @@ import os
 
 from django.core.management.base import NoArgsCommand
 
+from run import run
+
 class Command(NoArgsCommand):
     """
     Run the Frontend server.
@@ -19,4 +21,5 @@ class Command(NoArgsCommand):
         cmd += "--env_path=%s " % abspath
         cmd += "--server_log=%s " % server_log
         cmd += "--static_files=%s " % static_files
-        os.system(cmd)
+            
+        run(cmd.split()[1:])

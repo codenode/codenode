@@ -2,6 +2,22 @@ import os
 
 from django.core.management.base import NoArgsCommand
 
+from twisted.scripts.twistd import ServerOptions, runApp
+from twisted.application.app import run
+
+
+def run(options):
+    """ this reimplements twisted.application.app.run to use an option array, instead of argvs"""
+    config = ServerOptions()
+    try:
+        config.parseOptions(options=options)
+    except usage.error, ue:
+        print config
+        print "%s: %s" % (sys.argv[0], ue)
+    else:
+        runApp(config)
+
+
 class Command(NoArgsCommand):
     """
     Run local desktop version of Codenode.  
@@ -20,4 +36,4 @@ class Command(NoArgsCommand):
         cmd += "--env_path=%s " % abspath
         cmd += "--server_log=%s " % server_log
         cmd += "--static_files=%s " % static_files
-        os.system(cmd)
+        run(cmd.split()[1:])
