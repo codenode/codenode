@@ -2,7 +2,7 @@ import os
 
 from django.core.management.base import NoArgsCommand
 
-from run import run
+from codenode_desktop import run
 
 
 class Command(NoArgsCommand):
