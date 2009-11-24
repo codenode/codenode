@@ -10,7 +10,6 @@ class Command(NoArgsCommand):
     """
 
     def handle_noargs(self, **options):
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
         abspath = os.path.abspath(env_path)
         server_log = os.path.join(abspath, 'data', 'server.log')
         static_files = os.path.join(abspath, 'frontend', 'static')
