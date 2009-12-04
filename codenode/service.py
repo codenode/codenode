@@ -15,7 +15,7 @@ import commands
 
 from zope.interface import implements
 
-from codenode.external.twisted.web import server, resource, wsgi, static
+from twisted.web import server, resource, wsgi, static
 from twisted.cred import portal, checkers, credentials
 from twisted.internet import reactor, defer
 from twisted.application import internet, service
