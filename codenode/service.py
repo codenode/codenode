@@ -148,7 +148,7 @@ class BackendSupervisor(procmon.ProcessMonitor):
         p = self.protocols[name] = procmon.LoggingProtocol()
         p.service = self
         p.name = name
-        args, uid, gid = self.processes[name]
+        args, uid, gid, env = self.processes[name]
         self.timeStarted[name] = procmon.time.time()
         reactor.spawnProcess(p, args[0], args, env=None, uid=uid, gid=gid)
 
