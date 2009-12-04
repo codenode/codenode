@@ -88,7 +88,7 @@ APP_PORT = 8000
 ENV_PATH = os.path.join(os.path.abspath('.'), 'data') #XXX
 PLOT_IMAGES = os.path.join(ENV_PATH, 'plot_images')
 
-COMPRESS = True
+COMPRESS = False
 COMPRESS_VERSION = True
 COMPRESS_CSS_FILTERS = None #('compress.filters.csstidy_python.CSSTidyFilter', ) 
 
