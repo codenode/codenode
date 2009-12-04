@@ -24,6 +24,9 @@ Notebook.Async.initialize = function() {
     // eval json written to html body by server
     var url = DATA_URL+'nbobject';
     var success = function (res) {
+         if (res.orderlist == "orderlist"){ //no cells exists
+            Util.helperCell();
+        }
         Notebook.Load.takeCellsData(res);
         }
     $.getJSON(url, success);

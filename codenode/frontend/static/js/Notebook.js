@@ -91,7 +91,6 @@ Notebook.initialize = function() {
     Notebook.cellid = 0;
     //topnode.setFocus();
     Util.nbTitle(document.title);
-    Util.helperCell();
     $('#titlecontainer').bind('click', Util.startChangeTitle);//xxx eventHack
     var contextmenu = Notebook.DOM.contextMenu();
     $('#foot').after(contextmenu);
