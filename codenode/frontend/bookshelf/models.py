@@ -21,7 +21,7 @@ class Folder(models.Model):
 
     def save(self):
         if not self.guid:
-            self.guid = str(uuid.uuid4()).replace("-", "")
+            self.guid = unicode(uuid.uuid4()).replace("-", "")
         super(Folder, self).save()
 
     class Meta:

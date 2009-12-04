@@ -3,8 +3,8 @@ from django.test.client import Client
 from django.test import TestCase
 from django.utils import simplejson as json
 
-from codenode.frontend.bookshelf import models
 from codenode.frontend.bookshelf import views
+from codenode.frontend.bookshelf.models import Folder
 
 
 class TestBookshelf(TestCase):
@@ -19,12 +19,12 @@ class TestBookshelf(TestCase):
 
     def tearDown(self):
         f = {}
-        allfolders = models.Folder.objects.all()
+        allfolders = Folder.objects.all()
         for folder in allfolders:
             folder.delete()
 
     def test_add_folder(self):
-        folder = models.Folder(owner=self.user1, title="test_folder1")
+        folder = Folder(owner=self.user1, title="test_folder1")
         folder.save()
 
         # login 

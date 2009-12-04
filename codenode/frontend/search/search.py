@@ -16,7 +16,8 @@ from whoosh.filedb.filestore import FileStorage
 from django.db.models import signals
 from django.conf import settings
 
-from codenode.frontend.notebook import models
+from codenode import frontend
+from codenode.frontend.notebook.models import Notebook, Cell
 
 SEARCH_INDEX = settings.SEARCH_INDEX
 SEARCH_SCHEMA = Schema(
@@ -43,7 +44,7 @@ def update_index(**kwargs):
     writer.add_document(nbid=nbid, owner=owner, title=title, content=content)
     writer.commit()
 #Django signal registration
-signals.post_save.connect(update_index, sender=models.Cell)
+signals.post_save.connect(update_index, sender=Cell)
 
 def search(q, default_field="content"):
     ix = index.open_dir(SEARCH_INDEX)
@@ -64,4 +65,4 @@ def delete(**kwargs):
     number_deleted = ix.delete_by_query(query)
     ix.commit()
 #Django signal registration
-signals.post_delete.connect(delete, sender=models.Notebook)
+signals.post_delete.connect(delete, sender=Notebook)
