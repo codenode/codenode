@@ -51,6 +51,7 @@ package_data = {'codenode':[
     'frontend/templates/compress/*.html',
     'frontend/templates/bookshelf/*.html',
     'frontend/templates/notebook/*.html',
+    'frontend/templates/notebook/*.css',
     'frontend/templates/usersettings/*.html',
 ]}
 
@@ -61,7 +62,7 @@ setup(
     version='0.1',
     url='http://codenode.org',
     download_url='http://pypi.python.org/pypi/codenode',
-    install_requires=['Twisted>=8.2.0', 'Django>=1.0.2-final', 'Whoosh>=0.2.5', 'Sphinx', 'simplejson'],
+    install_requires=['Twisted>=9.0.0', 'Django>=1.1.1', 'Whoosh>=0.3.9', 'Sphinx', 'simplejson'],
     packages=packages,
     package_data=package_data,
     scripts=["codenode/scripts/codenode-admin"],

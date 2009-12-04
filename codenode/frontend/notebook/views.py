@@ -18,6 +18,7 @@ from django.core.urlresolvers import reverse
 
 from codenode.frontend.bookshelf import models as bookshelf_models
 from codenode.frontend.notebook import models as notebook_models
+from codenode.frontend.usersettings.models import UserSettings
 
 from codenode.frontend.notebook import forms 
 
@@ -172,7 +173,12 @@ def user_style(request, template_name='notebook/style.css'):
     Uses the Users style settings to render a custom
     style sheet that sets and overides default styles.
     """
-    profile = request.user.get_profile()
+    try:
+        profile = request.user.get_profile()
+    except UserSettings.DoesNotExist:
+        s = UserSettings(user=request.user)
+        s.save()
+        profile = request.user.get_profile()
     tmpl = loader.get_template(template_name)
     ctx = Context({
         "show_cell_numbering":profile.show_cell_numbering,

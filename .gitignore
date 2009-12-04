@@ -4,3 +4,5 @@
 dropin.cache
 build/
 devel/env
+codenode.egg-info/
+dist/
