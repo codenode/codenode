@@ -52,7 +52,7 @@ def init_command(name=None, test=False):
         settingsfile = osjoin(osjoin(pkgroot, dir), "_settings.py")
         shutil.copyfile(settingsfile,  osjoin(osjoin(envroot, dir), "settings.py"))
 
-    for dir in ["static", "templates", "compress"]:
+    for dir in ["static", "templates"]:
         dirroot = osjoin("frontend", dir)
         pkgdirroot = osjoin(pkgroot, dirroot)
         copytree(pkgdirroot, osjoin(envroot, dirroot))

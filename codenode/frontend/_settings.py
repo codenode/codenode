@@ -39,12 +39,12 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(os.path.abspath("."), 'frontend/static')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/'
+MEDIA_URL = '/static/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -88,37 +88,39 @@ APP_PORT = 8000
 ENV_PATH = os.path.join(os.path.abspath('.'), 'data') #XXX
 PLOT_IMAGES = os.path.join(ENV_PATH, 'plot_images')
 
-COMPRESS = False
+COMPRESS = True
 COMPRESS_VERSION = True
-COMPRESS_CSS_FILTERS = None #('apps.compress.filters.csstidy_python.CSSTidyFilter', ) #MUST use 'apps.compress..."
+COMPRESS_CSS_FILTERS = None #('compress.filters.csstidy_python.CSSTidyFilter', ) 
 
 COMPRESS_CSS = {
     'bookshelf': {
-        'source_filenames': ('static/css/bookshelf.css', ),
-        'output_filename': 'static/css/bookshelf_compressed.css',
+        'source_filenames': ('css/bookshelf.css', ),
+        'output_filename': 'css/bookshelf_compressed.css',
     },
     'notebook': {
-        'source_filenames': ('static/css/notebook.css', ),
-        'output_filename': 'static/css/notebook_compressed.css',
+        'source_filenames': ('css/notebook.css', ),
+        'output_filename': 'css/notebook_compressed.css',
     }
 }
 
 COMPRESS_JS = {
     'bookshelf': {
-        'source_filenames': ('static/external/jquery.js', 'static/external/jquery-ui.min.js', 'static/external/jquery.color.js',
-            'static/external/jquery.dom.js', 'static/external/jquery.contextmenu.js', 'static/external/jqModal.dev.js',
-            'static/external/splitter.js', 'static/js/bookshelf.js'),
-        'output_filename': 'static/js/bookshelf_compressed.js',
+        'source_filenames': ('external/jquery.min.js', 'external/jquery-ui.min.js', 
+                'external/jquery.color.js', 'external/jquery.dom.js', 
+                'external/jquery.contextmenu.js', 'external/jqModal.dev.js',
+                'external/splitter.js', 'js/bookshelf.js'),
+        'output_filename': 'js/bookshelf_compressed.js',
     },
 
     'notebook': {
-        'source_filenames': ('static/external/jquery.js', 'static/external/jquery.ifixpng.js', 'static/external/jquery.contextmenu.js',
-            'static/external/jquery.dom.js', 'static/js/BrowserDetect.js', 'static/js/Notebook.js',
-            'static/js/Indicator.js', 'static/js/Cell.js', 'static/js/Async.js', 'static/js/Delegator.js',
-            'static/js/DOM.js', 'static/js/SaveLoad.js', 'static/js/Spawner.js', 'static/js/TreeBranch.js',
-            'static/js/Completer.js', 'static/js/Util.js', 'static/external/json2.js', 'static/external/jquery.dimensions.js',
-            'static/external/jquery.fieldselection.js', 'static/external/jqModal.dev.js'),
-        'output_filename': 'static/js/notebook_compressed.js',
+        'source_filenames': ('external/jquery.min.js', 'external/jquery.ifixpng.js', 
+                'external/jquery.contextmenu.js', 'external/jquery.dom.js', 
+                'js/BrowserDetect.js', 'js/Notebook.js', 'js/Indicator.js', 
+                'js/Cell.js', 'js/Async.js', 'js/Delegator.js', 'js/DOM.js', 
+                'js/SaveLoad.js', 'js/Spawner.js', 'js/TreeBranch.js', 'js/Completer.js', 
+                'js/Util.js', 'external/json2.js', 'external/jquery.dimensions.js',
+            'external/jquery.fieldselection.js', 'external/jqModal.dev.js'),
+        'output_filename': 'js/notebook_compressed.js',
     }
 }
 
