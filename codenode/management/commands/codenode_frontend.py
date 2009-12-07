@@ -17,7 +17,7 @@ class Command(NoArgsCommand):
         cmd += "codenode-frontend "
         cmd += "--env_path=%s " % settings.HOME_PATH
         cmd += "--server_log=%s " % os.path.join(settings.HOME_PATH, 'server.log')
-        cmd += "--static_files=%s " % os.path.join(settings.PROJECT_PATH, 'static')
+        cmd += "--static_files=%s " % settings.MEDIA_ROOT
         run(cmd.split()[1:])
             
         run(cmd.split()[1:])
