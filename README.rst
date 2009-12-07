@@ -26,19 +26,22 @@ Quickstart
 
 ::
 
-  $ codenode-admin init -name mycodenode
-  $ cd mycodenode
-  $ codenode-admin run 
+  $ codenode-admin codenode_desktop
+  
 Now open browser to http://localhost:8000
 
 
 **Running tests:**
+
+::
 
   $ run ./test.sh in this directory
   
 Requires installation of nose and django_nose. See http://somethingaboutorange.com/mrl/projects/nose and http://github.com/jbalogh/django-nose
 
 If you have pip installed, it can be as easy as: 
+
+::
   
   $ pip install nose
   $ pip install django-nose
