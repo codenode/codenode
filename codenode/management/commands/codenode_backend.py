@@ -1,6 +1,7 @@
 import os
 
 from django.core.management.base import NoArgsCommand
+from django.conf import settings 
 
 from codenode_desktop import run
 
@@ -16,5 +17,5 @@ class Command(NoArgsCommand):
         if not options.get('daemonize', False):
             cmd += "-n "
         cmd += "codenode-backend "
-        cmd += "--env_path=%s " % abspath
+        cmd += "--env_path=%s " % settings.HOME_PATH
         run(cmd.split()[1:])

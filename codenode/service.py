@@ -22,6 +22,8 @@ from twisted.application import internet, service
 from twisted.python import usage
 from twisted.runner import procmon
 
+from django.conf import settings
+
 from codenode.frontend.async import backend
 
 import codenode
@@ -171,19 +173,13 @@ class DesktopServiceMaker(object):
         The kernel server process is another twistd plugin, and needs a 
         few options passed to it.  
         """
-        from codenode.frontend.search import search
-        search.create_index()
-
         desktop_service = service.MultiService()
 
-        staticfiles = staticfiles = os.path.join(lib_path, 'frontend', 'static')
-        datafiles = options['env_path'] + "/data/plot_images" #XXX
-        #Temporary hack
-        if not os.path.exists(datafiles):
-            os.mkdir(datafiles)
-        web_resource = webResourceFactory(staticfiles, datafiles)
-        serverlog = options['env_path'] + "/data/server.log" #XXX
-        web_resource_factory = server.Site(web_resource, logPath=serverlog)
+        
+        web_resource_factory = server.Site(
+            webResourceFactory(settings.MEDIA_ROOT, settings.HOME_PATH),
+            logPath=options['server_log']
+        )
 
         tcp_server = internet.TCPServer(options['port'],
                                     web_resource_factory,

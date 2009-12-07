@@ -1,8 +1,15 @@
 import os
 import sys
 import commands
+
+# To make the paths clearer I have moved them to the top of the file.
+# There are two paths, the PROJECT_PATH is a link into the code and static assets
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(PROJECT_PATH, "."))
+
+# The HOME_PATH (formally ENV_PATH) is a link to data, plots, search indexes, etc
+HOME_PATH = os.path.join(os.path.abspath('.'), 'data')
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -14,7 +21,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = PROJECT_PATH+'/../data/codenode.db' # Or path to database file if using sqlite3.
+DATABASE_NAME = os.path.join(HOME_PATH, 'codenode.db') # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -39,7 +46,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(os.path.abspath("."), 'frontend/static')
+MEDIA_ROOT = os.path.join(PROJECT_PATH, 'static')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -78,15 +85,13 @@ AUTH_PROFILE_MODULE = "usersettings.UserSettings"
 
 ###############################
 #Search
-SEARCH_INDEX = PROJECT_PATH+'/../data/search_index'
+SEARCH_INDEX = os.path.join(HOME_PATH, 'search_index')
 
 APP_HOST = 'localhost'
 APP_PORT = 8000
 
 #Available types of notebooks: #XXX Clean up and do intelligent detection:
-
-ENV_PATH = os.path.join(os.path.abspath('.'), 'data') #XXX
-PLOT_IMAGES = os.path.join(ENV_PATH, 'plot_images')
+PLOT_IMAGES = os.path.join(HOME_PATH, 'plot_images')
 
 COMPRESS = False
 COMPRESS_VERSION = True
