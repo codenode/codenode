@@ -24,7 +24,8 @@ $(document).ready(function(){
             {% if form.errors %}
             <span class="error">Login failed, please try again.</span>
             {% endif %}
-        <form action="/accounts/login/?next=/bookshelf/" method="post">
+        <form action="/accounts/login/?next=/bookshelf/"
+            method="post"> {% csrf_token %}
              {# {% if form.username.errors %} <span class="error">{{ form.username.errors|join:", " }}</span>{% endif %} #}
              <div class='in'>Username: {{ form.username }}</div>
              {# {% if form.password.errors %} <span class="error">{{ form.password.errors|join:", " }}</span>{% endif %} #}

@@ -4,7 +4,7 @@ import uuid
 import pickle
 from StringIO import StringIO
 
-from pylab import show, savefig 
+from pylab import show, savefig, close 
 
 # cache pylab's original show function
 _original_show = show
@@ -21,4 +21,5 @@ def show(fn=None, *args, **kwargs):
     f.close()
     os.unlink(realpath)
     sys.stdout.write(data)
+    close()
     

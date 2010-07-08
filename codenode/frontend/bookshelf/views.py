@@ -11,6 +11,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.utils import simplejson as json
 from django.contrib.auth.decorators import login_required
+from django.core.context_processors import csrf
+
 
 from codenode.frontend.bookshelf import models as bookshelf_models
 from codenode.frontend.notebook import models as notebook_models
@@ -21,10 +23,11 @@ from codenode.frontend.backend import rpc
 def bookshelf(request, template_name='bookshelf/bookshelf.html'):
     """Render the Bookshelf interface.
     """
-    #engine_types = backend_models.EngineType.objects.values_list("name", flat=True)
     engine_types = backend_models.EngineType.objects.all()
-    return render_to_response(template_name, 
-        {'engine_types':engine_types, 'path':request.path}, context_instance=RequestContext(request))
+    c = {'engine_types':engine_types, 'path':request.path}
+    c.update(csrf(request))
+    #engine_types = backend_models.EngineType.objects.values_list("name", flat=True)
+    return render_to_response(template_name,c, context_instance=RequestContext(request))
 
 @login_required
 def load_bookshelf_data(request):

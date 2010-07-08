@@ -93,7 +93,7 @@ from math import sin, cos, modf, pi #for hue and polar_plot
 import md5
 import time
 
-from matplotlib.numerix import arange
+from numpy import arange
 
 #2D Graphics Axes class:
 from axes import Axes
@@ -1409,7 +1409,7 @@ class GraphicPrimitiveFactory_contour_plot(GraphicPrimitiveFactory):
 
 class GraphicPrimitiveFactory_matrix_plot(GraphicPrimitiveFactory):
     def __call__(self, mat, **kwds):
-        from matplotlib.numerix import array
+        from numpy import array
         if not (isinstance(mat, (list, tuple)) and isinstance(mat[0], (list, tuple))):
             raise TypeError, "mat must be a two dimensional array"
         options = dict(self.options)

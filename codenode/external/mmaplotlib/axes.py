@@ -31,7 +31,7 @@ The following axes types are supported:
 """
 from math import floor, log
 
-from matplotlib.numerix import arange
+from numpy import arange
 
 class Axes(object):
     """

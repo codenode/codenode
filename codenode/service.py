@@ -21,6 +21,7 @@ from twisted.internet import reactor, defer
 from twisted.application import internet, service
 from twisted.python import usage
 from twisted.runner import procmon
+import time
 
 from django.conf import settings
 
@@ -151,7 +152,7 @@ class BackendSupervisor(procmon.ProcessMonitor):
         p.service = self
         p.name = name
         args, uid, gid, env = self.processes[name]
-        self.timeStarted[name] = procmon.time.time()
+        self.timeStarted[name] = time.time()
         reactor.spawnProcess(p, args[0], args, env=None, uid=uid, gid=gid)
 
 
