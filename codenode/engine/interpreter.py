@@ -50,11 +50,12 @@ class Interpreter(InteractiveInterpreter):
         self.input_count = 0
         self.interrupted = False
 
-    def _result_dict(self, out, in_string='', err='', in_count='', cmd_count=''):
+    def _result_dict(self, out, cellstyle='outputtext', in_string='', err='', in_count='', cmd_count=''):
         return {'input_count':in_count, 
                     'cmd_count':cmd_count, 
                     'in':in_string, 
                     'out':out, 
+                    'cellstyle': cellstyle,
                     'err':err}
 
 
@@ -70,14 +71,16 @@ class Interpreter(InteractiveInterpreter):
         usernamespace"""
         self.output_trap.set()
         command_count = self._runcommands(input_string)
-        out_values = self.output_trap.get_values()
+        stdout, stderr = self.output_trap.get_values()
+        cellstyle, stdout = self._parse_stdout(stdout)
         self.output_trap.reset()
         self.input_count += 1
         result = {'input_count':self.input_count, 
                     'cmd_count':command_count, 
                     'in':input_string, 
-                    'out':out_values[0], 
-                    'err':out_values[1]}
+                    'cellstyle': cellstyle,
+                    'out':stdout, 
+                    'err':stderr}
         return result
 
     def introspect(self, input_string):
@@ -197,6 +200,27 @@ class Interpreter(InteractiveInterpreter):
             return input_string
 
 
+    def _parse_stdout(self, output):
+        """Parse output and return the (cell type, cell output)
+
+        Necessary to extract an image from surrounding text.  The tag 
+        should enclose the data, i.e. 
+
+           __celltype__
+           Data...
+           __celltype__
+        """
+        
+        cell_types = ['outputimage']
+        default_cell_type = 'outputtext'
+
+        for ctype in cell_types: 
+            tag = '__%s__' % ctype
+            if tag in output and output.count(tag) > 1: 
+                # return the last possible chunk
+                return (ctype, output.split(tag)[-2])
+        
+        return default_cell_type, output
 
 
 

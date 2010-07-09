@@ -214,18 +214,13 @@ class EngineSessionAdapter(resource.Resource):
     def _success(self, data, request, cellid):
         """
         horrible. not always eval...
-        """
-        out = data['out']
-        if type(out) is str:
-            if out.startswith("__imagefile__"):
-                image_pick = out[13:]
-                image_io = pickle.loads(image_pick)
-                image = image_io.getvalue()
-                image_file_name = write_image(image)
-                data['out'] = image_file_name
-                data['cellstyle'] = 'outputimage'
-            else:
-                data['cellstyle'] = 'outputtext'
+        """        
+        log.msg('handling data: %s' % str(data))
+        if data['cellstyle'] == 'outputimage':
+            image_data = pickle.loads(data['out']).getvalue()
+            image_file_name = write_image(image_data)
+            data['out'] = image_file_name
+
         data['cellid'] = cellid
         jsobj = json.dumps(data)
         request.write(jsobj)

@@ -4,22 +4,17 @@ import uuid
 import pickle
 from StringIO import StringIO
 
-from pylab import show, savefig, close 
+from pylab import show, savefig
+from pylab import close as close_figure 
 
 # cache pylab's original show function
 _original_show = show
 
 def show(fn=None, *args, **kwargs):
-    fn = str(uuid.uuid4()) + '.png'
-    realpath = os.path.join(os.path.abspath('.'), fn)
-    savefig(realpath, dpi=80, **kwargs)
-    f = open(realpath)
     s = StringIO()
-    s.write(f.read())
+    savefig(s, dpi=80, **kwargs)
     p = pickle.dumps(s)
-    data = "__imagefile__" + p
-    f.close()
-    os.unlink(realpath)
+    data = "__outputimage__" + p + "__outputimage__"
     sys.stdout.write(data)
-    close()
+    close_figure()
     
