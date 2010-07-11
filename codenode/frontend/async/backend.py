@@ -216,7 +216,7 @@ class EngineSessionAdapter(resource.Resource):
         horrible. not always eval...
         """        
         log.msg('handling data: %s' % str(data))
-        if data['cellstyle'] == 'outputimage':
+        if 'cellstyle' in data and data['cellstyle'] == 'outputimage':
             image_data = pickle.loads(data['out']).getvalue()
             image_file_name = write_image(image_data)
             data['out'] = image_file_name
