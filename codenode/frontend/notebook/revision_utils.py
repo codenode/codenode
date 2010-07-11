@@ -14,7 +14,6 @@ def get_nb_revisions(nbid, n=25):
 
     TODO: Only show 'n' revisions per page.
     """
-    print
     #Get all Notebook revisions, orderlist='orderlist' means there are no meaningful revisions:
     nbrevs = Notebook.revisions.filter(guid=nbid).exclude(orderlist='orderlist')
     revisions = []
