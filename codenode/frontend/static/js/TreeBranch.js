@@ -143,9 +143,17 @@ Notebook.TreeBranch.deleteCellNode = function(node) {
     var self = Notebook.TreeBranch;
     var branchesbranch = $(node)[0].getParentBranch().getParentBranch();
     self.collapseBranch($(node)[0].getParentBranch());
+    
+    if (!node.isGroup()) {
+        //very hack, assumes one output cell after input...and stuff
+        self.removeCellNode(node.nextCell());
+    }
+    
     $(node).remove();
-    self.sieveBranch(branchesbranch);
 
+    self.sieveBranch(branchesbranch);
+    // TODO: proper handlers for save result.  Create an async.save method?
+    Notebook.Save._save(function() {}, function() {});
 };
 
 Notebook.TreeBranch.setOutputCell = function(outputnode, inputid) {

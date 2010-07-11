@@ -491,7 +491,7 @@ spawnerDownArrowAction.handler = function(e) {
 };
 
 bracketKeyDelete = new Notebook.Action('backkeydel');
-bracketKeyDelete.keyCodes = [46];
+bracketKeyDelete.keyCodes = [46,8];
 bracketKeyDelete.type = 'keydown';
 bracketKeyDelete.handler = function(e) {
     Notebook.bracketSelector.deleteSelections();
@@ -573,6 +573,9 @@ Notebook.__init__.Delegator = function() {
             },
             'toinput': function(t) {
                 Notebook.bracketSelector.modifySelectionStyle('input');
+            },
+            'delete': function(t) {
+                Notebook.bracketSelector.deleteSelections();
             }
         },
         onContextMenu: function(e) {

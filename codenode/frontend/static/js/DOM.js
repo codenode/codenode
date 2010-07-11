@@ -178,7 +178,8 @@ Notebook.DOM.contextMenu = function() {
                 $.LI({'id':'tosubsection'}, 'Subsection'),
                 $.LI({'id':'totext'}, 'Text'),
                 $.LI({'id':'toinput'}, 'Input'),
-                $.LI({'id':'tooutput'}, 'Output')
+                $.LI({'id':'tooutput'}, 'Output'),
+                $.LI({'id':'delete'}, 'Delete')
               ));
 };
 
