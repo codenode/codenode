@@ -121,17 +121,22 @@ class AuditTrailDescriptor(object):
 def create_audit_manager_with_pk(manager, pk_attribute, pk):
     """Create an audit trail manager based on the current object"""
     class AuditTrailWithPkManager(manager.__class__):
-        def __init__(self):
+        def __init__(self, *arg, **kw):
+            super(AuditTrailWithPkManager, self).__init__(*arg, **kw)
             self.model = manager.model
 
         def get_query_set(self):
-            return super(AuditTrailWithPkManager, self).get_query_set().filter(**{pk_attribute: pk})
+            qs = super(AuditTrailWithPkManager, self).get_query_set().filter(**{pk_attribute: pk})
+            if self._db is not None:
+                qs = qs.using(self._db)
+            return qs
     return AuditTrailWithPkManager()
 
 def create_audit_manager_class(manager):
     """Create an audit trail manager based on the current object"""
     class AuditTrailManager(manager.__class__):
-        def __init__(self):
+        def __init__(self, *arg, **kw):
+            super(AuditTrailManager, self).__init__(*arg, **kw)
             self.model = manager.model
     return AuditTrailManager()
 
@@ -174,6 +179,13 @@ def create_audit_model(cls, **kwargs):
             # If a model has primary_key = True, a second primary key would be
             # created in the audit model. Set primary_key to false.
             attrs[field.name].primary_key = False
+
+            # Rebuild and replace the 'rel' object to avoid foreign key clashes.
+            # Borrowed from the Basie project - please check if adding this is allowed by the license.
+            if isinstance(field, models.ForeignKey):
+                rel = copy.copy(field.rel)
+                rel.related_name = '_audit_' + field.related_query_name()
+                attrs[field.name].rel = rel
 
     for track_field in _track_fields(kwargs['track_fields']):
         if track_field['name'] in attrs:
