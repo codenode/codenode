@@ -14,6 +14,7 @@ def get_nb_revisions(nbid, n=25):
 
     TODO: Only show 'n' revisions per page.
     """
+    print
     #Get all Notebook revisions, orderlist='orderlist' means there are no meaningful revisions:
     nbrevs = Notebook.revisions.filter(guid=nbid).exclude(orderlist='orderlist')
     revisions = []
@@ -29,6 +30,8 @@ def get_unique_revisions(revisions):
     """Find in-order unique revisions.
     In other words, drop all in-a-row duplicate revisions.
     """
+    if len(revisions) == 0:
+        return []
     uniques = []
     current_audit_id, current_audit_ts, current = revisions.pop(0)
     for (current_audit_id, current_audit_ts, previous) in revisions:
