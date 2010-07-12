@@ -86,9 +86,14 @@ Notebook.Delegator.prototype = {
         var self = e.data;
         var target_selector = e.target.tagName.toLowerCase() + '.' + e.target.className;
         var target_group = self.targets[target_selector];
-        //if (target_group != undefined) {
+
         if (target_group) {
             var group_element = $(e.target).parents(target_group);
+            
+            // console.log('delegating ' + target_selector + ' event to ' + 
+            //     group_element + ' specified by ' + target_group
+            // ) 
+            
             e.groupNode = group_element[0];
             e.mode = self.mode;
             var acts = self.groups[target_group][target_selector];
@@ -100,7 +105,7 @@ Notebook.Delegator.prototype = {
                 }
             }
             return;
-        }
+        } 
         return;
     }
 };
@@ -285,6 +290,7 @@ Notebook.ClickAction.prototype = {
 bracketClick = new Notebook.ClickAction('braclick');
 bracketClick.type = 'click';
 bracketClick.handler = function(e) {
+    console.log('bracketSelector.select ' + e.groupNode);
     Notebook.bracketSelector.select(e.groupNode.id);
 };
 
@@ -534,12 +540,14 @@ Notebook.__init__.Delegator = function() {
                                 mainNullClick,
                                 cellContentChange,
                                 bracketRightDown],
+        },
+        'div.cell.group': {
             'span.bracketng': [bracketClick,
                             bracketSelectMore,
                             //cellContextMenu,
                             bracketRightDown,
                             bracketDblClick,
-                            bracketKeyDelete]
+                            bracketKeyDelete],
         },
         'div.cell.output': {
             'textarea.outputtext': [cellUpArrowAction,
