@@ -62,7 +62,7 @@
             <div class='infobar'>
               <span id='location'>
                 <form id='rename-folder'>
-                  <input class='location-name'></input>
+                  <input class='location-name'/>
                 </form>
               </span>
               <span class='pointer' id='delete-folder'>Delete Folder</span>
@@ -70,10 +70,12 @@
             <div class='datatable'>
               <table class="notebookview" cellspacing="0">
                 <thead>
-                  <td id='column_checked'>&nbsp;</td>
-                  <td id='column_title' class='sortable'>Title</td>
-                  <td id='column_backend' class='sortable'>Engine</td>
-                  <td id='column_lastmodified' class='sortable'>Date</td>
+                  <tr>
+                      <td id='column_checked'>&nbsp;</td>
+                      <td id='column_title' class='sortable'>Title</td>
+                      <td id='column_backend' class='sortable'>Engine</td>
+                      <td id='column_lastmodified' class='sortable'>Date</td>
+                  </tr>
                 </thead>
                 <tbody class='notebooktbody'></tbody>
               </table>

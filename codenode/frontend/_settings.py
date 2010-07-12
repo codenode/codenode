@@ -110,25 +110,47 @@ COMPRESS_CSS = {
 
 COMPRESS_JS = {
     'bookshelf': {
-        'source_filenames': ('external/jquery.min.js', 'external/jquery-ui.min.js', 
-                'external/jquery.color.js', 'external/jquery.dom.js', 
-                'external/jquery.contextmenu.js', 'external/jqModal.dev.js',
-                'external/splitter.js', 'js/bookshelf.js'),
+        'source_filenames': (
+            'external/jquery.js', 
+            'external/jquery-ui.min.js', 
+            'external/jquery.color.js', 
+            'external/jquery.dom.js', 
+            'external/jquery.contextmenu.js', 
+            'external/jqModal.dev.js',
+            'external/splitter.js', 
+            
+            'js/bookshelf.js'
+        ),
         'output_filename': 'js/bookshelf_compressed.js',
     },
 
     'notebook': {
-        'source_filenames': ('external/jquery.min.js', 'external/jquery.ifixpng.js', 
-                'external/jquery.contextmenu.js', 'external/jquery.dom.js', 
-                'js/BrowserDetect.js', 'js/Notebook.js', 'js/Indicator.js', 
-                'js/Cell.js', 'js/Async.js', 'js/Delegator.js', 'js/DOM.js', 
-                'js/SaveLoad.js', 'js/Spawner.js', 'js/TreeBranch.js', 'js/Completer.js', 
-                'js/Util.js', 'external/json2.js', 'external/jquery.dimensions.js',
-            'external/jquery.fieldselection.js', 'external/jqModal.dev.js'),
+        'source_filenames': (
+            'external/jquery.min.js', 
+            'external/jquery.ifixpng.js', 
+            'external/jquery.contextmenu.js', 
+            'external/jquery.dom.js', 
+            'external/json2.js',
+            'external/jquery.dimensions.js',
+            'external/jquery.fieldselection.js',
+            'external/jqModal.dev.js',
+            
+            'js/BrowserDetect.js', #53: remove browser detection
+            'js/Notebook.js', 
+            'js/Indicator.js', 
+            'js/Cell.js',
+            'js/Async.js', 
+            'js/Delegator.js', 
+            'js/DOM.js', 
+            'js/SaveLoad.js', 
+            'js/Spawner.js', 
+            'js/TreeBranch.js', 
+            'js/Completer.js', 
+            'js/Util.js',      
+        ),
         'output_filename': 'js/notebook_compressed.js',
     }
 }
-
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_PATH, 'templates')
 )

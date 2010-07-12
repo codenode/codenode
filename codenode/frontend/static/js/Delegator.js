@@ -520,7 +520,7 @@ Notebook.__init__.Delegator = function() {
                                     spawnerDownArrowAction,
                                     spawnerUpArrowAction]
         },
-        'div.cell input': {
+        'div.cell.input': {
             'textarea.input': [adjustCellAction,
                                 cellUpArrowAction,
                                 cellDownArrowAction,
@@ -541,7 +541,7 @@ Notebook.__init__.Delegator = function() {
                             bracketDblClick,
                             bracketKeyDelete]
         },
-        'div.cell output': {
+        'div.cell.output': {
             'textarea.outputtext': [cellUpArrowAction,
                                     cellDownArrowAction,
                                     mainNullClick],
