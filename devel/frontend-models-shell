@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+echo 'Deprecated.  Please use "codenode-admin shell -devel"'
 export PYTHONPATH=$PWD/..
 cd env
 django-admin.py shell --settings='frontend.settings' --pythonpath=$PWD

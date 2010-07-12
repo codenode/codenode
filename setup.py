@@ -59,11 +59,16 @@ package_data = {'codenode':[
 
 setup(
     name='codenode',
-    version='0.2',
+    version='0.02',
     url='http://codenode.org',
     download_url='http://pypi.python.org/pypi/codenode',
-    install_requires=['Twisted>=9.0.0', 'Django>=1.1.1', 'Whoosh>=0.3.9', 
-        'Sphinx', 'simplejson', 'nose', 'django-nose', 'django-compress'],
+    install_requires=[
+        'Twisted>=9.0.0', 
+        'Django>=1.2.1', 
+        'Whoosh>=0.3.9', 
+        'simplejson', 
+        'django-compress'
+    ],
     packages=packages,
     package_data=package_data,
     scripts=["codenode/scripts/codenode-admin"],

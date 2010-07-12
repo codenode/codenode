@@ -41,15 +41,6 @@ To use maplotlib, install matplotlib and numpy:
   $ pip install http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/matplotlib-1.0.0.tar.gz?use_mirror=switch
 
 Now use pylab commands in a notebook, and call `show()` to render the plot.
-
-
-**Running tests:**
-
-::
-
-  $ run ./test.sh in this directory
-  
-
   
 
 Support

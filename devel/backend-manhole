@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
+echo 'Deprecated.  Please use "codenode-admin backendmanhole"'
 telnet localhost 6024

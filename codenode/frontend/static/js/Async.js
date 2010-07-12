@@ -103,7 +103,10 @@ Notebook.Async.evalSuccess = function(response) {
     var content = response.out + response.err;
     t.spawnOutputCellNode(cellid, cellstyle, content, outcount);
     $('#'+cellid)[0].evalResult();
-    Notebook.Save._save(self.evalSaveSuccess, self.evalSaveError);
+    
+    // since these handlers are empty, use the default save which updates cells save state
+    // Notebook.Save._save(self.evalSaveSuccess, self.evalSaveError);
+     Notebook.Save.save()
 };
 
 Notebook.Async.evalError = function(response) {

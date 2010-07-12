@@ -1,6 +1,8 @@
 How to build the docs
 =====================
 
+Install Sphinx (with easy_install or pip).
+
 From the top level ``codenode`` directory, type::
 
     $ sphinx-build doc docbuild

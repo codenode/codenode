@@ -1,11 +1,8 @@
 import os 
 
-from _settings import *
+from codenode.frontend._settings import *
 
-# Destop codende has a home directory by default, or picks it up from the CODENODE_HOME directory
-HOME_PATH = os.environ.get('CODENODE_HOME',
-    os.path.join(os.path.expanduser("~"), '.codenode') 
-)
+HOME_PATH = os.path.join(PROJECT_PATH, '..', '..', 'devel', 'env')
 
 DATABASE_ENGINE = 'sqlite3'          
 DATABASE_NAME = os.path.join(HOME_PATH, 'codenode.db') # Or path to database file if using sqlite3.
@@ -18,3 +15,7 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 SEARCH_INDEX = os.path.join(HOME_PATH, 'search_index')
 
 PLOT_IMAGES = os.path.join(HOME_PATH, 'plot_images')
+
+INSTALLED_APPS = INSTALLED_APPS + ('django_nose', 'django_extensions')
+
+TEST_RUNNER = 'django_nose.run_tests'

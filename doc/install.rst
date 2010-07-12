@@ -64,5 +64,4 @@ Dependencies
 - Django
 - Simplejson
 - Woosh
-- Sphinx
 

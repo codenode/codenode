@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+echo 'Deprecated.  Please use "codenode-admin resetdb"'
 export PYTHONPATH=$PWD/..
 rm env/data/codenode.db
 cd env

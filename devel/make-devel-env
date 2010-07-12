@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+echo 'Deprecated.  Please use "codenode-admin xxx -devel"'
 export PYTHONPATH=$PWD/..
 ../bin/codenode-admin init -name env
 rm env/data/codenode.db

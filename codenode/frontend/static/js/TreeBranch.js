@@ -153,7 +153,7 @@ Notebook.TreeBranch.deleteCellNode = function(node) {
 
     self.sieveBranch(branchesbranch);
     // TODO: proper handlers for save result.  Create an async.save method?
-    Notebook.Save._save(function() {}, function() {});
+    Notebook.Save.save();
 };
 
 Notebook.TreeBranch.setOutputCell = function(outputnode, inputid) {
