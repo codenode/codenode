@@ -247,14 +247,14 @@ textarea.spawninput:focus {
 /******************************************/
 /** Specific cell content styles **/
 .cell .contents textarea.input {
-    /*font-family: monospace;
-    line-height: normal;*/
+    font-family: monospace;
+    line-height: normal;*
     font-size: 13px;
     border-style: none;
 }
 
 .cell .contents textarea.outputtext {
-    /*font-family: monospace;*/
+    font-family: monospace;
     overflow: auto; 
     font-size: 13px;
     border-style: none;

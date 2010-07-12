@@ -3,17 +3,17 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{% block title %}Codenode{% endblock %}</title>
-    <link href='/static/css/global.css' rel='stylesheet' type='text/css'></link>
+    <link href='/static/css/global.css' rel='stylesheet' type='text/css'/>
     {% block extrahead %}{% endblock %}
   </head>
   <body>
     <div id='topline'></div>
     <div id='logo'>
-      <a target='_blank' href='http://codenode.org'><img src='/static/img/logo.png'/></img></a>
+      <a target='_blank' href='http://codenode.org'><img src='/static/img/logo.png'/></a>
     </div>
     <div id='userbar'>
       <ul>
-        <li id='user'>{{ user }}</span></li>
+        <li id='user'>{{ user }}</li>
         {% ifnotequal path  '/bookshelf/' %}
           <li><a id='bookshelfhome' href='{% url bookshelf %}'>Home</a></li>
         {% endifnotequal %}
