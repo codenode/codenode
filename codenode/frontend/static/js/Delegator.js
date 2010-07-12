@@ -12,6 +12,17 @@
 */
 
 
+// The JQuery version -  $(window).bind('beforeunload', function() {} );
+// does not work in FF (jquery 1.2).
+// Not sure if this needs to be registered with the delegator
+window.onbeforeunload = function() {
+    if (Notebook.Save.hasUnsavedChanges()) {
+        return 'You have unsaved changes that will be lost.';
+    }
+};
+
+
+
 Notebook.Delegator = function(nodeid) {
     this.mode = 'normal';
     this.listener = nodeid;

@@ -22,6 +22,11 @@ Notebook.Save.getUnsavedCellList = function(orderlist) {
     return tosave;
 };
 
+Notebook.Save.hasUnsavedChanges = function() { 
+    var self = Notebook.Save;
+    return self.getUnsavedCellList(self.generateOrderList()).length;
+}
+
 /** generateOrderList - a list of cell Id's (str) in canonical order */
 Notebook.Save.generateOrderList = function() {
     var cellnodes = $('div.cell:not(.group)');
