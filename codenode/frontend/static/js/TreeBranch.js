@@ -121,7 +121,10 @@ Notebook.TreeBranch.changeToInput = function(node) {
 
 Notebook.TreeBranch.putCellNodeAfter = function(oldersibling, node) {
     var self = Notebook.TreeBranch;
+
     $(oldersibling).after(node);
+    $(node).hide();
+    $(node).fadeIn('slow');
     var branchesbranch = $(oldersibling)[0].getParentBranch().getParentBranch();
     self.collapseBranch($(oldersibling)[0].getParentBranch());
     self.sieveBranch(branchesbranch);

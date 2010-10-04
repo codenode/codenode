@@ -465,14 +465,14 @@ Notebook.Cell.prototype.contentChanged = function() {
 
 Notebook.Cell.prototype.closeGroup = function() {
     if (this.celltype == 'group' && this.open) {
-        $(this.contentNode().firstChild).nextAll().hide()
+        $(this.contentNode().firstChild).nextAll().slideUp('fast')
         this.open = false;
     }
 };
 
 Notebook.Cell.prototype.openGroup = function() {
     if (this.celltype == 'group' && !this.open) {
-        $(this.contentNode().firstChild).nextAll().show()
+        $(this.contentNode().firstChild).nextAll().slideDown('fast')
         this.open = true;
     }
 };

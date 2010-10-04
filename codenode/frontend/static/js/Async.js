@@ -106,7 +106,7 @@ Notebook.Async.evalSuccess = function(response) {
     
     // since these handlers are empty, use the default save which updates cells save state
     // Notebook.Save._save(self.evalSaveSuccess, self.evalSaveError);
-     Notebook.Save.save()
+    Notebook.Save.save()
 };
 
 Notebook.Async.evalError = function(response) {
