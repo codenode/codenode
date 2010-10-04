@@ -537,7 +537,7 @@ Notebook.Cell.prototype.content = function(newcontent) {
                 case 'outputtext':
                     return this.contentNode().childNodes[0].value;
                 case 'outputimage':
-                    return $(this.contentNode()).find('img.outputimage')[0].name;
+                    return $(this.contentNode()).find('img.outputimage')[0].src;
             }
         }
         if (this.celltype == 'group') {
