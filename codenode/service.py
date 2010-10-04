@@ -99,7 +99,7 @@ class FrontendOptions(usage.Options):
 
 
 
-def webResourceFactory(staticfiles, datafiles):
+def webResourceFactory(staticfiles, datafiles=None):
     """This factory function creates an instance of the front end web
     resource tree containing both the django wsgi and the async
     notebook resources.
@@ -130,13 +130,16 @@ def webResourceFactory(staticfiles, datafiles):
     resource_root = Root(django_wsgi_resource)
 
     static_resource = static.File(staticfiles)
-    data_resource = static.File(datafiles)
+
 
     backend_bus = backend.BackendBus()
 
     resource_root.putChild("asyncnotebook", backend.EngineBusAdapter(backend_bus))
     resource_root.putChild("static", static_resource)
-    resource_root.putChild("data", data_resource)
+    
+    if datafiles: 
+        data_resource = static.File(datafiles)
+        resource_root.putChild("data", data_resource)
     
     return resource_root
 
@@ -178,7 +181,7 @@ class DesktopServiceMaker(object):
 
         
         web_resource_factory = server.Site(
-            webResourceFactory(settings.MEDIA_ROOT, settings.PLOT_IMAGES),
+            webResourceFactory(settings.MEDIA_ROOT),
             logPath=options['server_log']
         )
 
@@ -223,7 +226,7 @@ class FrontendServiceMaker(object):
         web_app_service = service.MultiService()
 
 
-        web_resource = webResourceFactory(settings.MEDIA_ROOT, settings.PLOT_IMAGES)
+        web_resource = webResourceFactory(settings.MEDIA_ROOT)
         serverlog = options['server_log']
         web_resource_factory = server.Site(web_resource, logPath=serverlog)
 
