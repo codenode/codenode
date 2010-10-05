@@ -149,7 +149,7 @@ Notebook.TreeBranch.deleteCellNode = function(node) {
     
     if (!node.isGroup()) {
         //very hack, assumes one output cell after input...and stuff
-        self.removeCellNode(node.nextCell());
+        if (node.nextCell() != null) { self.removeCellNode(node.nextCell()) };
     }
     
     $(node).remove();
