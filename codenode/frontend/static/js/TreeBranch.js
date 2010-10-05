@@ -139,6 +139,8 @@ Notebook.TreeBranch.putCellNodeAtTop = function(node) {
     $('#main > :first-child').before(node);
 };
 
+
+// when should you use removeCellNode as opposed to deleteCellNode?
 Notebook.TreeBranch.removeCellNode = function(node) {
     var self = Notebook.TreeBranch;
     var parentbranch = node.getParentBranch();

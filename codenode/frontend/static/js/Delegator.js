@@ -519,6 +519,20 @@ bracketKeyDelete.handler = function(e) {
     Notebook.bracketSelector.deleteSelections();
 };
 
+emptycellDelete = new Notebook.Action('emptycellDelete');
+emptycellDelete.keyCodes = [46, 8];
+emptycellDelete.type = 'keydown';
+emptycellDelete.preventDefault = false;
+emptycellDelete.stopPropagation = true;
+emptycellDelete.handler = function(e) {
+    if (e.target.value=="")  {
+        e.groupNode.focusUp()
+        Notebook.TreeBranch.deleteCellNode(e.groupNode);
+        e.preventDefault(); // needed to prevent browser going back    
+    }
+};
+
+
 //$(document).ready(function() {
 Notebook.__init__.Delegator = function() {
     $('#notebook')[0].className = 'notebook';//xxx hacky
@@ -544,7 +558,8 @@ Notebook.__init__.Delegator = function() {
                                 refineTabcompletion,
                                 mainNullClick,
                                 cellContentChange,
-                                bracketRightDown],
+                                bracketRightDown,
+                                emptycellDelete],
         },
         'div.cell.group': {
             'span.bracketng': [bracketClick,
