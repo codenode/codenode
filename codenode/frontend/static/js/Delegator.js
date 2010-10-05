@@ -11,15 +11,20 @@
 *             functionality
 */
 
-
-// The JQuery version -  $(window).bind('beforeunload', function() {} );
-// does not work in FF (jquery 1.2).
 // Not sure if this needs to be registered with the delegator
-window.onbeforeunload = function() {
+$(window).bind('beforeunload', function() {
     if (Notebook.Save.hasUnsavedChanges()) {
         return 'You have unsaved changes that will be lost.';
     }
-};
+});
+
+// supress the backspace key for the window
+$(window).keydown(function(e) {
+    if (e.keyCode === 8)
+    {
+        return false;
+    }
+});
 
 
 
