@@ -57,6 +57,13 @@ Codenode is free software, licensed under the BSD. See the ``LICENSE`` file.
 Changes 
 -------
 
+**v0.03** 
+ - Jquery 1.4 update
+ - Images saved as base64 in the cell contents in the database, rather than as files
+ - Delete empty cell when pressing backspace (#49)
+ - Suppress accidental back when pressing backspace (#51)
+ - Save and restore open/closed state of cells (#55)
+
 **v0.02**
 
 Deleting cells:

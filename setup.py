@@ -59,7 +59,7 @@ package_data = {'codenode':[
 
 setup(
     name='codenode',
-    version='0.02',
+    version='0.03',
     url='http://codenode.org',
     download_url='http://pypi.python.org/pypi/codenode',
     install_requires=[
