@@ -463,18 +463,33 @@ Notebook.Cell.prototype.contentChanged = function() {
 // -- Group Cell functions -- //
 ////////////////////////////////
 
+/* 
+    The open/closed logic needs a refactor.  Currently, both cells and 
+    groups can be open or closed.  Cells go to the database and group is 
+    necessary for the toggle.
+
+*/
+
 Notebook.Cell.prototype.closeGroup = function() {
     if (this.celltype == 'group' && this.open) {
-        $(this.contentNode().firstChild).nextAll().slideUp('fast')
-        this.open = false;
+        $(this.contentNode().firstChild).nextAll().each(function() { 
+            $(this).slideUp('fast');
+            this.open = false;
+            this.saved = false;
+        });
     }
+    this.open = false;
 };
 
 Notebook.Cell.prototype.openGroup = function() {
     if (this.celltype == 'group' && !this.open) {
-        $(this.contentNode().firstChild).nextAll().slideDown('fast')
-        this.open = true;
+        $(this.contentNode().firstChild).nextAll().each(function() {
+            $(this).slideDown('fast');
+            this.open = true;
+            this.saved = false;
+        });
     }
+    this.open = true;
 };
 
 Notebook.Cell.prototype.toggleOpen = function() {

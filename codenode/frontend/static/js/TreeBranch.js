@@ -58,6 +58,10 @@ Notebook.TreeBranch.spawnCellNodeLoad = function(cellid, cellstyle, content, pro
     cellnode.setType();
     self.enableSpawner(cellnode);
     cellnode.content(content);
+    cellnode.open = props["open"];
+    
+    if (!cellnode.open) { $(cellnode).hide() };
+    
     return cellnode;
 };
 
@@ -320,6 +324,20 @@ Notebook.TreeBranch.branchAtNode = function(node) {
         groupnode.appendChildCells(nodes);
         groupnode.prependChildCells(node);
         $('img.bracketmaskimg').ifixpng();//xxx iehack
+        
+        
+        // check open/closed state of all these cells to divine the groupnode openness
+        // equivalent to any([x.open for x in [node]+nodes])
+        if (!node.open) { 
+            groupnode.open = false;
+        }
+        
+        $(nodes).each(function() { 
+            if (!this.open) { 
+                groupnode.open = false;
+            };
+        });
+    
         return groupnode;
     } else {
         return node;

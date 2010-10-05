@@ -118,7 +118,7 @@ Notebook.Load.takeCellsData = function(nbobject) {
             var cellid = orderlist[c];
             var cellstyle = cellsdata[cellid]['cellstyle'];
             var content = cellsdata[cellid]['content'];
-            var props = cellsdata[cellid]['props'];
+            var props = JSON.parse(cellsdata[cellid]['props']);
             var node = Notebook.TreeBranch.spawnCellNodeLoad(cellid, cellstyle, content, props);
             node.saved = true;
             nodes.push(node);
